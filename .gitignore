@@ -1,0 +1,4 @@
+source/.venv/
+source/__pycache__/
+source/server.log
+source/*.pyc

@@ -1,0 +1,1596 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Bubble-Bust Simulation — nine dials, 26244 scenarios</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+  :root{
+    --bg:#0b0e14;--panel:#131822;--panel2:#1a212e;--line:#232c3b;
+    --txt:#e6edf3;--mut:#8b96a8;--dim:#5c6675;
+    --green:#3fb950;--red:#f85149;--blue:#58a6ff;--amber:#e3a72c;
+    --gold:#e3b341;--teal:#2dd4bf;--purple:#bc8cff;--orange:#f0883e;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--txt);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    line-height:1.5;-webkit-font-smoothing:antialiased;padding:0 0 60px}
+  .wrap{max-width:1200px;margin:0 auto;padding:0 22px}
+  .mono{font-family:"SF Mono",ui-monospace,Menlo,Consolas,monospace;font-variant-numeric:tabular-nums}
+  h1{font-size:26px;font-weight:600;letter-spacing:-.02em}
+  h2{font-size:17px;font-weight:600;margin-bottom:3px}
+  .sub{color:var(--mut);font-size:13px}
+
+  header{padding:30px 0 14px;border-bottom:1px solid var(--line)}
+  .tag{display:inline-block;font-size:11px;letter-spacing:.13em;text-transform:uppercase;
+    color:var(--amber);font-weight:600;margin-bottom:9px}
+  .baseline{display:flex;flex-wrap:wrap;gap:1px;background:var(--line);
+    border:1px solid var(--line);border-radius:9px;overflow:hidden;margin:18px 0 4px}
+  .baseline div{background:var(--panel);padding:10px 15px;flex:1;min-width:104px}
+  .baseline .k{font-size:10px;color:var(--dim);text-transform:uppercase;letter-spacing:.06em}
+  .baseline .v{font-size:15px;font-weight:600;margin-top:2px}
+
+  section{margin-top:24px}
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:11px;padding:18px 20px}
+  .seclabel{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);
+    font-weight:600;margin:2px 0 9px}
+
+  /* selector cards */
+  .scen-row{display:flex;gap:10px;flex-wrap:wrap}
+  .scen-btn{flex:1;min-width:200px;background:var(--panel);border:1px solid var(--line);
+    border-radius:10px;padding:12px 15px;cursor:pointer;text-align:left;transition:.12s;
+    color:var(--txt);font:inherit}
+  .scen-btn:hover{border-color:#3a4658}
+  .scen-btn .nm{font-size:13.5px;font-weight:600;display:flex;align-items:center;gap:8px}
+  .scen-btn .dt{font-size:11.5px;color:var(--mut);margin-top:4px;line-height:1.45}
+  .scen-btn .dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
+  .scen-btn.on{background:var(--panel2)}
+  .scen-btn.on{box-shadow:0 0 0 1px var(--ac);border-color:var(--ac)}
+
+  /* presets */
+  .preset-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:4px}
+  .preset-btn{background:var(--panel);border:1px solid var(--line);border-radius:10px;
+    padding:11px 13px;cursor:pointer;text-align:left;color:var(--txt);font:inherit;transition:.12s;
+    position:relative;overflow:hidden}
+  .preset-btn:hover{border-color:#3a4658;background:#161d29}
+  .preset-btn::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--ac)}
+  .preset-btn .pn{font-size:13px;font-weight:600;display:flex;align-items:center;gap:7px;padding-left:6px}
+  .preset-btn .pt{font-size:10.5px;color:var(--ac);text-transform:uppercase;letter-spacing:.05em;
+    margin-top:3px;font-weight:600;padding-left:6px}
+  .preset-btn .pdesc{font-size:11px;color:var(--mut);margin-top:4px;line-height:1.45;padding-left:6px}
+  .preset-btn.on{background:#1c2738;box-shadow:0 0 0 1px var(--ac)}
+  @media(max-width:1000px){.preset-row{grid-template-columns:repeat(2,1fr)}}
+
+  /* stat cards */
+  .cards{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin-top:14px}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:12px 14px}
+  .card .lbl{font-size:10px;color:var(--dim);text-transform:uppercase;letter-spacing:.05em}
+  .card .big{font-size:22px;font-weight:700;margin-top:5px;letter-spacing:-.01em}
+  .card .note{font-size:11px;color:var(--mut);margin-top:2px;line-height:1.4}
+
+  /* timeline */
+  .timeline{background:var(--panel);border:1px solid var(--line);border-radius:11px;
+    padding:15px 20px;margin-top:14px}
+  .tl-top{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+  .play{background:var(--panel2);border:1px solid var(--line);color:var(--txt);
+    width:38px;height:38px;border-radius:9px;cursor:pointer;font-size:14px;flex-shrink:0}
+  .play:hover{border-color:#3a4658}
+  input[type=range]{-webkit-appearance:none;appearance:none;flex:1;height:6px;
+    background:var(--line);border-radius:4px;outline:none;min-width:200px}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;
+    border-radius:50%;background:var(--blue);cursor:pointer;border:3px solid var(--bg)}
+  input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;
+    background:var(--blue);cursor:pointer;border:3px solid var(--bg)}
+  .tl-date{font-size:15px;font-weight:600;min-width:150px;text-align:right}
+  .tl-date span{color:var(--mut);font-weight:400;font-size:12px}
+  .snap{display:grid;grid-template-columns:repeat(9,1fr);gap:1px;background:var(--line);
+    border-radius:8px;overflow:hidden;margin-top:13px}
+  .snap div{background:var(--panel2);padding:9px 11px}
+  .snap .k{font-size:9.5px;color:var(--dim);text-transform:uppercase;letter-spacing:.04em}
+  .snap .v{font-size:15px;font-weight:600;margin-top:2px}
+
+  .chartbox{position:relative;width:100%;height:330px;margin-top:6px}
+  .chartbox.sm{height:268px}
+  .legend{display:flex;flex-wrap:wrap;gap:13px;font-size:12px;color:var(--mut);margin:10px 0 2px}
+  .legend span{display:flex;align-items:center;gap:6px}
+  .swatch{width:13px;height:3px;border-radius:2px}
+  .swatch.dash{background:none!important;border-top:2px dashed}
+
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+  .insight{font-size:13px;color:var(--mut);margin-top:11px;line-height:1.62}
+  .insight b{color:var(--txt);font-weight:600}
+  .callout{background:var(--panel2);border-left:3px solid var(--amber);border-radius:0 8px 8px 0;
+    padding:11px 14px;margin-top:12px;font-size:12.5px;color:var(--mut);line-height:1.6}
+  .callout b{color:var(--txt)}
+
+  .phases{display:flex;gap:8px;margin-top:6px;flex-wrap:wrap}
+  .phase{flex:1;min-width:148px;background:var(--panel2);border:1px solid var(--line);
+    border-radius:9px;padding:11px 13px;transition:.15s}
+  .phase.on{border-color:var(--blue);background:#1c2738}
+  .phase .pn{font-size:12.5px;font-weight:600;display:flex;align-items:center;gap:7px}
+  .phase .pw{font-size:10px;color:var(--dim);margin-top:3px;text-transform:uppercase;letter-spacing:.04em}
+  .phase .pd{font-size:11.5px;color:var(--mut);margin-top:6px;line-height:1.5}
+  .pnum{width:18px;height:18px;border-radius:50%;background:var(--line);font-size:11px;
+    display:flex;align-items:center;justify-content:center;flex-shrink:0}
+  .phase.on .pnum{background:var(--blue);color:#000;font-weight:700}
+
+  .heat{display:grid;grid-template-columns:repeat(11,1fr);gap:6px;margin-top:10px}
+  .hc{border-radius:8px;padding:9px 6px;text-align:center;border:1px solid var(--line)}
+  .hc .hn{font-size:10px;color:var(--mut);font-weight:600;height:25px;display:flex;
+    align-items:center;justify-content:center;line-height:1.2}
+  .hc .hv{font-size:15px;font-weight:700;margin-top:3px}
+  .hc .hd{font-size:9px;color:var(--dim);margin-top:2px}
+
+  table{width:100%;border-collapse:collapse;margin-top:8px;font-size:12.5px}
+  th,td{text-align:right;padding:7px 9px;border-bottom:1px solid var(--line)}
+  th:first-child,td:first-child{text-align:left}
+  th{color:var(--dim);font-size:10px;text-transform:uppercase;letter-spacing:.05em;font-weight:600}
+
+  .rank{margin-top:6px}
+  .rk{display:flex;align-items:center;gap:10px;padding:5px 0}
+  .rk .rn{font-size:12.5px;width:140px;flex-shrink:0}
+  .rk .rbar{flex:1;height:17px;background:var(--panel2);border-radius:4px;position:relative;overflow:hidden}
+  .rk .rfill{position:absolute;top:0;bottom:0;border-radius:3px}
+  .rk .rv{font-size:12.5px;font-weight:600;width:58px;text-align:right;flex-shrink:0}
+
+  /* recommendation section */
+  .reco-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:14px}
+  .reco-head{font-size:11.5px;font-weight:700;letter-spacing:.03em;text-transform:uppercase;
+    padding:8px 11px;border-radius:8px;margin-bottom:9px;display:flex;align-items:center;gap:8px}
+  .reco-buy{color:var(--green);background:rgba(63,185,80,.1)}
+  .reco-avoid{color:var(--red);background:rgba(248,81,73,.1)}
+  .reco-item{display:flex;align-items:center;gap:11px;padding:9px 11px;border:1px solid var(--line);
+    border-radius:9px;margin-bottom:7px;background:var(--panel2)}
+  .reco-tk{font-family:"SF Mono",ui-monospace,Menlo,Consolas,monospace;font-size:11.5px;font-weight:700;
+    min-width:50px;padding:4px 7px;border-radius:6px;text-align:center;flex:none}
+  .reco-tk.buy{background:rgba(63,185,80,.16);color:var(--green)}
+  .reco-tk.avoid{background:rgba(248,81,73,.16);color:var(--red)}
+  .reco-nm{flex:1;font-size:12.5px;font-weight:600}
+  .reco-nm .rd{font-size:10.5px;color:var(--mut);margin-top:2px;line-height:1.4;font-weight:400}
+  .reco-rv{font-size:14px;font-weight:700;text-align:right;min-width:62px;flex:none}
+  @media(max-width:880px){.reco-grid{grid-template-columns:1fr}}
+
+  .pos{color:var(--green)}.neg{color:var(--red)}.neu{color:var(--amber)}
+
+  .curSit{background:linear-gradient(135deg,#1a212e 0%,#131822 100%);
+    border:1px solid var(--line);border-radius:12px;padding:20px 22px;position:relative;overflow:hidden}
+  .curSit::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;
+    background:linear-gradient(180deg,var(--teal),var(--blue))}
+  .curSitBtn{background:linear-gradient(135deg,var(--teal),var(--blue));color:#000;
+    border:none;border-radius:9px;padding:12px 24px;font-size:14px;font-weight:700;
+    cursor:pointer;letter-spacing:.02em;transition:.15s;display:inline-flex;align-items:center;gap:8px}
+  .curSitBtn:hover{filter:brightness(1.15);transform:translateY(-1px)}
+  .curSitBtn:active{transform:translateY(0)}
+  .curSitBtn:disabled{opacity:.5;cursor:wait}
+  .curSitRefreshBtn{background:var(--panel2);border:1px solid var(--teal);color:var(--teal);
+    padding:10px 20px;border-radius:9px;cursor:pointer;font-size:13.5px;font-weight:700;
+    white-space:nowrap;transition:.15s;display:inline-flex;align-items:center;gap:7px;
+    letter-spacing:.02em}
+  .curSitRefreshBtn:hover{background:var(--teal);color:#000;transform:translateY(-1px)}
+  .curSitRefreshBtn:active{transform:translateY(0)}
+  .curSitRefreshBtn:disabled{opacity:.5;cursor:wait}
+  .curSitStatus{font-size:12px;color:var(--mut);margin-top:8px;line-height:1.5}
+  .curSitPanel{margin-top:16px;display:none}
+  .curSitPanel.show{display:block}
+  .curSitDials{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:12px 0}
+  .curSitDial{background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:10px 12px}
+  .curSitDial .dk{font-size:9.5px;color:var(--dim);text-transform:uppercase;letter-spacing:.05em}
+  .curSitDial .dv{font-size:14px;font-weight:600;margin-top:3px;display:flex;align-items:center;gap:6px}
+  .curSitDial .ddot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+  .curSitSentiment{display:flex;gap:16px;align-items:center;margin:12px 0;flex-wrap:wrap}
+  .curSitSentBadge{display:inline-flex;align-items:center;gap:6px;padding:5px 14px;
+    border-radius:20px;font-size:12px;font-weight:600}
+  .curSitHeadlines{margin-top:12px}
+  .curSitHeadlines .hl{font-size:12px;color:var(--mut);padding:4px 0;
+    border-bottom:0.5px solid var(--line);line-height:1.5}
+  .curSitHeadlines .hl b{color:var(--txt);font-weight:500}
+  .curSitHeadlines .hsrc{font-size:10px;color:var(--dim);margin-left:6px}
+  .curSitSources{font-size:11px;color:var(--dim);margin-top:10px}
+  .curSitApply{background:var(--panel2);border:1px solid var(--blue);color:var(--blue);
+    border-radius:8px;padding:9px 18px;font-size:12px;font-weight:600;cursor:pointer;
+    transition:.12s;margin-top:8px}
+  .curSitApply:hover{background:var(--blue);color:#000}
+  @media(max-width:880px){.curSitDials{grid-template-columns:repeat(2,1fr)}}
+
+  footer{margin-top:32px;padding-top:18px;border-top:1px solid var(--line);
+    font-size:11.5px;color:var(--dim);line-height:1.7}
+  @media(max-width:880px){
+    .cards{grid-template-columns:repeat(3,1fr)}
+    .snap{grid-template-columns:repeat(4,1fr)}
+    .grid2{grid-template-columns:1fr}
+    .heat{grid-template-columns:repeat(6,1fr)}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <div class="tag">Market Simulation &middot; Stress Test &middot; v7 &middot; 26244 scenarios</div>
+    <h1>When the AI bubble bursts &mdash; and what policy, growth, tariffs, geopolitics, Japan, fiscal and the dollar do to it</h1>
+    <p class="sub">A 5-year simulation (May 2026 &ndash; May 2031) of an AI-bubble collapse. Set <b>ten dials</b> &mdash; bust severity, inflation regime, Fed path, GDP outcome, tariff regime, world geopolitics, the Japanese bond market, fiscal policy, the US dollar, and <b>robotics &amp; drone investment</b> &mdash; then scrub the timeline. Or click a <b>preset</b> to snap straight to a historical analog.</p>
+    <div class="baseline" id="baseline"></div>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <section>
+    <div class="curSit">
+      <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap">
+        <button class="curSitBtn" id="curSitBtn" onclick="loadCurrentSituation()">
+          <span style="font-size:16px">&#9673;</span> Current Situation
+        </button>
+        <button class="curSitRefreshBtn" id="curSitRefreshBtn" onclick="pullLatestNews()">
+          <span style="font-size:16px">&#8635;</span> Pull Latest News
+        </button>
+        <div>
+          <div style="font-size:13px;font-weight:600">Analyze live financial news</div>
+          <div style="font-size:11.5px;color:var(--mut)">Pulls headlines from CNBC, Yahoo Finance, FT, WSJ, Seeking Alpha &amp; more &mdash; sets all nine dials to match today's market</div>
+        </div>
+      </div>
+      <div class="curSitStatus" id="curSitStatus"></div>
+      <div class="curSitPanel" id="curSitPanel">
+        <div class="curSitSentiment" id="curSitSentiment"></div>
+        <div class="seclabel" style="margin-top:12px">Recommended dial settings</div>
+        <div class="curSitDials" id="curSitDials"></div>
+        <button class="curSitApply" id="curSitApply" onclick="applyCurrentSituation()">Apply these settings to the simulation</button>
+        <div class="seclabel" style="margin-top:16px">Top headlines analyzed</div>
+        <div class="curSitHeadlines" id="curSitHeadlines"></div>
+        <div class="curSitSources" id="curSitSources"></div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="seclabel">Presets &mdash; historical analogs (click to snap all nine dials)</div>
+    <div class="preset-row" id="presetRow"></div>
+  </section>
+
+  <section>
+    <div class="seclabel">Dial 1 &mdash; how deep does the bust go?</div>
+    <div class="scen-row" id="sevRow"></div>
+    <div class="seclabel" style="margin-top:16px">Dial 2 &mdash; what does inflation do?</div>
+    <div class="scen-row" id="infRow"></div>
+    <div class="seclabel" style="margin-top:16px">Dial 3 &mdash; what does the Fed do?</div>
+    <div class="scen-row" id="fedRow"></div>
+    <div class="seclabel" style="margin-top:16px">Dial 4 &mdash; what does the real economy (GDP) do?</div>
+    <div class="scen-row" id="gdpRow"></div>
+    <div class="seclabel" style="margin-top:16px">Dial 5 &mdash; what happens with tariffs?</div>
+    <div class="scen-row" id="tarRow"></div>
+    <div class="seclabel" style="margin-top:16px">Dial 6 &mdash; what is the world geopolitical environment?</div>
+    <div class="scen-row" id="geoRow"></div>
+    <div class="seclabel" style="margin-top:16px">Dial 7 &mdash; what does the Japanese bond market do?</div>
+    <div class="scen-row" id="jgbRow"></div>
+    <div class="seclabel" style="margin-top:16px">Dial 8 &mdash; what is fiscal policy doing?</div>
+    <div class="scen-row" id="fisRow"></div>
+    <div class="seclabel" style="margin-top:16px">Dial 9 &mdash; what is the US dollar doing?</div>
+    <div class="scen-row" id="usdRow"></div>
+    <div class="seclabel" style="margin-top:16px">Dial 10 &mdash; what is the level of robotics &amp; drone investment?</div>
+    <div class="scen-row" id="robRow"></div>
+  </section>
+
+  <div id="scenLine" style="font-size:13px;color:var(--mut);margin-top:14px;line-height:1.6"></div>
+  <div class="cards" id="cards"></div>
+
+  <div class="timeline">
+    <div class="tl-top">
+      <button class="play" id="play" title="Play / pause">&#9654;</button>
+      <input type="range" id="slider" min="0" max="60" value="0" step="1">
+      <div class="tl-date mono" id="tlDate"></div>
+    </div>
+    <div class="snap mono" id="snap"></div>
+  </div>
+
+  <section>
+    <div class="panel">
+      <h2>1 &middot; What to own &mdash; and what to avoid</h2>
+      <p class="sub">The model&rsquo;s verdict for your current scenario, ranked by projected <b>5-year real (inflation-adjusted) return</b>. Tradeable ETFs &amp; assets only &mdash; updates live as you move the nine dials. <b>Not investment advice.</b></p>
+      <div id="recoScen" style="font-size:12.5px;color:var(--mut);margin:11px 0 2px;line-height:1.6"></div>
+      <div class="reco-grid">
+        <div>
+          <div class="reco-head reco-buy">&#9650;&nbsp; Recommended &mdash; the buys</div>
+          <div id="recoBuy"></div>
+        </div>
+        <div>
+          <div class="reco-head reco-avoid">&#9660;&nbsp; Avoid &mdash; the sells</div>
+          <div id="recoAvoid"></div>
+        </div>
+      </div>
+      <p class="insight" id="insReco"></p>
+    </div>
+  </section>
+
+  <section>
+    <div class="panel">
+      <h2>2 &middot; The cascade &mdash; asset classes over 5 years</h2>
+      <p class="sub">Nominal total return, rebased to 100 at May 2026. Dashed vertical line = the scrubbed month.</p>
+      <div class="legend" id="legMain"></div>
+      <div class="chartbox"><canvas id="cMain" role="img" aria-label="Asset class index paths"></canvas></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="panel">
+      <h2>3 &middot; How the bust unfolds &mdash; five phases</h2>
+      <p class="sub" id="phaseSub"></p>
+      <div class="phases" id="phases"></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="panel">
+      <h2>4 &middot; Inflation &amp; the Fed's dilemma</h2>
+      <p class="sub">The macro fork. When inflation is high, the Fed can't ride to the rescue &mdash; and that changes everything downstream.</p>
+      <div class="legend" id="legMacro"></div>
+      <div class="chartbox sm"><canvas id="cMacro" role="img" aria-label="CPI, Fed funds, 10-year yield, unemployment, VIX"></canvas></div>
+      <p class="insight" id="insMacro"></p>
+      <div class="callout" id="calloutInfl"></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="panel">
+      <h2>5 &middot; Nominal vs. real &mdash; the inflation tax</h2>
+      <p class="sub">Solid = nominal. Dashed = real (inflation-adjusted). The gap between them is purchasing power lost.</p>
+      <div class="legend" id="legReal"></div>
+      <div class="chartbox sm"><canvas id="cReal" role="img" aria-label="Nominal versus real returns"></canvas></div>
+      <p class="insight" id="insReal"></p>
+    </div>
+  </section>
+
+  <section>
+    <div class="panel">
+      <h2>6 &middot; Money market &amp; credit</h2>
+      <p class="sub">Fund assets ($T, bars, right axis) vs. total-return indices (lines, left).</p>
+      <div class="legend" id="legBonds"></div>
+      <div class="chartbox sm"><canvas id="cBonds" role="img" aria-label="Money market and credit"></canvas></div>
+      <p class="insight" id="insBonds"></p>
+    </div>
+  </section>
+
+  <section>
+    <div class="panel">
+      <h2>7 &middot; Bond &amp; Treasury ETFs &mdash; how they move</h2>
+      <p class="sub">The model's bond paths mapped to the ETFs you'd actually trade. <b>Duration is the dial:</b> in a disinflationary bust the long bond wins biggest &mdash; in stagflation that ladder violently inverts.</p>
+      <div class="grid2" style="margin-top:8px">
+        <div>
+          <div class="legend" id="legTsy"></div>
+          <div class="chartbox sm"><canvas id="cTsy" role="img" aria-label="Treasury ETFs by duration"></canvas></div>
+          <p class="sub" style="text-align:center;margin-top:6px">Treasuries &mdash; the duration ladder</p>
+        </div>
+        <div>
+          <div class="legend" id="legCred"></div>
+          <div class="chartbox sm"><canvas id="cCred" role="img" aria-label="TIPS and credit ETFs"></canvas></div>
+          <p class="sub" style="text-align:center;margin-top:6px">Inflation-linked &amp; credit</p>
+        </div>
+      </div>
+      <div id="bondMoves"></div>
+      <p class="insight" id="insBondETF"></p>
+      <div class="callout" id="calloutBond"></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="panel">
+      <h2>8 &middot; Commodities &mdash; how the moves split</h2>
+      <p class="sub">Three archetypes. <b style="color:var(--orange)">AI-buildout commodities</b> ran up on the data-center power &amp; electrification trade &mdash; they crash hardest. <b style="color:var(--purple)">Crude oil</b> is demand-driven. <b style="color:var(--gold)">Gold, silver &amp; agriculture</b> are inflation / haven plays &mdash; they can <i>rise</i> in a bust.</p>
+      <div class="grid2" style="margin-top:8px">
+        <div>
+          <div class="legend" id="legAI"></div>
+          <div class="chartbox sm"><canvas id="cAI" role="img" aria-label="AI-buildout commodities: uranium, copper, natural gas"></canvas></div>
+          <p class="sub" style="text-align:center;margin-top:6px">AI-buildout commodities &mdash; crash hardest</p>
+        </div>
+        <div>
+          <div class="legend" id="legHaven"></div>
+          <div class="chartbox sm"><canvas id="cHaven" role="img" aria-label="Crude oil and havens: WTI, gold, silver, agriculture"></canvas></div>
+          <p class="sub" style="text-align:center;margin-top:6px">Crude oil &amp; real-asset havens</p>
+        </div>
+      </div>
+      <div id="commodMoves"></div>
+      <p class="insight" id="insCommod"></p>
+      <div class="callout" id="calloutCommod"></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="panel">
+      <h2>9 &middot; Real estate &mdash; commercial &amp; residential REITs</h2>
+      <p class="sub">Real estate is the world&rsquo;s largest asset class (~$330T). REITs are rate-sensitive (duration + leverage) and react to fiscal policy. Commercial RE (office, retail, data-center) has higher rate sensitivity than residential (apartments, SFR, homebuilders).</p>
+      <div class="legend" id="legREIT"></div>
+      <div class="chartbox sm"><canvas id="cREIT" role="img" aria-label="Commercial and residential REIT indices"></canvas></div>
+      <div id="reitMoves"></div>
+      <p class="insight" id="insREIT"></p>
+      <div class="callout" id="calloutREIT"></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="panel">
+      <h2>10 &middot; Bitcoin &amp; crypto &mdash; the liquidity amplifier</h2>
+      <p class="sub">Bitcoin is a ~$2T asset with institutional adoption (ETFs since Jan 2024). It behaves as a &ldquo;pure liquidity sponge&rdquo; &mdash; amplifying risk-on/risk-off moves with ~2&ndash;3x beta to equities in drawdowns. The dollar dial is its biggest driver.</p>
+      <div class="legend" id="legBTC"></div>
+      <div class="chartbox sm"><canvas id="cBTC" role="img" aria-label="Bitcoin index path"></canvas></div>
+      <div id="btcMoves"></div>
+      <p class="insight" id="insBTC"></p>
+      <div class="callout" id="calloutBTC"></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="panel">
+      <h2>11 &middot; S&amp;P 500 sectors</h2>
+      <p class="sub">Tiles: index level vs. May 2026 at the scrubbed month. Small number: full peak-to-trough drawdown. Bars: ranked at the scrubbed month.</p>
+      <div class="heat" id="heat"></div>
+      <div class="chartbox" style="height:430px;margin-top:16px"><canvas id="cSector" role="img" aria-label="Sector returns ranked"></canvas></div>
+      <p class="insight" id="insSector"></p>
+    </div>
+  </section>
+
+  <section class="grid2">
+    <div class="panel">
+      <h2>12 &middot; Where to hide &mdash; 5-year real return</h2>
+      <p class="sub">Inflation-adjusted total return, May 2026 &rarr; May 2031. This is the honest scorecard.</p>
+      <div class="rank" id="rank"></div>
+      <p class="insight" id="insRank"></p>
+    </div>
+    <div class="panel">
+      <h2>13 &middot; This simulation vs. the dot-com bust</h2>
+      <table><thead><tr><th>Metric</th><th>Dot-com 2000&ndash;02</th><th>This scenario</th></tr></thead>
+        <tbody id="cmpBody"></tbody></table>
+      <p class="insight" id="insCmp"></p>
+    </div>
+  </section>
+
+  <section id="finderSec">
+    <div class="panel">
+      <h2>14 &middot; Scenario finder &mdash; rank all 26244</h2>
+      <p class="sub">Pick a metric; every one of the 26244 nine-dial scenarios is ranked best&ndash;to&ndash;worst. Click any row to jump the whole dashboard straight to that scenario.</p>
+      <div style="display:flex;align-items:center;gap:10px;margin:12px 0 4px;flex-wrap:wrap">
+        <label style="font-size:12px;color:var(--mut)">Rank by</label>
+        <select id="finderMetric" style="background:var(--panel2);color:var(--txt);border:1px solid var(--line);border-radius:7px;padding:7px 11px;font:inherit;font-size:13px;cursor:pointer"></select>
+      </div>
+      <div id="finderList"></div>
+    </div>
+  </section>
+
+  <footer>
+    <b>Methodology &amp; caveats.</b> Scenario simulation, not a forecast or investment advice. Ten dials &mdash; <b>severity</b> (the equity-bust shape), <b>inflation</b> (the CPI regime), <b>Fed</b> (the policy-rate path), <b>GDP</b> (the real-economy outcome), <b>tariffs</b> (the US&ndash;China trade regime), <b>geopolitics</b> (stable / tension / conflict), <b>the Japanese bond market</b> (anchored / BoJ normalization / JGB crisis), <b>fiscal policy</b> (austerity / neutral / stimulus), and <b>the US dollar</b> (weak / neutral / strong). Paths use keyframed regime assumptions with monotone-cubic interpolation over 60 months. The S&amp;P 500 is built bottom-up from an AI complex (~45% of index cap) and the ~55% ex-AI market; the 10-year yield is a formula of the Fed rate, CPI and unemployment plus JGB, fiscal and USD term-premium shocks; bond total returns are derived from that yield and modelled credit spreads via duration; real series deflate nominal by the modelled CPI. <b>New in v7:</b> Commercial and residential REITs are modelled with rate sensitivity (~8.5y and ~5.5y duration equivalent) plus fiscal and USD tilts. Bitcoin has ~2.2x equity beta plus fiscal and USD multipliers. The fiscal dial adds CPI, equity, sector, commodity, REIT and BTC tilts; stimulus pushes the long end higher (crowding-out). The USD dial adds a &ldquo;wrecking ball&rdquo; effect: strong dollar crushes commodities, EM-sensitive sectors and Bitcoin; weak dollar boosts them. 12 historical-analog presets include 2022 Rate Shock and 2020 COVID+Stimulus for validation. Start conditions (May 2026): S&amp;P 500 &asymp;7,473; Fed funds 3.50&ndash;3.75%; 10Y &asymp;4.60%; CPI &asymp;3.0%; WTI &asymp;$98; DXY &asymp;104; BTC &asymp;$108K; ~$1.4T AI-linked debt; effective US tariffs on China &asymp;31%. Not investment advice.
+  </footer>
+
+</div>
+
+<script>
+const SIM = /*__SIM_DATA__*/;
+const CURRENT_SITUATION = /*__CURRENT_SITUATION__*/;
+
+const SEV_META = {
+  melt:   {label:'Bubble keeps growing', ac:'#3fb950', desc:'No bust. AI keeps delivering — or the market keeps believing. The S&P melts up; concentration goes to historic extremes.'},
+  mild:   {label:'Mild bust', ac:'#e3a72c', desc:'AI repriced ~38%, S&P dips ~20%. A growth scare and a rotation — no systemic bust.'},
+  base:   {label:'Base — dot-com scale', ac:'#58a6ff', desc:'AI complex −75%, S&P −49%, a 2.5-year drawdown and a recession.'},
+  severe: {label:'Severe — credit crisis', ac:'#f85149', desc:'2008-speed. The ~$1.4T of AI debt detonates; S&P −55%+ fast.'},
+};
+const INF_META = {
+  down:   {label:'Inflation falls', ac:'#2dd4bf', desc:'Disinflation to ~1%. Low CPI gives the Fed room and supports valuations.'},
+  sticky: {label:'Inflation sticky', ac:'#8b96a8', desc:'CPI stuck near 2.5-3%. The awkward middle — not low enough to ignore.'},
+  high:   {label:'Inflation spikes', ac:'#f0883e', desc:'Stagflation — CPI to ~8% on an energy shock + decoupling.'},
+};
+const FED_META = {
+  cut:  {label:'Fed cuts', ac:'#2dd4bf', desc:'Rates eased toward ~1%. Bonds rally; but cutting into high inflation entrenches it.'},
+  hold: {label:'Fed on hold', ac:'#8b96a8', desc:'Rates held near 3.5-3.75% the whole way. The Fed refuses to blink.'},
+  hike: {label:'Fed hikes', ac:'#f85149', desc:'Rates pushed toward ~6%. The Volcker response — it tames inflation but punishes duration.'},
+};
+const GDP_META = {
+  soft: {label:'Soft landing', ac:'#3fb950', desc:'GDP barely dents — a growth scare, not a contraction. Unemployment stays low.'},
+  recession: {label:'Recession', ac:'#e3a72c', desc:'A normal recession — GDP contracts, unemployment rises a few points.'},
+  hard: {label:'Hard landing', ac:'#f85149', desc:'A deep, 2008-style contraction — spiking unemployment, a credit-default wave.'},
+};
+const TAR_META = {
+  truce:      {label:'Tariff truce',     ac:'#2dd4bf', desc:'A US-China deal cuts effective tariffs from ~31% to ~10%. Supply chains thaw and goods inflation eases.'},
+  deescalate: {label:'De-escalate',      ac:'#8b96a8', desc:'The status-quo baseline. Tariffs hold near 31% effective, drifting down modestly via targeted deals.'},
+  escalate:   {label:'Tariff escalation',ac:'#f0883e', desc:'Tariffs jump to 60%+ on China, broaden to allies. Retaliation on rare earths and ag. Goods inflation surges.'},
+};
+const GEO_META = {
+  stable:   {label:'Geopolitical stability', ac:'#3fb950', desc:'The status-quo baseline. The multilateral order holds — no significant geopolitical shock. Energy and supply chains operate without war-risk premium.'},
+  tension:  {label:'Geopolitical tension',   ac:'#e3a72c', desc:'Sanctions, proxy wars and trade-bloc fragmentation. A persistent energy and food risk premium — energy and defense benefit; tech and supply chains face friction. ~4% equity drag over five years.'},
+  conflict: {label:'Active conflict',        ac:'#f85149', desc:'A major-power or regional war fractures global energy, food and semiconductor supply. Oil, natgas, gold and agriculture surge. Tech, financials and discretionary are hit hard. The worst corner for 60/40.'},
+};
+const JGB_META = {
+  anchored:      {label:'BoJ anchored',      ac:'#3fb950', desc:'The status-quo baseline. The Bank of Japan keeps the JGB curve anchored and the yen-carry trade intact — no incremental Japanese selling pressure on US Treasuries.'},
+  normalization: {label:'BoJ normalization', ac:'#e3a72c', desc:'The BoJ exits yield-curve control; the 10Y JGB drifts toward ~2.5% and the yen firms. Japanese investors trim US Treasuries, adding ~30bp to the US 10Y. A modest, persistent equity headwind — helps financials, hurts rate-sensitive tech.'},
+  crisis:        {label:'JGB crisis / carry unwind', ac:'#f85149', desc:'The BoJ loses control: a disorderly JGB selloff triggers a violent yen-carry unwind. Japanese capital floods home, dumping US Treasuries and adding >1pp to the US 10Y at the peak — even if the Fed is cutting. Carry-funded tech is hit hardest; the VIX spikes.'},
+};
+const FIS_META = {
+  austerity: {label:'Fiscal austerity', ac:'#f85149', desc:'Deficit cuts, spending restraint, debt-ceiling brinkmanship. Fiscal drag shaves ~0.5pp off GDP. Deflationary — bonds benefit, cyclicals suffer. Analog: 2011-13 sequestration.'},
+  neutral:   {label:'Fiscal neutral',   ac:'#8b96a8', desc:'The status-quo baseline. Federal deficit holds near 5-6% of GDP with no major new stimulus or austerity. Existing programs continue.'},
+  stimulus:  {label:'Fiscal stimulus',  ac:'#3fb950', desc:'Major spending package / tax cuts push deficit above 8% GDP. Boosts cyclicals, industrials, real estate. Inflationary — pushes the Fed hawkish and lifts the long end. Analog: 2020-21 CARES/ARP.'},
+};
+const USD_META = {
+  weak:    {label:'Weak dollar',   ac:'#3fb950', desc:'DXY falls to ~88-92 — loose global liquidity. Commodities rally (gold, copper, oil), EM capital flows improve, Bitcoin surges as a dollar-debasement trade. Analog: 2002-08, 2020-21.'},
+  neutral: {label:'Dollar neutral', ac:'#8b96a8', desc:'The status-quo baseline. DXY holds range-bound (~100-106), neither amplifying nor dampening the macro picture.'},
+  strong:  {label:'Strong dollar', ac:'#f85149', desc:'DXY surges to 112-118 — the "wrecking ball." Commodities crater, EM debt stress builds, US multinational earnings crushed by FX translation, Bitcoin sells off. Analog: 2014-15, 2022.'},
+};
+const ROBO_META = {
+  low:      {label:'Low automation',        ac:'#8b96a8', desc:'The status-quo baseline. Robotics and drone adoption at historical pace — traditional labor markets intact, automation capex not a market-moving factor.'},
+  moderate: {label:'Steady automation',     ac:'#e3a72c', desc:'Logistics & manufacturing robotics accelerates. Copper and industrials benefit; goods deflation ~0.2pp; mild labor-displacement headwinds for discretionary.'},
+  surge:    {label:'Robotics & drone boom', ac:'#2dd4bf', desc:'Mass deployment in manufacturing, delivery, defense and agriculture. Copper surges; automation deflates goods ~0.5pp. Industrials and tech win big; discretionary faces structural headwinds from labor displacement (~+0.4pp unemployment).'},
+};
+
+
+// ── client-side simulation engine (v6 seven-dial JS port) ───────────────────
+function pchip(xs,ys){
+  const n=xs.length,h=[],delta=[],d=new Array(n).fill(0);
+  for(let i=0;i<n-1;i++){h[i]=xs[i+1]-xs[i];delta[i]=(ys[i+1]-ys[i])/h[i];}
+  if(n===2){d[0]=d[1]=delta[0];
+    return x=>{if(x<=xs[0])return ys[0];if(x>=xs[n-1])return ys[n-1];
+      return ys[0]+delta[0]*(x-xs[0]);};}
+  for(let i=1;i<n-1;i++){
+    if(delta[i-1]*delta[i]<=0){d[i]=0;}
+    else{const w1=2*h[i]+h[i-1],w2=h[i]+2*h[i-1];
+      d[i]=(w1+w2)/(w1/delta[i-1]+w2/delta[i]);}}
+  const endp=(h0,h1,d0,d1)=>{
+    let v=((2*h0+h1)*d0-h0*d1)/(h0+h1);
+    if(v*d0<=0)v=0;else if(d0*d1<=0&&Math.abs(v)>Math.abs(3*d0))v=3*d0;return v;};
+  d[0]=endp(h[0],h[1],delta[0],delta[1]);
+  d[n-1]=endp(h[n-2],h[n-3],delta[n-2],delta[n-3]);
+  return x=>{
+    if(x<=xs[0])return ys[0];if(x>=xs[n-1])return ys[n-1];
+    let i=0;while(i<n-2&&xs[i+1]<x)i++;
+    const t=(x-xs[i])/h[i];
+    return(2*t**3-3*t**2+1)*ys[i]+(t**3-2*t**2+t)*h[i]*d[i]
+          +(-2*t**3+3*t**2)*ys[i+1]+(t**3-t**2)*h[i]*d[i+1];};
+}
+function ser(kf){
+  const f=pchip(kf.map(k=>k[0]),kf.map(k=>k[1]));
+  return Array.from({length:61},(_,m)=>f(m));
+}
+function ramp(full,end=12){
+  return Array.from({length:61},(_,m)=>full*Math.min(1,m/end));
+}
+function deriveTR(y,dur,spread=null,sdur=null,def=false){
+  const idx=[100.0];
+  for(let t=1;t<61;t++){
+    const carry=(y[t-1]+(spread?spread[t-1]/100:0))/1200;
+    const price=-dur*(y[t]-y[t-1])/100;
+    const sret=spread&&sdur?-(sdur*(spread[t]-spread[t-1])/10000):0;
+    const dd=(def&&spread&&spread[t-1]>450)?(spread[t-1]-450)/10000*0.55/12:0;
+    idx.push(idx[idx.length-1]*(1+carry+price+sret-dd));
+  }
+  return idx;
+}
+function mmfTR(fed){
+  const idx=[100.0];
+  for(let t=1;t<61;t++)idx.push(idx[idx.length-1]*(1+(fed[t]+0.12)/1200));
+  return idx;
+}
+function sgovTR(fed){
+  const idx=[100.0];
+  for(let t=1;t<61;t++)idx.push(idx[idx.length-1]*(1+(fed[t]+0.05)/1200));
+  return idx;
+}
+const EQ_KEYS=['ai_complex','ex_ai','tech','comm','discretionary','industrials',
+  'materials','financials','realestate','utilities','energy','healthcare','staples'];
+const COMK_JS=['gold','wti','natgas','copper','uranium','silver','agriculture'];
+let _cachedScen=null;
+function buildScenario(sevk,infk,fedk,gdpk,tark,geok,jgbk,fisk,usdk,robk='low'){
+  const P=SIM.P,sv=P.SEV[sevk],inf=P.INF[infk],fd=P.FED[fedk],
+        gd=P.GDP[gdpk],tr=P.TAR[tark],ge=P.GEO[geok],jg=P.JGB[jgbk],
+        fi=P.FISCAL[fisk],us=P.USD[usdk],ro=P.ROBO[robk]||P.ROBO['low'];
+  const melt=!!sv.is_melt;
+  const s={};
+  const eqm_i=ser(inf.eq_mult),eqm_f=ser(fd.eq),eqm_g=ser(gd.eq),
+        eqm_t=ser(tr.eq),eqm_geo=ser(ge.eq),eqm_jgb=ser(jg.eq),
+        eqm_fi=ser(fi.eq),eqm_us=ser(us.eq),eqm_ro=ser(ro.eq);
+  const eqm=Array.from({length:61},(_,m)=>eqm_i[m]*eqm_f[m]*eqm_g[m]*eqm_t[m]*eqm_geo[m]*eqm_jgb[m]*eqm_fi[m]*eqm_us[m]*eqm_ro[m]);
+  const tr14=Array.from({length:61},(_,m)=>Math.min(1,m/14));
+  for(const k of EQ_KEYS){
+    const b=ser(sv[k]);
+    const tf=Array.from({length:61},(_,m)=>
+      (1+(tr.sector_tilt[k]||0)*tr14[m])*(1+(ge.sector_tilt[k]||0)*tr14[m])*(1+(jg.sector_tilt[k]||0)*tr14[m])*(1+(fi.sector_tilt[k]||0)*tr14[m])*(1+(us.sector_tilt[k]||0)*tr14[m])*(1+(ro.sector_tilt[k]||0)*tr14[m]));
+    s[k]=Array.from({length:61},(_,m)=>b[m]*eqm[m]*tf[m]);
+  }
+  s.sp500=Array.from({length:61},(_,m)=>0.45*s.ai_complex[m]+0.55*s.ex_ai[m]);
+  s.sp500_level=s.sp500.map(v=>7473*v/100);
+  const cpi_b=ser(inf.cpi);
+  const a_sev=ramp(sv.cpi_sev,14),a_fed=ramp(fd.cpi_add,14),a_gdp=ramp(gd.cpi_add,16),
+        a_tar=ramp(tr.cpi_add,12),a_geo=ramp(ge.cpi_add,14),a_jgb=ramp(jg.cpi_add,14),
+        a_fi=ramp(fi.cpi_add,14),a_us=ramp(us.cpi_add,14),a_ro=ramp(ro.cpi_add,14);
+  s.cpi=Array.from({length:61},(_,m)=>Math.max(0.2,cpi_b[m]+a_sev[m]+a_fed[m]+a_gdp[m]+a_tar[m]+a_geo[m]+a_jgb[m]+a_fi[m]+a_us[m]+a_ro[m]));
+  const fed_base=ser(fd.path),fed_tar=ramp(tr.fed_add,14),fed_geo=ramp(ge.fed_add,16),fed_jgb=ramp(jg.fed_add,16),
+        fed_fi=ramp(fi.fed_add,14),fed_us=ramp(us.fed_add,14);
+  s.fed_funds=Array.from({length:61},(_,m)=>Math.max(0.25,fed_base[m]+fed_tar[m]+fed_geo[m]+fed_jgb[m]+fed_fi[m]+fed_us[m]));
+  const uw=melt?0.30:1.0;
+  const ub=ser(sv.unemployment),ui=ser(inf.unemp_add),
+        ug=ramp(gd.unemp,14),ut=ramp(tr.unemp_add,14),ugg=ramp(ge.unemp_add,14),ujg=ramp(jg.unemp_add,14),
+        ufi=ramp(fi.unemp_add,14),uus=ramp(us.unemp_add,14),uro=ramp(ro.unemp_add,14);
+  s.unemployment=Array.from({length:61},(_,m)=>Math.max(3.2,ub[m]+uw*ui[m]+uw*ug[m]+ut[m]+ugg[m]+ujg[m]+ufi[m]+uus[m]+uro[m]));
+  const y10_jgb=ser(jg.y10_add),y10_fi=ser(fi.y10_add),y10_us=ser(us.y10_add);
+  s.ust10_yield=Array.from({length:61},(_,m)=>Math.max(0.4,
+    s.fed_funds[m]+0.975+0.45*(s.cpi[m]-3)-0.18*(s.unemployment[m]-4.3)+y10_jgb[m]+y10_fi[m]+y10_us[m]));
+  const sm=gd.spread_mult,tm=tr.hy_inf_mult,gm=ge.hy_mult,jm=jg.hy_mult,fm=fi.hy_mult,um=us.hy_mult;
+  s.hy_spread=ser(sv.hy_spread).map(v=>320+(v-320)*inf.hy_inf_mult*sm*tm*gm*jm*fm*um);
+  s.ig_spread=ser(sv.ig_spread).map(v=>95+(v-95)*inf.ig_inf_mult*sm*(1+(tm-1)*0.5)*(1+(gm-1)*0.5)*(1+(jm-1)*0.5)*(1+(fm-1)*0.5)*(1+(um-1)*0.5));
+  s.ust10_tr   =deriveTR(s.ust10_yield,8.2);
+  s.ust_long_tr=deriveTR(s.ust10_yield,17.5);
+  s.ig_tr      =deriveTR(s.ust10_yield,7.6,s.ig_spread,7.6);
+  s.hy_tr      =deriveTR(s.ust10_yield,3.9,s.hy_spread,3.9,true);
+  s.mmf_tr     =mmfTR(s.fed_funds);
+  s.sgov_tr    =sgovTR(s.fed_funds);
+  s.ust2_yield =s.fed_funds.map((f,m)=>0.55*f+0.45*s.ust10_yield[m]);
+  s.ust2_tr    =deriveTR(s.ust2_yield,1.9);
+  s.ust5_yield =s.fed_funds.map((f,m)=>0.40*f+0.60*s.ust10_yield[m]);
+  s.ust5_tr    =deriveTR(s.ust5_yield,4.5);
+  s.ust30_yield=s.ust10_yield.map(y=>y+0.45);
+  s.ust30_tr   =deriveTR(s.ust30_yield,19.0);
+  s.ust_edv_tr =deriveTR(s.ust10_yield,24.0);
+  s.agg_tr     =deriveTR(s.ust10_yield,6.0);
+  const realy=s.ust10_yield.map((y,m)=>y-s.cpi[m]);
+  const tips=[100.0];
+  for(let t=1;t<61;t++)tips.push(tips[t-1]*(1+realy[t-1]/1200+s.cpi[t]/1200-6.5*(realy[t]-realy[t-1])/100));
+  s.tips_tr=tips;
+  s.mmf_assets=ser(sv.mmf_assets).map(v=>7+(v-7)*inf.mmf_asset_mult*gd.mmf_mult);
+  let cbase={};
+  if(melt){for(const k of COMK_JS)cbase[k]=ser(sv.commod[k]);}
+  else{for(const k of COMK_JS)cbase[k]=ser(inf[k]);}
+  const comTilt=melt?ramp({'down':-0.10,'sticky':0.0,'high':0.32}[infk],14):new Array(61).fill(0);
+  const demr=ramp(sv.dem_shift,12),gdpc=ramp(gd.commod,14),halfg=gdpc.map(x=>0.4*x);
+  const goldr=ramp(sv.gold_shift,12),fedg=ramp(fd.gold_mult,14);
+  const uranr=ramp(sv.uran_shift,12),silvr=ramp(sv.silver_shift,12),agr=ramp(sv.ag_shift,12);
+  const ttk={},tgk={},tjk={},tfk={},tuk={},trok={};
+  for(const k of COMK_JS){ttk[k]=ramp(tr.commod_tilt[k]||0,12);tgk[k]=ramp(ge.commod_tilt[k]||0,14);tjk[k]=ramp(jg.commod_tilt[k]||0,14);tfk[k]=ramp(fi.commod_tilt[k]||0,14);tuk[k]=ramp(us.commod_tilt[k]||0,14);trok[k]=ramp(ro.commod_tilt[k]||0,14);}
+  const cc=(k,...adds)=>cbase[k].map((v,m)=>v*(1+adds.reduce((acc,a)=>acc+a[m],0)));
+  s.gold       =cc('gold',goldr,fedg,comTilt,ttk.gold,tgk.gold,tjk.gold,tfk.gold,tuk.gold,trok.gold);
+  s.wti        =cc('wti',demr,gdpc,comTilt,ttk.wti,tgk.wti,tjk.wti,tfk.wti,tuk.wti,trok.wti);
+  s.natgas     =cc('natgas',demr,gdpc,comTilt,ttk.natgas,tgk.natgas,tjk.natgas,tfk.natgas,tuk.natgas,trok.natgas);
+  s.copper     =cc('copper',demr,gdpc,comTilt,ttk.copper,tgk.copper,tjk.copper,tfk.copper,tuk.copper,trok.copper);
+  s.uranium    =cc('uranium',uranr,gdpc,comTilt,ttk.uranium,tgk.uranium,tjk.uranium,tfk.uranium,tuk.uranium,trok.uranium);
+  s.silver     =cc('silver',silvr,halfg,comTilt,ttk.silver,tgk.silver,tjk.silver,tfk.silver,tuk.silver,trok.silver);
+  s.agriculture=cc('agriculture',agr,comTilt,ttk.agriculture,tgk.agriculture,tjk.agriculture,tfk.agriculture,tuk.agriculture,trok.agriculture);
+  s.vix=ser(sv.vix).map(v=>Math.min(95,Math.max(9,v*inf.vix_mult*gd.vix_mult*tr.vix_mult*ge.vix_mult*jg.vix_mult*fi.vix_mult*us.vix_mult*ro.vix_mult)));
+  const y10_chg=s.ust10_yield.map(y=>y-s.ust10_yield[0]);
+  const comm_reit_rate=y10_chg.map(d=>-8.5*d/100);
+  const res_reit_rate=y10_chg.map(d=>-5.5*d/100);
+  const comm_reit_tilt=Array.from({length:61},(_,m)=>(1+(fi.reit_tilt.comm_reit||0)*tr14[m])*(1+(us.reit_tilt.comm_reit||0)*tr14[m]));
+  const res_reit_tilt=Array.from({length:61},(_,m)=>(1+(fi.reit_tilt.res_reit||0)*tr14[m])*(1+(us.reit_tilt.res_reit||0)*tr14[m]));
+  s.comm_reit=Array.from({length:61},(_,m)=>100*(1+comm_reit_rate[m])*eqm[m]*comm_reit_tilt[m]);
+  s.res_reit=Array.from({length:61},(_,m)=>100*(1+res_reit_rate[m])*eqm[m]*res_reit_tilt[m]);
+  const btc_eq_beta=2.2;
+  const btc_base=Array.from({length:61},(_,m)=>100*(1+btc_eq_beta*(eqm[m]-1)));
+  const btc_fi=fi.btc_mult,btc_us=us.btc_mult;
+  const btc_ramp_fi=Array.from({length:61},(_,m)=>1+(btc_fi-1)*tr14[m]);
+  const btc_ramp_us=Array.from({length:61},(_,m)=>1+(btc_us-1)*tr14[m]);
+  s.bitcoin=Array.from({length:61},(_,m)=>btc_base[m]*btc_ramp_fi[m]*btc_ramp_us[m]);
+  const cum=[1.0];
+  for(let t=1;t<61;t++)cum.push(cum[t-1]*(1+s.cpi[t]/1200));
+  s.cpi_index =cum.map(c=>+(c*100).toFixed(2));
+  s.sp500_real=s.sp500.map((v,m)=>v/cum[m]);
+  s.mmf_real  =s.mmf_tr.map((v,m)=>v/cum[m]);
+  s.ust10_real=s.ust10_tr.map((v,m)=>v/cum[m]);
+  s.port_6040 =s.sp500.map((v,m)=>0.6*v+0.4*s.ust10_tr[m]);
+  return s;
+}
+
+const state = {sev:'base', inf:'sticky', fed:'cut', gdp:'recession', tar:'deescalate', geo:'stable', jgb:'anchored', fis:'neutral', usd:'neutral', rob:'low', month:0, playing:false, timer:null};
+const charts = {};
+function S(){if(!_cachedScen)_cachedScen=buildScenario(state.sev,state.inf,state.fed,state.gdp,state.tar,state.geo,state.jgb,state.fis,state.usd,state.rob);return _cachedScen;}
+function M(){return SIM.summary[state.sev][state.inf][state.fed][state.gdp][state.tar][state.geo][state.jgb][state.fis][state.usd];}
+
+function fmt(n,d=0){return Number(n).toLocaleString('en-US',{minimumFractionDigits:d,maximumFractionDigits:d});}
+function sgn(n,d=1){return (n>=0?'+':'')+Number(n).toFixed(d);}
+function cls(n){return n>0.05?'pos':(n<-0.05?'neg':'neu');}
+
+/* baseline strip */
+const BASE=[['S&P 500','7,473'],['Fed funds','3.50-3.75%'],['10Y yield','4.60%'],
+  ['CPI','3.0%'],['WTI crude','$98'],['AI % of S&P','45%'],['AI debt','~$1.4T'],
+  ['DXY','~104'],['BTC','~$108K']];
+document.getElementById('baseline').innerHTML=BASE.map(b=>
+  `<div><div class="k">${b[0]}</div><div class="v mono">${b[1]}</div></div>`).join('');
+
+/* selectors */
+function fillRow(id,ax,keys,meta){
+  document.getElementById(id).innerHTML=keys.map(k=>{
+    const m=meta[k];
+    return `<button class="scen-btn" data-ax="${ax}" data-k="${k}" style="--ac:${m.ac}">
+      <div class="nm"><span class="dot" style="background:${m.ac}"></span>${m.label}</div>
+      <div class="dt">${m.desc}</div></button>`;}).join('');
+}
+fillRow('sevRow','sev',['melt','mild','base','severe'],SEV_META);
+fillRow('infRow','inf',['down','sticky','high'],INF_META);
+fillRow('robRow','rob',['low','moderate','surge'],ROBO_META);
+fillRow('fedRow','fed',['cut','hold','hike'],FED_META);
+fillRow('gdpRow','gdp',['soft','recession','hard'],GDP_META);
+fillRow('tarRow','tar',['truce','deescalate','escalate'],TAR_META);
+fillRow('geoRow','geo',['stable','tension','conflict'],GEO_META);
+fillRow('jgbRow','jgb',['anchored','normalization','crisis'],JGB_META);
+fillRow('fisRow','fis',['austerity','neutral','stimulus'],FIS_META);
+fillRow('usdRow','usd',['weak','neutral','strong'],USD_META);
+document.querySelectorAll('.scen-btn').forEach(b=>b.onclick=()=>{
+  state[b.dataset.ax]=b.dataset.k;
+  applyScenario();});
+
+/* presets row */
+function fillPresets(){
+  document.getElementById('presetRow').innerHTML=(SIM.presets||[]).map(p=>
+    `<button class="preset-btn" data-id="${p.id}" style="--ac:${p.color}">
+      <div class="pn">${p.name}</div>
+      <div class="pt">${p.tag}</div>
+      <div class="pdesc">${p.desc}</div>
+    </button>`).join('');
+  document.querySelectorAll('.preset-btn').forEach(b=>b.onclick=()=>{
+    const p=(SIM.presets||[]).find(x=>x.id===b.dataset.id);
+    if(!p) return;
+    state.sev=p.dials.sev; state.inf=p.dials.inf; state.fed=p.dials.fed;
+    state.gdp=p.dials.gdp; state.tar=p.dials.tar; state.geo=p.dials.geo||'stable';
+    state.jgb=p.dials.jgb||'anchored'; state.fis=p.dials.fis||'neutral'; state.usd=p.dials.usd||'neutral'; state.rob=p.dials.rob||'low';
+    applyScenario();
+    window.scrollTo({top:document.querySelector('.timeline').offsetTop-20,behavior:'smooth'});
+  });
+}
+function markActivePreset(){
+  const cur=(SIM.presets||[]).find(p=>p.dials.sev===state.sev&&p.dials.inf===state.inf
+    &&p.dials.fed===state.fed&&p.dials.gdp===state.gdp&&p.dials.tar===state.tar
+    &&(p.dials.geo||'stable')===state.geo&&(p.dials.jgb||'anchored')===state.jgb
+    &&(p.dials.fis||'neutral')===state.fis&&(p.dials.usd||'neutral')===state.usd
+    &&(p.dials.rob||'low')===state.rob);
+  document.querySelectorAll('.preset-btn').forEach(b=>
+    b.classList.toggle('on', cur && b.dataset.id===cur.id));
+}
+
+/* ---- Chart.js setup ---- */
+Chart.defaults.color='#8b96a8';
+Chart.defaults.font.family="'SF Mono',ui-monospace,Menlo,monospace";
+Chart.defaults.font.size=10.5;
+const GRID='#232c3b';
+const marker={id:'marker',afterDatasetsDraw(ch){
+  const x=ch.scales.x.getPixelForValue(state.month),a=ch.chartArea,c=ch.ctx;
+  c.save();c.strokeStyle='rgba(230,237,243,.5)';c.lineWidth=1;c.setLineDash([4,3]);
+  c.beginPath();c.moveTo(x,a.top);c.lineTo(x,a.bottom);c.stroke();
+  c.setLineDash([]);c.fillStyle='rgba(230,237,243,.9)';
+  c.beginPath();c.arc(x,a.top,3,0,7);c.fill();c.restore();}};
+const TT={backgroundColor:'#1a212e',borderColor:'#232c3b',borderWidth:1,padding:10,
+  titleColor:'#e6edf3',bodyColor:'#c9d3e0'};
+function xscale(){return {grid:{color:GRID,drawTicks:false},
+  ticks:{maxRotation:0,autoSkip:false,callback:(v,i)=>i%6===0?SIM.dates[i]:''}};}
+function lopts(ycfg){return{responsive:true,maintainAspectRatio:false,animation:false,
+  interaction:{mode:'index',intersect:false},
+  plugins:{legend:{display:false},tooltip:TT},
+  scales:Object.assign({x:xscale()},ycfg)};}
+function ds(label,data,color,o={}){return Object.assign(
+  {type:'line',label,data,borderColor:color,backgroundColor:color,borderWidth:2,
+   pointRadius:0,pointHoverRadius:3,tension:.25,yAxisID:'y'},o);}
+
+function rebase(key){const a=S()[key];return a.map(v=>+(v/a[0]*100).toFixed(2));}
+
+/* ===== chart definitions ===== */
+const MAIN=[['S&P 500','sp500','#58a6ff',2.6],['AI complex','ai_complex','#f85149',1.9],
+  ['S&P 500 ex-AI','ex_ai','#bc8cff',1.9],['Money market','mmf_tr','#3fb950',1.9],
+  ['10Y Treasury','ust10_tr','#2dd4bf',1.9],['Gold','gold','#e3b341',1.9]];
+const MACRO=[['CPI inflation %','cpi','#f0883e','y'],['Fed funds %','fed_funds','#58a6ff','y'],
+  ['10Y yield %','ust10_yield','#2dd4bf','y'],['Unemployment %','unemployment','#bc8cff','y'],
+  ['VIX','vix','#f85149','y1']];
+const REAL=[['S&P 500 nominal','sp500','#58a6ff',false],['S&P 500 real','sp500_real','#58a6ff',true],
+  ['Money market nominal','mmf_tr','#3fb950',false],['Money market real','mmf_real','#3fb950',true]];
+const BONDS=[['Money market','mmf_tr','#3fb950'],['10Y Treasury','ust10_tr','#2dd4bf'],
+  ['Long Treasury 20y+','ust_long_tr','#bc8cff'],['IG credit','ig_tr','#e3a72c'],
+  ['HY credit','hy_tr','#f85149']];
+const AICOM=[['Uranium','uranium','#f85149'],['Copper','copper','#f0883e'],
+  ['Natural gas','natgas','#e3a72c',true]];
+const HAVEN=[['WTI crude','wti','#bc8cff'],['Gold','gold','#e3b341'],
+  ['Silver','silver','#9aa7b8',true],['Agriculture','agriculture','#3fb950']];
+const CMOVE=[
+  ['uranium','Uranium','The purest AI-power bet — hyperscaler nuclear deals and SMR hype. A bust erases the demand thesis outright.'],
+  ['copper','Copper','"Dr. Copper" — data-center grids and electrification. Industrial bellwether; doubles as a real-asset inflation hedge.'],
+  ['natgas','Natural gas','Fuels the data centers. The AI electricity-demand thesis collapses with the bust; an energy shock revives it.'],
+  ['wti','WTI crude','Demand-driven. A recession destroys oil demand — unless an energy shock (the very thing that drives inflation) hits.'],
+  ['silver','Silver','Half industrial, half monetary. Falls with industry, then rides the precious-metals rally at higher beta than gold.'],
+  ['gold','Gold','Safe haven and monetary hedge. Rises on fear and Fed cuts; the standout winner in stagflation.'],
+  ['agriculture','Agriculture','Inelastic food demand makes it defensive — a relative haven; in high inflation, food and fertilizer prices surge.'],
+];
+const TSYETF=[['SGOV · 0-3mo T-bill','sgov_tr','#3fb950'],['SHY · 1-3yr','ust2_tr','#2dd4bf'],
+  ['IEI · 3-7yr (5Y)','ust5_tr','#7ee2c8'],['IEF · 7-10yr','ust10_tr','#58a6ff'],
+  ['TLT · 20yr+','ust_long_tr','#bc8cff'],['30Y T-bond','ust30_tr','#ff8b78'],
+  ['EDV · 25yr+ STRIPS','ust_edv_tr','#f85149']];
+const CREDETF=[['TIP · TIPS','tips_tr','#f0883e'],['AGG · US aggregate','agg_tr','#8b96a8'],
+  ['LQD · IG corp','ig_tr','#e3a72c',true],['HYG · HY corp','hy_tr','#f85149']];
+const REIT_CHART=[['Commercial REIT','comm_reit','#f0883e'],['Residential REIT','res_reit','#2dd4bf']];
+const BTC_CHART=[['Bitcoin','bitcoin','#e3a72c'],['S&P 500','sp500','#58a6ff',true]];
+const RMOVE=[
+  ['comm_reit','Commercial REITs','Office, retail, data-center REITs. Rate-sensitive (~8.5y duration equivalent). Fiscal stimulus boosts; austerity and strong dollar hurt. 2022 analog: VNQ -25%.'],
+  ['res_reit','Residential REITs','Apartments, SFR, homebuilders. Lower rate sensitivity (~5.5y). Housing supply shortage provides a floor. Stimulus and weak dollar boost. 2022 analog: -15% but recovered faster.'],
+];
+const BMOVE=[
+  ['SGOV','0-3 month T-bills','sgov_tr','Pure T-bills — virtually zero duration. Yield floats with the Fed; never a nominal loss, but it can lose to inflation. The Treasury equivalent of a money-market fund, without the prime/repo exposure.'],
+  ['SHY','1-3yr Treasuries','ust2_tr','Minimal duration (~1.9y). A low-volatility safe-middle — modest gains, modest risk, in every regime.'],
+  ['IEI','3-7yr Treasuries (5Y belly)','ust5_tr','Belly of the curve, ~4.5y duration. The sweet spot for Fed-cut trades — captures most of the rate move with half the volatility of TLT. The "Goldilocks" Treasury bet.'],
+  ['IEF','7-10yr Treasuries','ust10_tr','The classic flight-to-quality bond. Big gains when the Fed cuts; real losses when yields rise.'],
+  ['TLT','20yr+ Treasuries','ust_long_tr','Long duration (~17y). A huge winner in a disinflationary bust — and a big loser in stagflation.'],
+  ['30Y','30-yr on-the-run T-bond','ust30_tr','Pure 30-year duration (~19y). Tracks the long-end term premium directly — more bullet-like than TLT, less convex than EDV. The cleanest expression of a "long the long bond" view.'],
+  ['EDV','25yr+ zero-coupon STRIPS','ust_edv_tr','Extreme duration — it amplifies every move TLT makes. The biggest disinflation prize and the most violent stagflation loss in the book.'],
+  ['TIP','TIPS (inflation-linked)','tips_tr','Principal accretes with CPI. The one bond built to beat inflation: shines in stagflation, lags in disinflation.'],
+  ['AGG','US aggregate bond','agg_tr','Treasuries + IG corporates, ~6yr duration. The default "bonds" allocation — middle of the road.'],
+  ['LQD','IG corporates','ig_tr','Treasury duration plus a credit spread. Holds up well; the spread widens in a credit scare.'],
+  ['HYG','HY corporates','hy_tr','The AI-debt contagion channel. Spreads blow out — the worst bond ETF in a severe or stagflationary bust.'],
+];
+const SECT=[['tech','Technology'],['comm','Communications'],['discretionary','Cons. discretionary'],
+  ['industrials','Industrials'],['materials','Materials'],['financials','Financials'],
+  ['realestate','Real estate'],['utilities','Utilities'],['energy','Energy'],
+  ['healthcare','Health care'],['staples','Cons. staples']];
+
+function legend(id,items){document.getElementById(id).innerHTML=items.map(i=>
+  `<span><span class="swatch ${i[2]?'dash':''}" style="${i[2]?'border-color:':'background:'}${i[1]}"></span>${i[0]}</span>`).join('');}
+
+function buildAll(){
+  charts.main=new Chart(document.getElementById('cMain'),{
+    data:{labels:SIM.dates,datasets:MAIN.map(s=>ds(s[0],[],s[2],{borderWidth:s[3]}))},
+    options:lopts({y:{grid:{color:GRID},title:{display:true,text:'Index (May 2026 = 100)'}}}),
+    plugins:[marker]});
+  legend('legMain',MAIN.map(s=>[s[0],s[2]]));
+
+  charts.macro=new Chart(document.getElementById('cMacro'),{
+    data:{labels:SIM.dates,datasets:MACRO.map(s=>ds(s[0],[],s[2],{yAxisID:s[3],
+      borderWidth:s[1]==='cpi'?2.6:1.9,borderDash:s[1]==='vix'?[5,3]:[]}))},
+    options:lopts({y:{position:'left',grid:{color:GRID},title:{display:true,text:'Percent'},min:0},
+      y1:{position:'right',grid:{display:false},title:{display:true,text:'VIX'},min:0}}),
+    plugins:[marker]});
+  legend('legMacro',MACRO.map(s=>[s[0],s[2]]));
+
+  charts.real=new Chart(document.getElementById('cReal'),{
+    data:{labels:SIM.dates,datasets:REAL.map(s=>ds(s[0],[],s[2],
+      {borderDash:s[3]?[5,3]:[],borderWidth:s[3]?1.8:2.4}))},
+    options:lopts({y:{grid:{color:GRID},title:{display:true,text:'Index (May 2026 = 100)'}}}),
+    plugins:[marker]});
+  legend('legReal',[['S&P 500','#58a6ff',false],['Money market','#3fb950',false],
+    ['— solid = nominal','#8b96a8',false],['- - dashed = real','#8b96a8',true]]);
+
+  charts.bonds=new Chart(document.getElementById('cBonds'),{
+    data:{labels:SIM.dates,datasets:[{type:'bar',label:'MMF assets ($T)',data:[],
+        backgroundColor:'rgba(88,166,255,.16)',borderWidth:0,yAxisID:'y1',order:9}]
+      .concat(BONDS.map(b=>ds(b[0],[],b[2],{order:1})))},
+    options:lopts({y:{position:'left',grid:{color:GRID},title:{display:true,text:'Total return (=100)'}},
+      y1:{position:'right',grid:{display:false},title:{display:true,text:'MMF assets $T'},min:6,suggestedMax:12}}),
+    plugins:[marker]});
+  legend('legBonds',[['MMF assets ($T)','rgba(88,166,255,.55)']].concat(BONDS.map(b=>[b[0],b[2]])));
+
+  charts.ai=new Chart(document.getElementById('cAI'),{
+    data:{labels:SIM.dates,datasets:AICOM.map(c=>ds(c[0],[],c[2],c[3]?{borderDash:[5,3]}:{}))},
+    options:lopts({y:{grid:{color:GRID},title:{display:true,text:'Index (May 2026 = 100)'}}}),
+    plugins:[marker]});
+  legend('legAI',AICOM.map(c=>[c[0],c[2],c[3]]));
+
+  charts.haven=new Chart(document.getElementById('cHaven'),{
+    data:{labels:SIM.dates,datasets:HAVEN.map(c=>ds(c[0],[],c[2],c[3]?{borderDash:[5,3]}:{}))},
+    options:lopts({y:{grid:{color:GRID},title:{display:true,text:'Index (May 2026 = 100)'}}}),
+    plugins:[marker]});
+  legend('legHaven',HAVEN.map(c=>[c[0],c[2],c[3]]));
+
+  charts.tsy=new Chart(document.getElementById('cTsy'),{
+    data:{labels:SIM.dates,datasets:TSYETF.map(c=>ds(c[0],[],c[2]))},
+    options:lopts({y:{grid:{color:GRID},title:{display:true,text:'Total return (=100)'}}}),
+    plugins:[marker]});
+  legend('legTsy',TSYETF.map(c=>[c[0],c[2]]));
+
+  charts.cred=new Chart(document.getElementById('cCred'),{
+    data:{labels:SIM.dates,datasets:CREDETF.map(c=>ds(c[0],[],c[2],c[3]?{borderDash:[5,3]}:{}))},
+    options:lopts({y:{grid:{color:GRID},title:{display:true,text:'Total return (=100)'}}}),
+    plugins:[marker]});
+  legend('legCred',CREDETF.map(c=>[c[0],c[2],c[3]]));
+
+  charts.reit=new Chart(document.getElementById('cREIT'),{
+    data:{labels:SIM.dates,datasets:REIT_CHART.map(c=>ds(c[0],[],c[2]))},
+    options:lopts({y:{grid:{color:GRID},title:{display:true,text:'Index (May 2026 = 100)'}}}),
+    plugins:[marker]});
+  legend('legREIT',REIT_CHART.map(c=>[c[0],c[2]]));
+
+  charts.btc=new Chart(document.getElementById('cBTC'),{
+    data:{labels:SIM.dates,datasets:BTC_CHART.map(c=>ds(c[0],[],c[2],c[3]?{borderDash:[5,3]}:{}))},
+    options:lopts({y:{grid:{color:GRID},title:{display:true,text:'Index (May 2026 = 100)'}}}),
+    plugins:[marker]});
+  legend('legBTC',[['Bitcoin','#e3a72c'],['S&P 500 (ref)','#58a6ff',true]]);
+
+  charts.sector=new Chart(document.getElementById('cSector'),{
+    type:'bar',
+    data:{labels:[],datasets:[{data:[],backgroundColor:[],borderWidth:0,borderRadius:3}]},
+    options:{responsive:true,maintainAspectRatio:false,animation:false,indexAxis:'y',
+      plugins:{legend:{display:false},tooltip:Object.assign({},TT,
+        {callbacks:{label:c=>' '+sgn(c.raw)+'% vs. May 2026'}})},
+      scales:{x:{grid:{color:GRID},ticks:{callback:v=>v+'%'}},y:{grid:{display:false}}}}});
+}
+
+/* ===== sync data into charts ===== */
+function sectorRows(){
+  const s=S(),m=state.month;
+  return SECT.map(x=>({key:x[0],name:x[1],v:+(s[x[0]][m]-100).toFixed(1)}))
+    .sort((a,b)=>a.v-b.v);
+}
+function syncCharts(){
+  const s=S();
+  MAIN.forEach((d,i)=>charts.main.data.datasets[i].data=
+    (d[1]==='gold')?rebase('gold'):s[d[1]].slice());
+  MACRO.forEach((d,i)=>charts.macro.data.datasets[i].data=s[d[1]].slice());
+  REAL.forEach((d,i)=>charts.real.data.datasets[i].data=rebase(d[1]));
+  charts.bonds.data.datasets[0].data=s.mmf_assets.slice();
+  BONDS.forEach((b,i)=>charts.bonds.data.datasets[i+1].data=s[b[1]].slice());
+  AICOM.forEach((c,i)=>charts.ai.data.datasets[i].data=rebase(c[1]));
+  HAVEN.forEach((c,i)=>charts.haven.data.datasets[i].data=rebase(c[1]));
+  TSYETF.forEach((c,i)=>charts.tsy.data.datasets[i].data=rebase(c[1]));
+  CREDETF.forEach((c,i)=>charts.cred.data.datasets[i].data=rebase(c[1]));
+  REIT_CHART.forEach((c,i)=>charts.reit.data.datasets[i].data=rebase(c[1]));
+  BTC_CHART.forEach((c,i)=>charts.btc.data.datasets[i].data=rebase(c[1]));
+  ['main','macro','real','bonds','ai','haven','tsy','cred','reit','btc'].forEach(k=>charts[k].update());
+  syncSector();
+}
+function syncSector(){
+  const r=sectorRows();
+  charts.sector.data.labels=r.map(x=>x.name);
+  charts.sector.data.datasets[0].data=r.map(x=>x.v);
+  charts.sector.data.datasets[0].backgroundColor=r.map(x=>x.v>=0?'#3fb950':'#f85149');
+  charts.sector.update();
+}
+function redrawMarkers(){
+  ['main','macro','real','bonds','ai','haven','tsy','cred','reit','btc'].forEach(k=>charts[k].update('none'));
+}
+
+/* ===== HTML renderers ===== */
+function renderScenLine(){
+  const tag=(meta,k)=>`<b style="color:${meta[k].ac}">${meta[k].label}</b>`;
+  document.getElementById('scenLine').innerHTML=
+    `Showing &nbsp;${tag(SEV_META,state.sev)} &nbsp;&middot;&nbsp; ${tag(INF_META,state.inf)}`
+    +` &nbsp;&middot;&nbsp; ${tag(FED_META,state.fed)} &nbsp;&middot;&nbsp; ${tag(GDP_META,state.gdp)}`
+    +` &nbsp;&middot;&nbsp; ${tag(TAR_META,state.tar)} &nbsp;&middot;&nbsp; ${tag(GEO_META,state.geo)}`
+    +` &nbsp;&middot;&nbsp; ${tag(JGB_META,state.jgb)} &nbsp;&middot;&nbsp; ${tag(FIS_META,state.fis)}`
+    +` &nbsp;&middot;&nbsp; ${tag(USD_META,state.usd)} &nbsp;&middot;&nbsp; ${tag(ROBO_META,state.rob)}`
+    +` &mdash; ten dials. `+SEV_META[state.sev].desc;
+}
+function renderCards(){
+  const m=M();
+  const c=[
+    ['S&P 500 max drawdown',sgn(m.sp_drawdown)+'%','neg','trough '+m.sp_trough_date],
+    ['AI complex drawdown',sgn(m.ai_drawdown)+'%','neg','ex-AI only '+sgn(m.exai_drawdown)+'%'],
+    ['CPI peaks at',m.cpi_peak+'%','neu','5yr prices +'+m.cpi_5yr_cum+'%'],
+    ['Money market 5yr REAL',sgn(m.mmf_real_5yr)+'%',cls(m.mmf_real_5yr),
+      'nominal '+sgn(m.mmf_5yr)+'%'],
+    ['Long Treasury drawdown',sgn(m.long_tr_drawdown)+'%',cls(m.long_tr_drawdown),
+      '5yr return '+sgn(m.long_5yr)+'%'],
+    ['60/40 portfolio 5yr',sgn(m.port_6040_5yr)+'%',cls(m.port_6040_5yr),
+      'drawdown '+sgn(m.port_6040_drawdown)+'%'],
+  ];
+  document.getElementById('cards').innerHTML=c.map(x=>
+    `<div class="card"><div class="lbl">${x[0]}</div>
+     <div class="big ${x[2]}">${x[1]}</div><div class="note">${x[3]}</div></div>`).join('');
+}
+function renderSnap(){
+  const s=S(),m=state.month;
+  const sp=s.sp500[m]-100,ai=s.ai_complex[m]-100;
+  const snap=[
+    ['S&P 500',fmt(s.sp500_level[m]),cls(sp),sgn(sp)+'%'],
+    ['AI complex','',cls(ai),sgn(ai)+'%'],
+    ['CPI',s.cpi[m].toFixed(1)+'%','',''],
+    ['Fed funds',s.fed_funds[m].toFixed(2)+'%','',''],
+    ['10Y yield',s.ust10_yield[m].toFixed(2)+'%','',''],
+    ['MMF assets','$'+s.mmf_assets[m].toFixed(1)+'T','',''],
+    ['VIX',Math.round(s.vix[m]),'',''],
+    ['Unemployment',s.unemployment[m].toFixed(1)+'%','',''],
+    ['Bitcoin','',cls((s.bitcoin[m]-100)),sgn(s.bitcoin[m]-100)+'%'],
+  ];
+  document.getElementById('snap').innerHTML=snap.map(x=>
+    `<div><div class="k">${x[0]}</div><div class="v ${x[1]?'':x[2]}">
+     ${x[1]||''}${x[3]?'<span style="font-size:11px" class="'+x[2]+'">'+(x[1]?' ':'')+x[3]+'</span>':''}</div></div>`).join('');
+}
+function renderPhases(){
+  const ph=SIM.phases[state.sev];
+  document.getElementById('phaseSub').textContent=
+    'Phase timing is set by the severity dial. The active phase highlights as you scrub.';
+  document.getElementById('phases').innerHTML=ph.map((p,i)=>{
+    const on=state.month>=p.m0 && state.month<p.m1+(i===ph.length-1?1:0);
+    return `<div class="phase ${on?'on':''}">
+      <div class="pn"><span class="pnum">${i+1}</span>${p.name}</div>
+      <div class="pw">${SIM.dates[p.m0]} – ${SIM.dates[Math.min(p.m1,60)]}</div>
+      <div class="pd">${p.desc}</div></div>`;}).join('');
+}
+function renderHeat(){
+  const s=S(),dd=M().sec_dd,m=state.month;
+  document.getElementById('heat').innerHTML=SECT.map(x=>{
+    const v=+(s[x[0]][m]-100).toFixed(1);
+    const t=Math.max(-1,Math.min(1,v/55));
+    const bg=v>=0?`rgba(63,185,80,${0.1+t*0.5})`:`rgba(248,81,73,${0.1-t*0.5})`;
+    return `<div class="hc" style="background:${bg}">
+      <div class="hn">${x[1]}</div><div class="hv ${cls(v)}">${sgn(v)}%</div>
+      <div class="hd">DD ${sgn(dd[x[0]])}%</div></div>`;}).join('');
+}
+function renderCommodMoves(){
+  const s=S(),cm=M().commod,m=state.month;
+  const rows=CMOVE.map(c=>{
+    const k=c[0],d=cm[k];
+    const now=(s[k][m]/s[k][0]-1)*100;
+    return `<tr>
+      <td style="font-weight:600;color:#e6edf3">${c[1]}</td>
+      <td class="mono ${cls(now)}">${sgn(now)}%</td>
+      <td class="mono neg">${sgn(d.dd)}%</td>
+      <td class="mono ${cls(d.r5)}">${sgn(d.r5)}%</td>
+      <td style="text-align:left;color:var(--mut);font-size:11.5px;line-height:1.5">${c[2]}</td>
+    </tr>`;}).join('');
+  document.getElementById('commodMoves').innerHTML=
+    `<table style="margin-top:16px"><thead><tr>
+      <th>Commodity</th><th>At ${SIM.dates[m]}</th><th>Peak&rarr;trough</th>
+      <th>5-yr return</th><th style="text-align:left">What drives the move</th>
+    </tr></thead><tbody>${rows}</tbody></table>`;
+}
+function renderBondMoves(){
+  const s=S(),be=M().bondetf,m=state.month;
+  const cpi=s.cpi_index[60]/100;
+  const rows=BMOVE.map(b=>{
+    const k=b[2],d=be[k];
+    const now=(s[k][m]/s[k][0]-1)*100;
+    const real=(s[k][60]/s[k][0]/cpi-1)*100;
+    return `<tr>
+      <td style="font-weight:600;color:#e6edf3">${b[0]}</td>
+      <td class="mono ${cls(now)}">${sgn(now)}%</td>
+      <td class="mono ${cls(d.dd)}">${sgn(d.dd)}%</td>
+      <td class="mono ${cls(d.r5)}">${sgn(d.r5)}%</td>
+      <td class="mono ${cls(real)}">${sgn(real)}%</td>
+      <td style="text-align:left;color:var(--mut);font-size:11.5px;line-height:1.5"><b style="color:#e6edf3">${b[1]}.</b> ${b[3]}</td>
+    </tr>`;}).join('');
+  document.getElementById('bondMoves').innerHTML=
+    `<table style="margin-top:16px"><thead><tr>
+      <th>ETF</th><th>At ${SIM.dates[m]}</th><th>Drawdown</th>
+      <th>5-yr nominal</th><th>5-yr real</th><th style="text-align:left">What it is &amp; what drives it</th>
+    </tr></thead><tbody>${rows}</tbody></table>`;
+}
+function renderREITMoves(){
+  const s=S(),m=state.month;
+  const cpi=s.cpi_index[60]/100;
+  const rows=RMOVE.map(r=>{
+    const k=r[0],arr=s[k];
+    const now=(arr[m]/arr[0]-1)*100;
+    const r5=(arr[60]/arr[0]-1)*100;
+    const real=(arr[60]/arr[0]/cpi-1)*100;
+    const peak=Math.max(...arr),trough=Math.min(...arr);
+    const dd=((trough-peak)/peak)*100;
+    return `<tr>
+      <td style="font-weight:600;color:#e6edf3">${r[1]}</td>
+      <td class="mono ${cls(now)}">${sgn(now)}%</td>
+      <td class="mono neg">${sgn(dd)}%</td>
+      <td class="mono ${cls(r5)}">${sgn(r5)}%</td>
+      <td class="mono ${cls(real)}">${sgn(real)}%</td>
+      <td style="text-align:left;color:var(--mut);font-size:11.5px;line-height:1.5">${r[2]}</td>
+    </tr>`;}).join('');
+  document.getElementById('reitMoves').innerHTML=
+    `<table style="margin-top:16px"><thead><tr>
+      <th>REIT</th><th>At ${SIM.dates[m]}</th><th>Peak&rarr;trough</th>
+      <th>5-yr nominal</th><th>5-yr real</th><th style="text-align:left">What drives the move</th>
+    </tr></thead><tbody>${rows}</tbody></table>`;
+}
+function renderBTCMoves(){
+  const s=S(),m=state.month;
+  const cpi=s.cpi_index[60]/100;
+  const arr=s.bitcoin;
+  const now=(arr[m]/arr[0]-1)*100;
+  const r5=(arr[60]/arr[0]-1)*100;
+  const real=(arr[60]/arr[0]/cpi-1)*100;
+  const peak=Math.max(...arr),trough=Math.min(...arr);
+  const dd=((trough-peak)/peak)*100;
+  document.getElementById('btcMoves').innerHTML=
+    `<table style="margin-top:16px"><thead><tr>
+      <th>Asset</th><th>At ${SIM.dates[m]}</th><th>Peak&rarr;trough</th>
+      <th>5-yr nominal</th><th>5-yr real</th><th style="text-align:left">What drives the move</th>
+    </tr></thead><tbody><tr>
+      <td style="font-weight:600;color:#e6edf3">Bitcoin</td>
+      <td class="mono ${cls(now)}">${sgn(now)}%</td>
+      <td class="mono neg">${sgn(dd)}%</td>
+      <td class="mono ${cls(r5)}">${sgn(r5)}%</td>
+      <td class="mono ${cls(real)}">${sgn(real)}%</td>
+      <td style="text-align:left;color:var(--mut);font-size:11.5px;line-height:1.5">Bitcoin has ~2.2x beta to equities and is heavily driven by the dollar regime. Weak dollar + stimulus = massive rally (2020-21: +1000%). Strong dollar + tightening = crash (2022: -65%). The "pure liquidity sponge" of the market.</td>
+    </tr></tbody></table>`;
+}
+const RANKA=[['Gold','gold'],['Silver','silver'],['Agriculture','agriculture'],
+  ['Copper','copper'],['Bitcoin','bitcoin'],['Money market (MMF)','mmf_tr'],['SGOV (T-bills)','sgov_tr'],
+  ['Short Treasury (SHY)','ust2_tr'],['5Y Treasury (IEI)','ust5_tr'],
+  ['TIPS','tips_tr'],['10Y Treasury (IEF)','ust10_tr'],['Long Treasury (TLT)','ust_long_tr'],
+  ['30Y T-bond','ust30_tr'],['US aggregate (AGG)','agg_tr'],['IG credit (LQD)','ig_tr'],
+  ['Commercial REIT','comm_reit'],['Residential REIT','res_reit'],
+  ['WTI crude','wti'],['Natural gas','natgas'],['HY credit (HYG)','hy_tr'],
+  ['60/40 portfolio','port_6040'],['S&P 500 ex-AI','ex_ai'],['S&P 500','sp500'],
+  ['Uranium','uranium'],['AI complex','ai_complex']];
+function renderRank(){
+  const s=S(),cpi=s.cpi_index?s.cpi_index[60]/100:(M().cpi_5yr_cum/100+1);
+  const rows=RANKA.map(a=>{
+    const arr=s[a[1]];
+    const nom=arr[60]/arr[0];
+    return {name:a[0],r:+((nom/cpi-1)*100).toFixed(1)};
+  }).sort((x,y)=>y.r-x.r);
+  const mx=Math.max(...rows.map(r=>Math.abs(r.r)),1);
+  document.getElementById('rank').innerHTML=rows.map(r=>{
+    const w=Math.abs(r.r)/mx*50,col=r.r>=0?'#3fb950':'#f85149',left=r.r>=0?50:50-w;
+    return `<div class="rk"><div class="rn">${r.name}</div>
+      <div class="rbar"><div style="position:absolute;left:50%;top:0;bottom:0;width:1px;background:#3a4658"></div>
+      <div class="rfill" style="left:${left}%;width:${w}%;background:${col}"></div></div>
+      <div class="rv ${cls(r.r)}">${sgn(r.r)}%</div></div>`;}).join('');
+}
+/* ===== recommendation: what to own / what to avoid ===== */
+const RECO=[
+  ['Gold','GLD','gold','Monetary haven — rises on fear, Fed cuts and a weak dollar.'],
+  ['Silver','SLV','silver','Half industrial, half monetary — highest-beta precious metal.'],
+  ['Agriculture','DBA','agriculture','Inelastic food demand — defensive, and an inflation hedge.'],
+  ['Copper','CPER','copper','Electrification bellwether with a real-asset inflation bid.'],
+  ['Bitcoin','IBIT','bitcoin','~2.2x equity beta; the purest dollar-debasement trade.'],
+  ['Money market','MMF','mmf_tr','Cash — clips the policy rate, no duration risk.'],
+  ['T-bills','SGOV','sgov_tr','Zero-duration cash floor; yield floats with the Fed.'],
+  ['1-3yr Treasuries','SHY','ust2_tr','Low-duration safe middle — steady in every regime.'],
+  ['5Y Treasuries','IEI','ust5_tr','Belly of the curve — best Sharpe on a Fed-cut trade.'],
+  ['7-10yr Treasuries','IEF','ust10_tr','Classic flight-to-quality bond.'],
+  ['20yr+ Treasuries','TLT','ust_long_tr','Long duration — wins big in disinflation, loses in stagflation.'],
+  ['25yr+ STRIPS','EDV','ust_edv_tr','Extreme duration — amplifies every TLT move.'],
+  ['TIPS','TIP','tips_tr','Inflation-linked — shines in stagflation, lags in disinflation.'],
+  ['US aggregate','AGG','agg_tr','Core Treasuries + IG mix, ~6y duration.'],
+  ['IG corporates','LQD','ig_tr','Treasury duration plus a credit spread.'],
+  ['HY corporates','HYG','hy_tr','The AI-debt contagion channel — spreads blow out in a bust.'],
+  ['Commercial REIT','VNQ','comm_reit','Rate-sensitive (~8.5y); office/retail structural risk.'],
+  ['Residential REIT','REZ','res_reit','Housing-shortage floor; lower rate sensitivity (~5.5y).'],
+  ['WTI crude','USO','wti','Demand-driven; an energy-shock and inflation hedge.'],
+  ['Natural gas','UNG','natgas','AI-power demand thesis — volatile, dies in a bust.'],
+  ['Uranium','URA','uranium','The purest AI-power bet — erased when the bust hits.'],
+  ['S&P 500','SPY','sp500','Broad US equity beta — the thing the bust is about.'],
+];
+function renderReco(){
+  const s=S(),cpi=s.cpi_index?s.cpi_index[60]/100:(M().cpi_5yr_cum/100+1);
+  const rows=RECO.map(a=>{
+    const arr=s[a[2]];
+    return {name:a[0],tk:a[1],desc:a[3],r:+((arr[60]/arr[0]/cpi-1)*100).toFixed(1)};
+  }).sort((x,y)=>y.r-x.r);
+  const buys=rows.slice(0,6),avoids=rows.slice(-6).reverse();
+  const item=(r,side)=>`<div class="reco-item">
+      <div class="reco-tk ${side}">${r.tk}</div>
+      <div class="reco-nm">${r.name}<div class="rd">${r.desc}</div></div>
+      <div class="reco-rv ${cls(r.r)}">${sgn(r.r)}%</div></div>`;
+  document.getElementById('recoBuy').innerHTML=buys.map(r=>item(r,'buy')).join('');
+  document.getElementById('recoAvoid').innerHTML=avoids.map(r=>item(r,'avoid')).join('');
+  const tag=(meta,k)=>`<b style="color:${meta[k].ac}">${meta[k].label}</b>`;
+  document.getElementById('recoScen').innerHTML=
+    `Scenario: ${tag(SEV_META,state.sev)} &middot; ${tag(INF_META,state.inf)} &middot; ${tag(FED_META,state.fed)} `
+    +`&middot; ${tag(GDP_META,state.gdp)} &middot; ${tag(TAR_META,state.tar)} &middot; ${tag(GEO_META,state.geo)} `
+    +`&middot; ${tag(JGB_META,state.jgb)} &middot; ${tag(FIS_META,state.fis)} &middot; ${tag(USD_META,state.usd)} `
+    +`&middot; ${tag(ROBO_META,state.rob)}`;
+  const topN=buys.slice(0,3).map(r=>`<b>${r.tk}</b>`).join(', ');
+  const botN=avoids.slice(0,3).map(r=>`<b>${r.tk}</b>`).join(', ');
+  let note;
+  if(state.inf==='high') note=`Stagflation flips the table: real assets win while paper assets &mdash; even &ldquo;safe&rdquo; cash and long bonds &mdash; bleed in real terms. Lean into ${topN}; steer clear of ${botN}.`;
+  else if(state.sev==='melt') note=`No bust here &mdash; the melt-up rewards risk. Equity and high-beta exposure (${topN}) lead; defensive duration lags. Avoid crowding into ${botN}.`;
+  else if(state.fed==='cut') note=`A disinflationary, Fed-cutting bust is the textbook case: duration and quality (${topN}) do their job, while the AI complex and credit (${botN}) take the pain.`;
+  else note=`The model favors ${topN} and flags ${botN} as the assets to avoid in this branch.`;
+  document.getElementById('insReco').innerHTML=
+    `Ranked by projected 5-year <b>real</b> return. ${note} <b>This is a scenario output, not investment advice.</b>`;
+}
+
+function renderCmp(){
+  const m=M();
+  const rows=[
+    ['Nasdaq / AI complex DD','−78%',sgn(m.ai_drawdown)+'%'],
+    ['S&P 500 drawdown','−49%',sgn(m.sp_drawdown)+'%'],
+    ['Inflation regime','disinflation','CPI peak '+m.cpi_peak+'%'],
+    ['Fed funds: start → extreme','6.5% → 1.0%','3.6% → '+(m.fed_low<3.6?m.fed_low:m.fed_high)+'%'],
+    ['10Y yield range','6.5% → 3.1%','4.6% / lo '+m.y10_low+' / hi '+m.y10_high+'%'],
+    ['Long Treasury 5yr return','strongly positive',sgn(m.long_5yr)+'%'],
+    ['S&P 500 — 5yr REAL return','negative for ~7 yrs',sgn(m.sp_real_5yr)+'%'],
+    ['Cash 5yr REAL return','modestly positive',sgn(m.mmf_real_5yr)+'%'],
+  ];
+  document.getElementById('cmpBody').innerHTML=rows.map(r=>
+    `<tr><td>${r[0]}</td><td class="mono">${r[1]}</td>
+     <td class="mono" style="color:#e6edf3;font-weight:600">${r[2]}</td></tr>`).join('');
+}
+function renderInsights(){
+  const m=M(),inf=state.inf,fedk=state.fed,gdpk=state.gdp,tark=state.tar,melt=state.sev==='melt',cm=m.commod,be=m.bondetf;
+  /* macro — composed from the inflation, Fed and GDP dials */
+  const cpiClause = inf==='down'?'inflation falls to about 1%'
+    : inf==='sticky'?'inflation stays sticky near 2.5-3%'
+    : `inflation spikes to ${m.cpi_peak}%`;
+  const fedClause = fedk==='cut'?`the Fed cuts hard, taking rates to ${m.fed_low}%`
+    : fedk==='hold'?'the Fed holds rates near 3.5-3.75% the whole way'
+    : `the Fed hikes, pushing rates to ${m.fed_high}%`;
+  let macro = (melt?'<b>The bust never comes</b> — the melt-up runs the full five years. ':'')
+    + `In this branch ${cpiClause}, and ${fedClause}. `;
+  if(inf==='high'&&fedk==='cut') macro+=`<b>That combination is a policy error:</b> easing into an inflation spike entrenches it — CPI runs hotter and the bond market revolts, dragging the 10-year yield to <b>${m.y10_high}%</b> and leaving cash <b>${sgn(m.mmf_real_5yr)}%</b> in real terms.`;
+  else if(inf==='high'&&fedk==='hike') macro+=`This is the <b>Volcker response</b>: hiking into the spike is brutal for growth and for long bonds, but it caps inflation and ultimately defends the saver's real return.`;
+  else if(inf==='high'&&fedk==='hold') macro+=`The Fed is effectively <b>trapped</b> — holding while inflation rages — and the 10-year yield drifts to <b>${m.y10_high}%</b> on its own.`;
+  else if(inf==='down'&&fedk==='cut') macro+=`This is the clean <b>2000-02 setup</b>: a disinflationary bust the Fed can ride to the rescue, and the 10-year falls to <b>${m.y10_low}%</b>. Every textbook hedge works.`;
+  else if(inf==='down'&&fedk==='hike') macro+=`Hiking into <b>falling</b> inflation is the opposite mistake — needlessly deepening the bust and crushing long bonds for no inflation reason.`;
+  else macro+=`The 10-year yield tracks a <b>${m.y10_low}-${m.y10_high}%</b> range.`;
+  macro += ' '+(gdpk==='soft'?`A <b>soft landing</b> holds unemployment near ${m.unemp_peak}%.`
+    : gdpk==='hard'?`A <b>hard landing</b> drives unemployment to <b>${m.unemp_peak}%</b> and blows credit spreads to ${fmt(m.hy_spread_peak)}bp.`
+    : `A recession lifts unemployment to <b>${m.unemp_peak}%</b>.`);
+  /* tariff overlay */
+  if(tark==='escalate') macro += ` <b>Tariff escalation</b> stacks an extra ~1pp on goods CPI, pushes the long end higher, and weighs on tech/industrials/discretionary names that import from China.`;
+  else if(tark==='truce') macro += ` A <b>tariff truce</b> lifts goods inflation pressure and gives trade-exposed sectors a tailwind — partly offsetting the rest of the macro picture.`;
+  /* JGB overlay */
+  if(state.jgb==='crisis') macro += ` A <b>JGB crisis</b> is the wildcard: a yen-carry unwind forces Japanese repatriation out of US Treasuries, spiking the 10-year to <b>${m.y10_high}%</b> independent of the Fed — so the long bond stops hedging the equity bust and the VIX peaks at <b>${m.vix_peak}</b>.`;
+  else if(state.jgb==='normalization') macro += ` <b>BoJ normalization</b> adds a steady ~30bp of term premium to the US 10-year as Japan trims its Treasury holdings — a quiet, persistent drag on duration and on rate-sensitive equities.`;
+  document.getElementById('insMacro').innerHTML=macro;
+  /* callout */
+  const co=document.getElementById('calloutInfl');
+  if(inf==='high'){co.style.borderColor='#f85149';
+    co.innerHTML=`<b>Why high inflation makes everything worse:</b> with the Fed trapped, there is no rate-cut rescue for stocks, <b>no flight-to-quality rally for bonds</b> (they fall instead), and cash earns a high nominal yield but <b>loses purchasing power</b>. The only winners are real assets — gold, energy, agriculture. The classic 60/40 portfolio fails because stocks and bonds drop together.`;}
+  else if(inf==='down'){co.style.borderColor='#2dd4bf';
+    co.innerHTML=`<b>Why falling inflation changes everything:</b> the Fed is free to move, lower discount rates support equity valuations, bonds rally hard, and cash holds its real value. In a bust every hedge works the way the textbook says; in a melt-up the boom simply has more room to run.`;}
+  else{co.style.borderColor='#8b96a8';
+    co.innerHTML=`<b>The middle path:</b> sticky inflation lets the Fed move, but not freely. Bonds and cash protect capital in nominal terms and roughly tread water in real terms. Most of the textbook still applies — just with a thinner margin of safety.`;}
+  /* real */
+  document.getElementById('insReal').innerHTML=
+    `Over five years the S&P 500 returns <b>${sgn(m.sp_5yr)}% nominal</b> but <b class="${cls(m.sp_real_5yr)}">${sgn(m.sp_real_5yr)}% real</b>. Money-market funds return <b>${sgn(m.mmf_5yr)}% nominal</b> — and <b class="${cls(m.mmf_real_5yr)}">${sgn(m.mmf_real_5yr)}% real</b>. `
+    +(inf==='high'
+      ? `When inflation runs this hot the nominal numbers lie: cash looks like it earns ~${Math.round(m.mmf_5yr)}%, but the price level climbs faster, so a saver quietly loses ground. The dashed lines tell the truth.`
+      : `Here the nominal and real lines stay close — inflation isn't eating the return.`);
+  /* bonds — keyed on the Fed dial */
+  let bonds;
+  if(fedk==='hike') bonds=`<b>Rising rates, falling bonds.</b> The Fed hiking to ${m.fed_high}% drives the 10-year to ${m.y10_high}% — so long Treasuries take a <b>${sgn(m.long_tr_drawdown)}%</b> drawdown. The winner is cash: money-market funds pay out the high policy rate and assets swell toward <b>$${m.mmf_peak_assets}T</b>. HY credit is hit twice — high rates plus AI-debt defaults — down <b>${sgn(m.hy_drawdown)}%</b> as spreads hit ${fmt(m.hy_spread_peak)}bp.`;
+  else if(fedk==='cut') bonds=`<b>Cash and Treasuries do their job.</b> The Fed cutting to ${m.fed_low}% pulls the 10-year down to ${m.y10_low}%, lifting long Treasuries up to <b>+${m.long_peak}%</b>. MMF assets swell toward <b>$${m.mmf_peak_assets}T</b>; the cash yield fades as the Fed eases${m.mmf_real_5yr<0?`, and it still ends <b>${sgn(m.mmf_real_5yr)}%</b> in real terms`:''}. HY credit is the soft spot — the AI-debt contagion channel — down <b>${sgn(m.hy_drawdown)}%</b> as spreads hit ${fmt(m.hy_spread_peak)}bp.`;
+  else bonds=`<b>The Fed on hold: bonds just clip a coupon.</b> With rates parked near 3.6%, long Treasuries barely move on price (drawdown ${sgn(m.long_tr_drawdown)}%) and simply earn carry. Money-market funds keep paying ~3.5% — assets rise toward <b>$${m.mmf_peak_assets}T</b>. HY credit still draws down <b>${sgn(m.hy_drawdown)}%</b> on the AI-debt stress as spreads reach ${fmt(m.hy_spread_peak)}bp.`;
+  document.getElementById('insBonds').innerHTML=bonds;
+  /* bond ETFs — keyed on the Fed dial */
+  let betf;
+  if(fedk==='hike') betf=`<b>The duration ladder inverts.</b> With the Fed hiking, the long end is the worst rung — TLT draws down <b>${sgn(be.ust_long_tr.dd)}%</b>, the 30Y T-bond <b>${sgn(be.ust30_tr.dd)}%</b>, and EDV <b>${sgn(be.ust_edv_tr.dd)}%</b>. SGOV (T-bills) and SHY are the safe rungs: short paper just rolls into the higher rate. The 5Y belly (IEI) takes a middle hit of <b>${sgn(be.ust5_tr.dd)}%</b>. <b>TIP</b> protects best (it returns ${sgn(be.tips_tr.r5)}% here), and HYG is crushed by rates plus AI-debt defaults.`;
+  else if(fedk==='cut') betf=`<b>Duration pays.</b> With the Fed cutting, the long bond is the standout — TLT returns <b>${sgn(be.ust_long_tr.r5)}%</b>, the 30Y T-bond <b>${sgn(be.ust30_tr.r5)}%</b>, and EDV <b>${sgn(be.ust_edv_tr.r5)}%</b> — while SGOV and SHY just clip a shrinking coupon. The 5Y belly (IEI) catches most of the rate rally at half the volatility, returning <b>${sgn(be.ust5_tr.r5)}%</b>. TIP ${be.tips_tr.r5<be.ust10_tr.r5?'lags':'leads'} nominal Treasuries (${sgn(be.tips_tr.r5)}% vs. IEF ${sgn(be.ust10_tr.r5)}%). LQD holds up; HYG is the soft spot, the AI-debt contagion channel.`;
+  else betf=`<b>The Fed on hold: carry, not capital gains.</b> Yields stay range-bound, so every Treasury ETF mostly earns its coupon — 30Y ${sgn(be.ust30_tr.r5)}%, TLT ${sgn(be.ust_long_tr.r5)}%, IEF ${sgn(be.ust10_tr.r5)}%, IEI ${sgn(be.ust5_tr.r5)}%, SGOV ${sgn(be.sgov_tr.r5)}% — with little price movement either way. TIP returns ${sgn(be.tips_tr.r5)}%; HYG carries the AI-debt risk.`;
+  document.getElementById('insBondETF').innerHTML=betf;
+  const cb=document.getElementById('calloutBond');
+  if(fedk==='hike'){cb.style.borderColor='#f85149';
+    cb.innerHTML=`<b>The trade:</b> when the Fed is hiking, <b>sell duration</b>. Own SGOV (T-bills) and SHY (short paper that rolls up into the higher rate) plus TIP; avoid TLT, the 30Y T-bond, and EDV. The "safe" long Treasury is the trap.`;}
+  else if(fedk==='cut'){cb.style.borderColor='#2dd4bf';
+    cb.innerHTML=`<b>The trade:</b> when the Fed is cutting, <b>extend duration before the cuts land</b>. TLT, the 30Y T-bond, and EDV capture the full rate rally — lock in today's ~4.6% long yield while it lasts. The 5Y belly (IEI) is the high-Sharpe play: most of the upside with much less drawdown if the cuts get delayed.`;}
+  else{cb.style.borderColor='#8b96a8';
+    cb.innerHTML=`<b>The trade:</b> with the Fed on hold, duration is a coin-flip — you are paid only the coupon. SGOV gives the same carry with none of the price risk; hold duration (5Y, 10Y, 30Y) only as a hedge against the Fed being forced to move.`;}
+  /* commodities */
+  let com;
+  if(inf==='high'){
+    com=`<b>Stagflation flips the commodity complex.</b> The energy shock that fuels the inflation also drives the trade — WTI spikes toward <b>$${cm.wti.hi}</b> and natural gas with it. Copper falls far less than in a normal bust (just ${sgn(cm.copper.dd)}%) — its real-asset bid offsets the demand loss — and ends the five years <b>${sgn(cm.copper.r5)}%</b>. Gold (<b>${sgn(cm.gold.r5)}%</b>), silver (<b>${sgn(cm.silver.r5)}%</b> — the highest-beta inflation play) and agriculture (<b>${sgn(cm.agriculture.r5)}%</b>) are the dominant winners. Only uranium still falls hard (${sgn(cm.uranium.dd)}%) — its AI-demand thesis dies regardless of inflation.`;
+  }else{
+    com=`<b>The AI-buildout commodities take the worst of it.</b> Uranium — the purest AI-power proxy — craters <b>${sgn(cm.uranium.dd)}%</b> as hyperscaler nuclear deals evaporate. Copper drops <b>${sgn(cm.copper.dd)}%</b> as the data-center grid-buildout thesis unwinds into recession. Natural gas falls <b>${sgn(cm.natgas.dd)}%</b> — the AI electricity demand never shows up — and crude slides toward <b>$${cm.wti.lo}</b> on recession demand destruction. The havens diverge the other way: gold rises <b>${sgn(cm.gold.r5)}%</b>, agriculture holds, and silver dips then recovers to <b>${sgn(cm.silver.r5)}%</b>.`;
+  }
+  document.getElementById('insCommod').innerHTML=com;
+  const cc=document.getElementById('calloutCommod');
+  if(inf==='high'){cc.style.borderColor='#f0883e';
+    cc.innerHTML=`<b>The trade:</b> in a stagflationary AI bust the commodity book is long real assets — gold, silver, agriculture, energy — and short the AI-buildout names. Copper is the swing asset: industrial enough to fall in the panic, real enough to recover with inflation.`;
+  }else{cc.style.borderColor='#2dd4bf';
+    cc.innerHTML=`<b>The trade:</b> in a disinflationary AI bust almost the whole commodity complex falls with demand — only gold reliably holds. Uranium and copper are the cleanest shorts: they carry an AI-buildout premium on top of ordinary cyclical demand.`;
+  }
+  /* sector */
+  document.getElementById('insSector').innerHTML=
+    `Pain is concentrated: technology (DD ${sgn(m.sec_dd.tech)}%) and communications (${sgn(m.sec_dd.comm)}%) take the worst. The AI-power trade unwinds too — utilities, industrials and materials give back their data-center premium. Defensives shelter capital: staples (${sgn(m.sec_dd.staples)}%) and health care (${sgn(m.sec_dd.healthcare)}%) fall least`
+    +(inf==='high'?`, and they hold up best of all when inflation lets them pass costs through.`:`.`);
+  /* REIT */
+  const reit=m.reit;
+  let reitIns=`<b>Commercial REITs</b> return <b>${sgn(reit.comm_reit.r5)}%</b> nominal (${sgn(reit.comm_reit.r5real)}% real) with a <b>${sgn(reit.comm_reit.dd)}%</b> drawdown. `;
+  reitIns+=`<b>Residential REITs</b> return <b>${sgn(reit.res_reit.r5)}%</b> nominal (${sgn(reit.res_reit.r5real)}% real) with a <b>${sgn(reit.res_reit.dd)}%</b> drawdown. `;
+  if(fedk==='hike') reitIns+=`Rising rates crush REITs — they behave like leveraged bonds. Commercial RE (office, retail) takes the worst of it.`;
+  else if(fedk==='cut') reitIns+=`Falling rates lift REITs — duration works in their favor. Residential benefits from the housing supply shortage.`;
+  else reitIns+=`With rates on hold, REITs mostly clip their dividend yield.`;
+  if(state.fis==='stimulus') reitIns+=` <b>Fiscal stimulus</b> adds a tailwind — government spending boosts demand for commercial and residential space.`;
+  else if(state.fis==='austerity') reitIns+=` <b>Fiscal austerity</b> is a headwind — government spending cuts reduce demand.`;
+  document.getElementById('insREIT').innerHTML=reitIns;
+  const coR=document.getElementById('calloutREIT');
+  if(fedk==='hike'){coR.style.borderColor='#f85149';
+    coR.innerHTML=`<b>The trade:</b> when rates are rising, <b>underweight REITs</b> — especially commercial (office, retail). They carry both duration risk and leverage risk. Residential is more resilient but still lags cash.`;}
+  else if(fedk==='cut'){coR.style.borderColor='#2dd4bf';
+    coR.innerHTML=`<b>The trade:</b> when rates are falling, <b>overweight REITs</b> — especially residential (apartments, SFR). They benefit from both lower rates and the structural housing shortage. Commercial REITs recover but office remains impaired post-WFH.`;}
+  else{coR.style.borderColor='#8b96a8';
+    coR.innerHTML=`<b>The trade:</b> with rates on hold, REITs earn their dividend yield (~4-5%) with limited price appreciation. Residential is the safer play; commercial carries office/retail structural risk.`;}
+  /* BTC */
+  const btc=m.btc;
+  let btcIns=`<b>Bitcoin</b> returns <b>${sgn(btc.r5)}%</b> nominal (${sgn(btc.r5real)}% real) with a <b>${sgn(btc.dd)}%</b> drawdown. `;
+  if(state.usd==='weak') btcIns+=`A <b>weak dollar</b> is rocket fuel for Bitcoin — it's the purest dollar-debasement trade. 2020-21 analog: +1000%.`;
+  else if(state.usd==='strong') btcIns+=`A <b>strong dollar</b> crushes Bitcoin — global liquidity tightens and risk assets sell off. 2022 analog: -65%.`;
+  else btcIns+=`A neutral dollar leaves Bitcoin to trade on its equity beta (~2.2x the S&P).`;
+  if(state.fis==='stimulus') btcIns+=` Fiscal stimulus adds liquidity and boosts the BTC bid.`;
+  else if(state.fis==='austerity') btcIns+=` Fiscal austerity drains liquidity.`;
+  document.getElementById('insBTC').innerHTML=btcIns;
+  const coB=document.getElementById('calloutBTC');
+  if(state.usd==='strong'){coB.style.borderColor='#f85149';
+    coB.innerHTML=`<b>The trade:</b> strong dollar = <b>avoid Bitcoin</b>. It's a liquidity sponge that amplifies every risk-off move. In 2022, BTC fell -65% while the S&P fell -19%. The dollar wrecking ball hits crypto hardest.`;}
+  else if(state.usd==='weak'){coB.style.borderColor='#3fb950';
+    coB.innerHTML=`<b>The trade:</b> weak dollar + stimulus = <b>Bitcoin is the highest-beta play</b>. It outperforms equities, gold and commodities in a liquidity flood. But it also crashes hardest if the regime flips.`;}
+  else{coB.style.borderColor='#8b96a8';
+    coB.innerHTML=`<b>The trade:</b> neutral dollar = Bitcoin tracks its equity beta (~2.2x). It amplifies the bust in either direction. Only for those with high risk tolerance and a multi-year horizon.`;}
+  /* rank */
+  document.getElementById('insRank').innerHTML=
+    (inf==='high'
+      ? `<b>The ranking inverts.</b> In stagflation, gold, agriculture and other real assets win; cash, bonds and the 60/40 portfolio post <b>negative real returns</b>. The lesson of the 1970s: when inflation is the problem, paper assets — including "safe" ones — quietly bleed.`
+      : `Money-market funds and Treasuries protect capital and beat a falling stock market — the 2000-02 outcome. The AI complex is the deepest hole; a 60/40 portfolio lands in the middle, saved by its bond sleeve.`);
+  /* cmp note */
+  document.getElementById('insCmp').innerHTML=
+    `<b>The decoupling overlay.</b> In 2000-02, China's WTO entry was a disinflationary tailwind that let the Fed cut to 1% with no inflation cost — which is why bonds worked so well. A US-China-decoupled 2026 makes the <b>"inflation spikes"</b> branch far more plausible: tariffs near 31%, reshored supply chains, and a rare-earth/chip-war tail risk all push prices up exactly when growth is falling. That is the scenario where the dot-com hedge playbook stops working.`;
+}
+
+/* ===== scenario finder — rank all 26244 ===== */
+const SHORT={
+  sev:{melt:'Melt-up',mild:'Mild bust',base:'Base bust',severe:'Severe bust'},
+  inf:{down:'Disinflation',sticky:'Sticky CPI',high:'Stagflation'},
+  fed:{cut:'Fed cuts',hold:'Fed holds',hike:'Fed hikes'},
+  gdp:{soft:'Soft landing',recession:'Recession',hard:'Hard landing'},
+  tar:{truce:'Tariff truce',deescalate:'Tariffs steady',escalate:'Tariff escalation'},
+  geo:{stable:'Geo stable',tension:'Geo tension',conflict:'Conflict'},
+  jgb:{anchored:'JGB anchored',normalization:'BoJ normalizing',crisis:'JGB crisis'},
+  fis:{austerity:'Fiscal austerity',neutral:'Fiscal neutral',stimulus:'Fiscal stimulus'},
+  usd:{weak:'Weak USD',neutral:'USD neutral',strong:'Strong USD'}};
+const AXC={
+  sev:{melt:'#3fb950',mild:'#e3a72c',base:'#58a6ff',severe:'#f85149'},
+  inf:{down:'#2dd4bf',sticky:'#8b96a8',high:'#f0883e'},
+  fed:{cut:'#2dd4bf',hold:'#8b96a8',hike:'#f85149'},
+  gdp:{soft:'#3fb950',recession:'#e3a72c',hard:'#f85149'},
+  tar:{truce:'#2dd4bf',deescalate:'#8b96a8',escalate:'#f0883e'},
+  geo:{stable:'#3fb950',tension:'#e3a72c',conflict:'#f85149'},
+  jgb:{anchored:'#3fb950',normalization:'#e3a72c',crisis:'#f85149'},
+  fis:{austerity:'#f85149',neutral:'#8b96a8',stimulus:'#3fb950'},
+  usd:{weak:'#3fb950',neutral:'#8b96a8',strong:'#f85149'}};
+const KEYS={sev:['melt','mild','base','severe'],inf:['down','sticky','high'],
+  fed:['cut','hold','hike'],gdp:['soft','recession','hard'],
+  tar:['truce','deescalate','escalate'],
+  geo:['stable','tension','conflict'],
+  jgb:['anchored','normalization','crisis'],
+  fis:['austerity','neutral','stimulus'],
+  usd:['weak','neutral','strong']};
+const METRICS=[
+  {k:'sp_real',  lbl:'S&P 500 — 5-year real return',      g:m=>m.sp_real_5yr,            better:'high'},
+  {k:'sp_nom',   lbl:'S&P 500 — 5-year nominal return',   g:m=>m.sp_5yr,                 better:'high'},
+  {k:'sp_dd',    lbl:'S&P 500 — max drawdown',            g:m=>m.sp_drawdown,            better:'high'},
+  {k:'ai_dd',    lbl:'AI complex — max drawdown',         g:m=>m.ai_drawdown,            better:'high'},
+  {k:'p64_5',    lbl:'60/40 portfolio — 5-year return',   g:m=>m.port_6040_5yr,          better:'high'},
+  {k:'p64_dd',   lbl:'60/40 portfolio — max drawdown',    g:m=>m.port_6040_drawdown,     better:'high'},
+  {k:'mmf_real', lbl:'Money market — 5-year real return', g:m=>m.mmf_real_5yr,           better:'high'},
+  {k:'sgov_5',   lbl:'SGOV (T-bills) — 5-year return',    g:m=>m.bondetf.sgov_tr.r5,     better:'high'},
+  {k:'iei_5',    lbl:'5Y Treasury IEI — 5-year return',   g:m=>m.bondetf.ust5_tr.r5,     better:'high'},
+  {k:'iei_dd',   lbl:'5Y Treasury IEI — max drawdown',    g:m=>m.bondetf.ust5_tr.dd,     better:'high'},
+  {k:'tlt_5',    lbl:'Long Treasury TLT — 5-year return', g:m=>m.bondetf.ust_long_tr.r5, better:'high'},
+  {k:'tlt_dd',   lbl:'Long Treasury TLT — max drawdown',  g:m=>m.bondetf.ust_long_tr.dd, better:'high'},
+  {k:'b30_5',    lbl:'30Y T-bond — 5-year return',        g:m=>m.bondetf.ust30_tr.r5,    better:'high'},
+  {k:'b30_dd',   lbl:'30Y T-bond — max drawdown',         g:m=>m.bondetf.ust30_tr.dd,    better:'high'},
+  {k:'tip_5',    lbl:'TIPS TIP — 5-year return',          g:m=>m.bondetf.tips_tr.r5,     better:'high'},
+  {k:'hy_dd',    lbl:'HY credit — max drawdown',          g:m=>m.hy_drawdown,            better:'high'},
+  {k:'gold_5',   lbl:'Gold — 5-year return',              g:m=>m.gold_5yr,               better:'high'},
+  {k:'btc_5',    lbl:'Bitcoin — 5-year return',             g:m=>m.btc.r5,               better:'high'},
+  {k:'comm_reit_5',lbl:'Commercial REIT — 5-year return',   g:m=>m.reit.comm_reit.r5,    better:'high'},
+  {k:'res_reit_5', lbl:'Residential REIT — 5-year return',  g:m=>m.reit.res_reit.r5,     better:'high'},
+  {k:'cpi_pk',   lbl:'CPI — peak level',                  g:m=>m.cpi_peak,  better:'low', lvl:true},
+  {k:'unemp',    lbl:'Unemployment — peak',               g:m=>m.unemp_peak,better:'low', lvl:true},
+  {k:'y10',      lbl:'10-year yield — peak',              g:m=>m.y10_high,  better:'low', lvl:true},
+];
+function allScen(){
+  const o=[];
+  for(const a of KEYS.sev)for(const b of KEYS.inf)for(const c of KEYS.fed)
+    for(const e of KEYS.gdp)for(const t of KEYS.tar)for(const g of KEYS.geo)for(const j of KEYS.jgb)
+      for(const f of KEYS.fis)for(const u of KEYS.usd)
+        o.push({sev:a,inf:b,fed:c,gdp:e,tar:t,geo:g,jgb:j,fis:f,usd:u,m:SIM.summary[a][b][c][e][t][g][j][f][u]});
+  return o;
+}
+function jumpTo(a,b,c,e,t,g,j,f,u){
+  state.sev=a;state.inf=b;state.fed=c;state.gdp=e;state.tar=t;state.geo=g||'stable';state.jgb=j||'anchored';
+  state.fis=f||'neutral';state.usd=u||'neutral';
+  applyScenario();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function renderFinder(){
+  const sel=document.getElementById('finderMetric');
+  const met=METRICS.find(x=>x.k===sel.value)||METRICS[0];
+  const fv=v=>met.lvl?(v.toFixed(v>=10?0:1)+'%'):sgn(v)+'%';
+  let rows=allScen().map(x=>(x.v=met.g(x.m),x));
+  rows.sort((p,q)=>met.better==='high'?q.v-p.v:p.v-q.v);
+  rows.forEach((r,i)=>r.rank=i+1);
+  const cur=rows.find(r=>r.sev===state.sev&&r.inf===state.inf&&r.fed===state.fed
+    &&r.gdp===state.gdp&&r.tar===state.tar&&r.geo===state.geo&&r.jgb===state.jgb
+    &&r.fis===state.fis&&r.usd===state.usd);
+  const chip=(ax,k)=>`<span style="display:inline-flex;align-items:center;gap:4px;margin-right:9px">`
+    +`<span style="width:7px;height:7px;border-radius:50%;background:${AXC[ax][k]};flex:none"></span>`
+    +`${SHORT[ax][k]}</span>`;
+  const row=r=>`<div onclick="jumpTo('${r.sev}','${r.inf}','${r.fed}','${r.gdp}','${r.tar}','${r.geo}','${r.jgb}','${r.fis}','${r.usd}')"
+      style="display:flex;align-items:center;gap:10px;padding:7px 10px;cursor:pointer;border-radius:7px;
+      border-bottom:0.5px solid var(--line);${r===cur?'background:#1c2738;box-shadow:inset 0 0 0 1px var(--blue);':''}">
+      <span class="mono" style="width:36px;color:var(--dim);font-size:12px;flex:none">#${r.rank}</span>
+      <span style="flex:1;font-size:12px;color:var(--txt)">${chip('sev',r.sev)}${chip('inf',r.inf)}${chip('fed',r.fed)}${chip('gdp',r.gdp)}${chip('tar',r.tar)}${chip('geo',r.geo)}${chip('jgb',r.jgb)}${chip('fis',r.fis)}${chip('usd',r.usd)}</span>
+      <span class="mono ${cls(met.better==='low'?-r.v:r.v)}" style="width:66px;text-align:right;font-weight:600;font-size:13px;flex:none">${fv(r.v)}</span>
+    </div>`;
+  const lab=t=>`<div style="font-size:10.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--dim);margin:10px 0 3px">${t}</div>`;
+  const middleCount = rows.length - 24;
+  const mid=`<div style="text-align:center;font-size:12px;color:var(--mut);padding:11px;
+    border-top:0.5px solid var(--line);border-bottom:0.5px solid var(--line);margin:4px 0">
+    &middot;&middot;&middot;&nbsp; ${middleCount} more scenarios &nbsp;&middot;&middot;&middot;<br>
+    Your current scenario ranks <b style="color:var(--txt)">#${cur.rank} of ${rows.length}</b> here &mdash;
+    <span class="${cls(met.better==='low'?-cur.v:cur.v)}" style="font-weight:600">${fv(cur.v)}</span></div>`;
+  document.getElementById('finderList').innerHTML=
+    lab('Best 12 &mdash; the benign corner')+rows.slice(0,12).map(row).join('')
+    +mid+lab('Worst 12 &mdash; the danger corner')+rows.slice(-12).map(row).join('');
+}
+document.getElementById('finderMetric').innerHTML=
+  METRICS.map(x=>`<option value="${x.k}">${x.lbl}</option>`).join('');
+document.getElementById('finderMetric').onchange=renderFinder;
+
+/* ===== orchestration ===== */
+function applyScenario(){
+  _cachedScen=null;
+  document.querySelectorAll('.scen-btn').forEach(b=>
+    b.classList.toggle('on', b.dataset.k===state[b.dataset.ax]));
+  markActivePreset();
+  renderScenLine();renderReco();renderCards();renderInsights();renderCmp();renderRank();
+  syncCharts();renderSnap();renderPhases();renderHeat();renderCommodMoves();renderBondMoves();
+  renderREITMoves();renderBTCMoves();
+  renderFinder();
+}
+function applyMonth(){
+  document.getElementById('slider').value=state.month;
+  document.getElementById('tlDate').innerHTML=
+    SIM.dates[state.month]+' <span>&middot; month '+state.month+'</span>';
+  redrawMarkers();syncSector();renderSnap();renderPhases();renderHeat();
+  renderCommodMoves();renderBondMoves();renderREITMoves();renderBTCMoves();
+}
+function setMonth(m){state.month=+m;applyMonth();}
+
+document.getElementById('slider').oninput=e=>{stopPlay();setMonth(e.target.value);};
+document.getElementById('play').onclick=()=>{
+  if(state.playing){stopPlay();return;}
+  state.playing=true;document.getElementById('play').innerHTML='&#10073;&#10073;';
+  if(state.month>=60)setMonth(0);
+  state.timer=setInterval(()=>{
+    if(state.month>=60){stopPlay();return;}
+    setMonth(state.month+1);},170);
+};
+function stopPlay(){state.playing=false;clearInterval(state.timer);
+  document.getElementById('play').innerHTML='&#9654;';}
+
+/* init */
+fillPresets();
+buildAll();
+state.month=SIM.summary[state.sev][state.inf][state.fed][state.gdp][state.tar][state.geo][state.jgb][state.fis][state.usd].sp_trough_m;
+applyScenario();
+applyMonth();
+
+/* ===== Current Situation ===== */
+const DIAL_META_MAP = {
+  sev: {melt:{l:'Melt-up',c:'#3fb950'},mild:{l:'Mild bust',c:'#e3a72c'},base:{l:'Base bust',c:'#58a6ff'},severe:{l:'Severe',c:'#f85149'}},
+  inf: {down:{l:'Disinflation',c:'#2dd4bf'},sticky:{l:'Sticky',c:'#8b96a8'},high:{l:'High / Stagflation',c:'#f0883e'}},
+  fed: {cut:{l:'Fed cuts',c:'#2dd4bf'},hold:{l:'Fed holds',c:'#8b96a8'},hike:{l:'Fed hikes',c:'#f85149'}},
+  gdp: {soft:{l:'Soft landing',c:'#3fb950'},recession:{l:'Recession',c:'#e3a72c'},hard:{l:'Hard landing',c:'#f85149'}},
+  tar: {truce:{l:'Tariff truce',c:'#2dd4bf'},deescalate:{l:'De-escalate',c:'#8b96a8'},escalate:{l:'Escalation',c:'#f0883e'}},
+  geo: {stable:{l:'Stable',c:'#3fb950'},tension:{l:'Tension',c:'#e3a72c'},conflict:{l:'Conflict',c:'#f85149'}},
+  jgb: {anchored:{l:'Anchored',c:'#3fb950'},normalization:{l:'Normalization',c:'#e3a72c'},crisis:{l:'Crisis',c:'#f85149'}},
+  fis: {austerity:{l:'Austerity',c:'#f85149'},neutral:{l:'Neutral',c:'#8b96a8'},stimulus:{l:'Stimulus',c:'#3fb950'}},
+  usd: {weak:{l:'Weak USD',c:'#3fb950'},neutral:{l:'Neutral',c:'#8b96a8'},strong:{l:'Strong USD',c:'#f85149'}},
+  rob: {low:{l:'Low automation',c:'#8b96a8'},moderate:{l:'Steady automation',c:'#e3a72c'},surge:{l:'Robotics boom',c:'#2dd4bf'}},
+};
+const DIAL_LABELS = {sev:'Severity',inf:'Inflation',fed:'Fed',gdp:'GDP',tar:'Tariffs',geo:'Geopolitics',jgb:'JGB / Japan',fis:'Fiscal',usd:'US Dollar',rob:'Robotics / Drones'};
+let _curSitData = null;
+
+async function loadCurrentSituation(){
+  const btn = document.getElementById('curSitBtn');
+  const status = document.getElementById('curSitStatus');
+  const panel = document.getElementById('curSitPanel');
+
+  if(_curSitData){
+    panel.classList.toggle('show');
+    return;
+  }
+
+  btn.disabled = true;
+  btn.innerHTML = '<span style="font-size:16px">&#9673;</span> Fetching live news...';
+  status.textContent = 'Analyzing financial news from 15 sources...';
+  status.style.color = 'var(--blue)';
+
+  try {
+    const resp = await fetch('/api/current-situation');
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    _curSitData = await resp.json();
+    renderCurrentSituation();
+    panel.classList.add('show');
+  } catch(e) {
+    if(CURRENT_SITUATION){
+      _curSitData = CURRENT_SITUATION;
+      renderCurrentSituation();
+      panel.classList.add('show');
+      status.innerHTML += ' <span style="color:var(--amber)">(using cached data)</span>';
+    } else {
+      status.textContent = 'Failed to fetch live news. Run the server with: python3 server.py';
+      status.style.color = 'var(--red)';
+      setTimeout(()=>{
+        btn.disabled = false;
+        btn.innerHTML = '<span style="font-size:16px">&#9673;</span> Current Situation';
+      }, 3000);
+    }
+  }
+}
+
+function renderCurrentSituation(){
+  const d = _curSitData;
+  const panel = document.getElementById('curSitPanel');
+  const status = document.getElementById('curSitStatus');
+  const btn = document.getElementById('curSitBtn');
+
+  btn.innerHTML = '<span style="font-size:16px">&#9673;</span> Current Situation';
+  btn.disabled = false;
+
+  const ts = new Date(d.timestamp);
+  const timeStr = ts.toLocaleString('en-US',{month:'short',day:'numeric',year:'numeric',hour:'2-digit',minute:'2-digit'});
+  status.innerHTML = `<b style="color:var(--txt)">${d.sources.total_articles} articles</b> from <b style="color:var(--txt)">${d.sources.ok.length} sources</b> analyzed at ${timeStr}`;
+  status.style.color = 'var(--mut)';
+
+  const sent = d.sentiment;
+  const sentColor = sent.overall==='bullish'?'var(--green)':sent.overall==='bearish'?'var(--red)':'var(--amber)';
+  const sentBg = sent.overall==='bullish'?'rgba(63,185,80,.12)':sent.overall==='bearish'?'rgba(248,81,73,.12)':'rgba(227,167,44,.12)';
+  document.getElementById('curSitSentiment').innerHTML =
+    `<span class="curSitSentBadge" style="background:${sentBg};color:${sentColor}">`
+    +`<span style="width:8px;height:8px;border-radius:50%;background:${sentColor}"></span>`
+    +`Overall: ${sent.overall.toUpperCase()}</span>`
+    +`<span style="font-size:12px;color:var(--mut)">FinBERT score: ${sent.avg_finbert>0?'+':''}${sent.avg_finbert}</span>`
+    +`<span style="font-size:12px;color:var(--mut)">Positive signals: ${sent.positive_keywords}</span>`
+    +`<span style="font-size:12px;color:var(--mut)">Negative signals: ${sent.negative_keywords}</span>`;
+
+  const dials = d.dials;
+  document.getElementById('curSitDials').innerHTML = Object.keys(dials).map(k=>{
+    const v = dials[k];
+    const meta = DIAL_META_MAP[k][v] || {l:v,c:'#8b96a8'};
+    return `<div class="curSitDial">
+      <div class="dk">${DIAL_LABELS[k]}</div>
+      <div class="dv"><span class="ddot" style="background:${meta.c}"></span>${meta.l}</div>
+    </div>`;
+  }).join('');
+
+  const hls = d.headlines || [];
+  document.getElementById('curSitHeadlines').innerHTML = hls.slice(0,12).map(h=>
+    `<div class="hl"><b>${h.title}</b><span class="hsrc">${h.source}</span></div>`
+  ).join('');
+
+  const srcOk = d.sources.ok || [];
+  const srcFail = d.sources.failed || [];
+  document.getElementById('curSitSources').innerHTML =
+    `Sources: ${srcOk.join(', ')}`
+    +(srcFail.length ? `<br><span style="color:var(--red)">Failed: ${srcFail.join(', ')}</span>` : '');
+}
+
+function applyCurrentSituation(){
+  if(!_curSitData) return;
+  const d = _curSitData.dials;
+  state.sev = d.sev;
+  state.inf = d.inf;
+  state.fed = d.fed;
+  state.gdp = d.gdp;
+  state.tar = d.tar;
+  state.geo = d.geo;
+  state.jgb = d.jgb;
+  state.fis = d.fis;
+  state.usd = d.usd;
+  state.rob = d.rob || 'low';
+  applyScenario();
+  window.scrollTo({top:document.querySelector('.timeline').offsetTop-20,behavior:'smooth'});
+}
+
+async function pullLatestNews(){
+  const btn = document.getElementById('curSitRefreshBtn');
+  const status = document.getElementById('curSitStatus');
+  const panel = document.getElementById('curSitPanel');
+
+  btn.disabled = true;
+  btn.innerHTML = '<span style="font-size:16px">&#8635;</span> Pulling...';
+  status.textContent = 'Fetching financial news from 15+ sources...';
+  status.style.color = 'var(--blue)';
+
+  try {
+    const resp = await fetch('/api/current-situation');
+    if(!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    _curSitData = await resp.json();
+    renderCurrentSituation();
+    panel.classList.add('show');
+    applyCurrentSituation();
+    status.innerHTML += ' &mdash; <span style="color:var(--green)">&#10003; Applied to simulation</span>';
+  } catch(e) {
+    if(CURRENT_SITUATION){
+      _curSitData = CURRENT_SITUATION;
+      renderCurrentSituation();
+      panel.classList.add('show');
+      applyCurrentSituation();
+      status.innerHTML = '<span style="color:var(--amber)">Using cached data (server not running) &mdash; &#10003; Applied to simulation</span>';
+    } else {
+      status.textContent = 'Failed to fetch live news. Start the server: python3 server.py';
+      status.style.color = 'var(--red)';
+    }
+  }
+  btn.disabled = false;
+  btn.innerHTML = '<span style="font-size:16px">&#8635;</span> Pull Latest News';
+}
+</script>
+</body>
+</html>
