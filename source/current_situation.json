@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-05-30T20:30:44.882659+00:00",
+  "timestamp": "2026-05-30T22:49:02.977098+00:00",
   "dials": {
     "sev": "base",
     "inf": "high",
@@ -14,8 +14,8 @@
   },
   "confidence": {
     "sev": {
-      "melt": 2.9172000000000002,
-      "mild": 2.65476,
+      "melt": 3.54192,
+      "mild": 1.67292,
       "base": 5.74136,
       "severe": 0.9798
     },
@@ -25,8 +25,8 @@
       "high": 3.60812
     },
     "fed": {
-      "cut": 5.5806,
-      "hold": 0.6,
+      "cut": 5.5806000000000004,
+      "hold": 0.0,
       "hike": 2.8794399999999998
     },
     "gdp": {
@@ -40,9 +40,9 @@
       "escalate": 0.56284
     },
     "geo": {
-      "stable": 7.34944,
-      "tension": 71.84472000000002,
-      "conflict": 71.84472000000002
+      "stable": 8.003319999999999,
+      "tension": 71.59056000000004,
+      "conflict": 71.59056000000004
     },
     "jgb": {
       "anchored": 0,
@@ -61,9 +61,9 @@
     }
   },
   "sentiment": {
-    "avg_finbert": -0.101,
-    "positive_keywords": 162,
-    "negative_keywords": 120,
+    "avg_finbert": -0.097,
+    "positive_keywords": 163,
+    "negative_keywords": 121,
     "overall": "mixed"
   },
   "headlines": [
@@ -100,7 +100,7 @@
       "source": "CNBC Top News"
     },
     {
-      "title": "Trump to headline 250th anniversary fair opening after performers drop out",
+      "title": "Trump to headline 'Great American State Fair' for nation's 250th anniversary after artists drop out",
       "source": "CNBC Top News"
     },
     {
@@ -124,15 +124,19 @@
       "source": "CNBC Top News"
     },
     {
+      "title": "Trump plans to appeal order allowing all importers that paid struck-down tariffs to seek refunds",
+      "source": "CNBC Top News"
+    },
+    {
       "title": "Jim Cramer says Dell\u2019s blowout quarter sets up a crucial week for AI stocks",
       "source": "CNBC Top News"
     },
     {
-      "title": "Berkshire trails red-hot S&P 500 by biggest margin so far this year",
+      "title": "Morgan Stanley says these 'dividend hopefuls' are poised to outperform if they initiate a payout",
       "source": "CNBC Top News"
     },
     {
-      "title": "Morgan Stanley says these 'dividend hopefuls' are poised to outperform if they initiate a payout",
+      "title": "Berkshire trails red-hot S&P 500 by biggest margin so far this year",
       "source": "CNBC Top News"
     },
     {
@@ -141,10 +145,6 @@
     },
     {
       "title": "Student loan borrowers will have two new repayment options come July 1. Here's how to pick one",
-      "source": "CNBC Top News"
-    },
-    {
-      "title": "U.S. support for Taiwan reaffirmed by members of Congress even after Trump called arms sales a 'negotiating chip' with China",
       "source": "CNBC Top News"
     }
   ],
