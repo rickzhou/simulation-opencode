@@ -59,6 +59,14 @@ RSS_FEEDS = [
     ('Bloomberg Markets',  'https://feeds.bloomberg.com/markets/news.rss'),
     ('TheStreet',          'https://www.thestreet.com/.rss/full/'),
     ('Economist Finance',  'https://www.economist.com/finance-and-economics/rss.xml'),
+    ('Motley Fool',        'https://www.fool.com/feeds/index.aspx?id=top-articles&format=rss'),
+    ('ZeroHedge',          'https://feeds.feedburner.com/zerohedge/feed'),
+    ('Real Clear Markets', 'https://www.realclearmarkets.com/index.xml'),
+    ('ETF Trends',         'https://www.etftrends.com/feed/'),
+    ('FX Street',          'https://www.fxstreet.com/rss/news'),
+    ('Oil Price',          'https://oilprice.com/rss/main'),
+    ('Nasdaq News',        'https://www.nasdaq.com/feed/nasdaq-original/rss.xml'),
+    ('Benzinga',           'https://www.benzinga.com/feed'),
 ]
 
 KW = {
