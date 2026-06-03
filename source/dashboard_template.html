@@ -1584,13 +1584,29 @@ async function pullLatestNews(){
       applyCurrentSituation();
       status.innerHTML = '<span style="color:var(--amber)">Using cached data (server not running) &mdash; &#10003; Applied to simulation</span>';
     } else {
-      status.textContent = 'Failed to fetch live news. Start the server: python3 server.py';
+      status.textContent = 'Failed to fetch live news. Start the server: npm run serve';
       status.style.color = 'var(--red)';
     }
   }
   btn.disabled = false;
   btn.innerHTML = '<span style="font-size:16px">&#8635;</span> Pull Latest News';
+  scheduleNextRefresh();
 }
+
+function scheduleNextRefresh(){
+  clearTimeout(window._newsRefreshTimer);
+  const INTERVAL = 60 * 60 * 1000;
+  window._newsRefreshTimer = setTimeout(pullLatestNews, INTERVAL);
+  const nextTime = new Date(Date.now() + INTERVAL);
+  const timeStr = nextTime.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'});
+  const status = document.getElementById('curSitStatus');
+  if(status && status.innerHTML){
+    const existing = status.innerHTML.replace(/ &mdash; <span[^<]*next auto-refresh[^<]*<\/span>/,'');
+    status.innerHTML = existing + ` &mdash; <span style="color:var(--mut)">next auto-refresh ${timeStr}</span>`;
+  }
+}
+
+document.addEventListener('DOMContentLoaded', () => { pullLatestNews(); });
 </script>
 </body>
 </html>

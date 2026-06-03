@@ -20,9 +20,9 @@ The dashboard has a **Current Situation** button at the top that analyzes live f
 
 ### How it works
 
-1. `fetch_news.py` pulls RSS feeds from 15 financial news sources (CNBC, Yahoo Finance, FT, WSJ, Seeking Alpha, MarketWatch, Investing.com, Reuters)
-2. NLP sentiment analysis (VADER) scores each headline for bullish/bearish tone
-3. Keyword analysis maps topics to the nine simulation dials (severity, inflation, Fed, GDP, tariffs, geopolitics, JGB, fiscal, USD)
+1. `src/fetchNews.ts` pulls RSS feeds from 23 financial news sources (CNBC, Yahoo Finance, FT, WSJ, Seeking Alpha, MarketWatch, Investing.com, Bloomberg, ZeroHedge, Nasdaq, Benzinga, and more)
+2. FinBERT (financial BERT, via `@xenova/transformers`) scores each headline for bullish/bearish tone
+3. Keyword analysis maps topics to the ten simulation dials (severity, inflation, Fed, GDP, tariffs, geopolitics, JGB, fiscal, USD, robotics)
 4. The recommended dial settings are baked into the HTML at build time
 
 ### Usage
@@ -30,24 +30,26 @@ The dashboard has a **Current Situation** button at the top that analyzes live f
 ```bash
 cd source
 # Fetch fresh news and rebuild the dashboard:
-python3 build.py --skip-sim --news
+npm run build -- --skip-sim --news
 
 # Full rebuild (simulation + news):
-python3 build.py --news
+npm run build -- --news
 ```
 
-Then open the HTML and click the **Current Situation** button to see the analysis and apply the settings.
+Best of all, run the live server (`npm run serve`) and open the dashboard in a
+browser — it auto-fetches the latest news on load and refreshes every 60
+minutes. You can also click **Pull Latest News** to refresh on demand.
 
 ### Dependencies
 
-The news feature requires `feedparser` and `nltk` (with VADER lexicon). A virtual environment is included:
+The project runs on **Node.js 20+** with TypeScript (executed via `tsx`). The
+news feature uses `rss-parser` and `@xenova/transformers` (which downloads the
+`Xenova/finbert` ONNX model on first run and caches it). Install everything with:
 
 ```bash
 cd source
-source .venv/bin/activate
+npm install
 ```
-
-Or install manually: `pip install feedparser nltk && python3 -c "import nltk; nltk.download('vader_lexicon')"`
 
 ## Cross-PC sync
 
@@ -57,27 +59,35 @@ If you ever want to open it on a PC that does *not* have Synology Drive, the HTM
 
 ## Regenerating from source (optional)
 
-Everything needed to rebuild the dashboard lives in `source/`:
+Everything needed to rebuild the dashboard lives in `source/` (a Node.js +
+TypeScript project):
 
-- `simulate.py` - the 26,244-scenario Python model. No external packages required - pure stdlib.
-- `dashboard_template.html` - the dashboard shell with a `/*__SIM_DATA__*/` placeholder.
+- `src/simulate.ts` - the 26,244-scenario model. No runtime services required - pure computation.
+- `src/fetchNews.ts` - fetches financial news from RSS feeds, scores sentiment with FinBERT, and maps to dial settings.
+- `src/server.ts` - HTTP server that serves the dashboard and the live `/api/current-situation` news endpoint.
+- `src/build.ts` - convenience script that runs the sim and writes the deployed HTML.
+- `dashboard_template.html` - the dashboard shell with `/*__SIM_DATA__*/` and `/*__CURRENT_SITUATION__*/` placeholders.
 - `sim_data.json` - the most recent generated data.
-- `build.py` - convenience script that runs the sim and writes the deployed HTML.
-- `fetch_news.py` - fetches financial news from RSS feeds, analyzes sentiment with NLP, and maps to dial settings.
 - `current_situation.json` - the most recent news analysis output.
-- `.venv/` - Python virtual environment with `feedparser` and `nltk` for the news feature.
+- `package.json` / `tsconfig.json` - project manifest and TypeScript config.
 
-To rebuild:
+To rebuild (after `npm install`):
 
 ```bash
 cd source
-python3 build.py                # full rebuild (runs simulate.py)
-python3 build.py --skip-sim     # skip simulation (use existing sim_data.json)
-python3 build.py --news         # also fetch live news for Current Situation
-python3 build.py --skip-sim --news  # fast: just inject news into existing build
+npm run build                       # full rebuild (runs the simulation)
+npm run build -- --skip-sim         # skip simulation (use existing sim_data.json)
+npm run build -- --news             # also fetch live news for Current Situation
+npm run build -- --skip-sim --news  # fast: just inject news into existing build
 ```
 
-That refreshes `AI-bubble-bust-simulation.html` one folder up. Edit `simulate.py` to change scenarios, model parameters, or add metrics; edit `dashboard_template.html` to change the UI.
+Other scripts: `npm run serve` (live server on :9999), `npm run simulate`
+(regenerate `sim_data.json` only), `npm run fetch-news` (regenerate
+`current_situation.json` only), `npm run typecheck`.
+
+That refreshes `AI-bubble-bust-simulation.html` one folder up. Edit
+`src/simulate.ts` to change scenarios, model parameters, or add metrics; edit
+`dashboard_template.html` to change the UI.
 
 ## What the nine dials do
 

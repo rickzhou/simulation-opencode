@@ -1,7 +1,7 @@
 {
-  "timestamp": "2026-05-30T22:49:02.977098+00:00",
+  "timestamp": "2026-06-03T20:02:00.587Z",
   "dials": {
-    "sev": "base",
+    "sev": "melt",
     "inf": "high",
     "fed": "cut",
     "gdp": "soft",
@@ -10,141 +10,141 @@
     "jgb": "anchored",
     "fis": "neutral",
     "usd": "neutral",
-    "rob": "moderate"
+    "rob": "surge"
   },
   "confidence": {
     "sev": {
-      "melt": 3.54192,
-      "mild": 1.67292,
-      "base": 5.74136,
-      "severe": 0.9798
+      "melt": 8.21028,
+      "mild": 2.95132,
+      "base": 9.727079999999999,
+      "severe": 1.02616
     },
     "inf": {
-      "down": 0.62564,
-      "sticky": 0.0,
-      "high": 3.60812
+      "down": 0.7807999999999999,
+      "sticky": 0.38015999999999994,
+      "high": 4.64408
     },
     "fed": {
-      "cut": 5.5806000000000004,
-      "hold": 0.0,
-      "hike": 2.8794399999999998
+      "cut": 5.57352,
+      "hold": 1.7999999999999998,
+      "hike": 5.06744
     },
     "gdp": {
-      "soft": 0.77012,
-      "recession": 0.0,
-      "hard": 0.0
+      "soft": 3.13356,
+      "recession": 0,
+      "hard": 0
     },
     "tar": {
-      "truce": 0.97068,
+      "truce": 0.8751199999999999,
       "deescalate": 0,
-      "escalate": 0.56284
+      "escalate": 0.38155999999999995
     },
     "geo": {
-      "stable": 8.003319999999999,
-      "tension": 71.59056000000004,
-      "conflict": 71.59056000000004
+      "stable": 9.60864,
+      "tension": 87.65071999999999,
+      "conflict": 87.65071999999999
     },
     "jgb": {
       "anchored": 0,
-      "normalization": 0.0,
-      "crisis": 0.0
+      "normalization": 0,
+      "crisis": 0
     },
     "fis": {
-      "austerity": 0.0,
+      "austerity": 1.80344,
       "neutral": 0,
-      "stimulus": 0.0
+      "stimulus": 0
     },
     "usd": {
-      "weak": 0.0,
+      "weak": 0.5005199999999999,
       "neutral": 0,
-      "strong": 0.0
+      "strong": 0
     }
   },
   "sentiment": {
-    "avg_finbert": -0.097,
-    "positive_keywords": 163,
-    "negative_keywords": 121,
+    "avg_finbert": 0.014,
+    "positive_keywords": 308,
+    "negative_keywords": 199,
     "overall": "mixed"
   },
   "headlines": [
     {
-      "title": "Oil exports through the Strait of Hormuz might not return to levels seen before the Iran war",
+      "title": "SpaceX targets fixed $135 IPO roadshow price at $1.75 trillion valuation, source says",
       "source": "CNBC Top News"
     },
     {
-      "title": "Analysis: An end to the Iran war may be just the beginning of a new era of U.S. inequality",
+      "title": "Sellers are pulling homes off the market at the fastest pace since 2020",
       "source": "CNBC Top News"
     },
     {
-      "title": "Two months, $2.6 billion: How NASA ETF turned SpaceX IPO access into a hot retail trade",
+      "title": "GOP Sen. Tillis slams Trump intelligence pick Pulte: 'Don't think he has a prayer'",
       "source": "CNBC Top News"
     },
     {
-      "title": "Meta has struggled at selling anything other than ads. Will AI be different?",
+      "title": "Historic stock rally faces key test",
       "source": "CNBC Top News"
     },
     {
-      "title": "Josh Brown, counting on a new momentum strategy, thinks investors want more than index funds",
+      "title": "Broadcom earnings could breathe new life into the chip rally",
       "source": "CNBC Top News"
     },
     {
-      "title": "Micron is one of the most overbought stocks after this week\u2019s rally to new highs",
+      "title": "Trump says Iran agreed to not have nuclear weapons, but 'they can change their mind'",
       "source": "CNBC Top News"
     },
     {
-      "title": "DOJ seeks Judge Eleanor Ross recusal in Georgia election case, citing reports she was disciplined",
+      "title": "Netanyahu says he and Trump have 'tactical disagreements' but agree overall amid Iran war",
       "source": "CNBC Top News"
     },
     {
-      "title": "Will Gen Z be the generation to revive moviegoing?",
+      "title": "Senate GOP strips up to $1B for Trump ballroom security from immigration enforcement bill",
       "source": "CNBC Top News"
     },
     {
-      "title": "Trump to headline 'Great American State Fair' for nation's 250th anniversary after artists drop out",
+      "title": "Bitcoin's high-conviction holders are turning into sellers as the crypto's price hits new lows",
       "source": "CNBC Top News"
     },
     {
-      "title": "Stocks including Nvidia and Apple are top picks as market run-up continues, Bank of America says",
+      "title": "A classic strategy that could yield big dividends",
       "source": "CNBC Top News"
     },
     {
-      "title": "Travelers to Europe may be leaving money on the table. Here's why",
+      "title": "Hilton, Becerra lead in tight primary race for California governor; Bass ahead in LA mayoral race",
       "source": "CNBC Top News"
     },
     {
-      "title": "At least 3.5 million people have lost food stamp access as Trump's 'big beautiful bill' cuts take effect, analysis finds",
+      "title": "Josh Turek wins Iowa Democratic Senate primary that could shape Democrats' path to Senate majority",
       "source": "CNBC Top News"
     },
     {
-      "title": "CNBC's Official Global Soccer Team Valuations 2026: Here's how the top 30 clubs in the world stack up",
+      "title": "Stocks making the biggest moves midday: Exxon Mobil, GameStop, Palo Alto Networks, Blackstone & more ",
       "source": "CNBC Top News"
     },
     {
-      "title": "Hegseth praises Asian allies for 'burden-sharing,' calls out China's role in the region",
+      "title": "Nvidia’s big dividend hike could pave the way for higher payouts — who may be next",
       "source": "CNBC Top News"
     },
     {
-      "title": "Trump plans to appeal order allowing all importers that paid struck-down tariffs to seek refunds",
+      "title": "Bessent says he is performing IRS commissioner duties amid Trump tax settlement scrutiny",
       "source": "CNBC Top News"
     },
     {
-      "title": "Jim Cramer says Dell\u2019s blowout quarter sets up a crucial week for AI stocks",
+      "title": "Best jumbo CD rates for June 2026: Earn up to 4.10% APY",
       "source": "CNBC Top News"
     },
     {
-      "title": "Morgan Stanley says these 'dividend hopefuls' are poised to outperform if they initiate a payout",
+      "title": "Private payrolls grew by 122,000 in May, stronger than expected, ADP reports",
       "source": "CNBC Top News"
     },
     {
-      "title": "Berkshire trails red-hot S&P 500 by biggest margin so far this year",
+      "title": "Khanna and China committee press Blanche for report on Chinese manufacturing in U.S. ",
       "source": "CNBC Top News"
     },
     {
-      "title": "Roth IRA owners may need a second retirement account to claim the new Saver's Match",
+      "title": "Uber slashes people division by nearly a quarter. CEO says 'changes are necessary'",
       "source": "CNBC Top News"
     },
     {
-      "title": "Student loan borrowers will have two new repayment options come July 1. Here's how to pick one",
+      "title": "Social Security benefit cuts could average $500 a month for retirees if trust fund runs dry, report finds",
       "source": "CNBC Top News"
     }
   ],
@@ -164,9 +164,17 @@
       "WSJ Economy",
       "Bloomberg Markets",
       "TheStreet",
-      "Economist Finance"
+      "Economist Finance",
+      "Motley Fool",
+      "ZeroHedge",
+      "Real Clear Markets",
+      "ETF Trends",
+      "FX Street",
+      "Oil Price",
+      "Nasdaq News",
+      "Benzinga"
     ],
     "failed": [],
-    "total_articles": 317
+    "total_articles": 482
   }
 }

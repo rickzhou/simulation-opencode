@@ -5,3 +5,7 @@ source/*.pyc
 source/sim_data.json
 source/AI-bubble-bust-simulation.html
 AI-bubble-bust-simulation.html
+
+# Node / TypeScript
+source/node_modules/
+source/dist/
