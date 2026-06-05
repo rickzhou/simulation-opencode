@@ -1,7 +1,7 @@
 {
-  "timestamp": "2026-06-05T17:12:00.585Z",
+  "timestamp": "2026-06-05T20:09:06.885Z",
   "dials": {
-    "sev": "melt",
+    "sev": "base",
     "inf": "high",
     "fed": "cut",
     "gdp": "soft",
@@ -14,61 +14,93 @@
   },
   "confidence": {
     "sev": {
-      "melt": 14.992799999999995,
-      "mild": 6.65468,
-      "base": 16.896919999999998,
-      "severe": 0
+      "melt": 11.9546,
+      "mild": 6.05772,
+      "base": 20.11688,
+      "severe": 1.61352
     },
     "inf": {
-      "down": 0.6,
-      "sticky": 1.53904,
-      "high": 3.24516
+      "down": 0.76204,
+      "sticky": 0.6,
+      "high": 2.9314400000000003
     },
     "fed": {
-      "cut": 6.749799999999999,
-      "hold": 0,
-      "hike": 3.5617199999999998
+      "cut": 11.944959999999998,
+      "hold": 2.4,
+      "hike": 6.229959999999998
     },
     "gdp": {
-      "soft": 2.9513999999999996,
+      "soft": 3.8097600000000003,
       "recession": 0,
       "hard": 0
     },
     "tar": {
-      "truce": 0.88008,
+      "truce": 0.8646,
       "deescalate": 0,
       "escalate": 0.6
     },
     "geo": {
-      "stable": 13.09864,
-      "tension": 70.28812000000002,
-      "conflict": 70.28812000000002
+      "stable": 9.4948,
+      "tension": 70.90028000000004,
+      "conflict": 70.90028000000004
     },
     "jgb": {
       "anchored": 0,
-      "normalization": 0.8966799999999999,
+      "normalization": 0.88864,
       "crisis": 0
     },
     "fis": {
-      "austerity": 1.80408,
+      "austerity": 1.80808,
       "neutral": 0,
       "stimulus": 0
     },
     "usd": {
-      "weak": 0.42203999999999997,
+      "weak": 0.83472,
       "neutral": 0,
-      "strong": 1.6884000000000001
+      "strong": 1.70396
     }
   },
   "sentiment": {
-    "avg_finbert": 0.016,
-    "positive_keywords": 300,
-    "negative_keywords": 206,
+    "avg_finbert": 0.011,
+    "positive_keywords": 301,
+    "negative_keywords": 208,
     "overall": "mixed"
   },
   "headlines": [
     {
-      "title": "Nasdaq falls the most in nearly 8 months as chips tumble; S&P 500's 9-week winning streak set to end: Live updates",
+      "title": "Nasdaq falls 4% and suffers worst day since April 2025 as traders flee chip stocks: Live updates",
+      "source": "CNBC Top News"
+    },
+    {
+      "title": "Meta's stock sinks on report company could raise tens of billions of dollars to fund AI push",
+      "source": "CNBC Top News"
+    },
+    {
+      "title": "Google to pay SpaceX $920 million a month for compute capacity at xAI data centers",
+      "source": "CNBC Top News"
+    },
+    {
+      "title": "Bitcoin cracks $60,000, sinking to lowest level since October 2024",
+      "source": "CNBC Top News"
+    },
+    {
+      "title": "SpaceX is set to be a 'seminal event' for the stock market next week. Here's what's ahead",
+      "source": "CNBC Top News"
+    },
+    {
+      "title": "Crypto mutiny on Strategy: Shorts target 'MSTR' in bitcoin bloodbath",
+      "source": "CNBC Top News"
+    },
+    {
+      "title": "Trump wants Bill Pulte to fire big chunk of national intelligence office staff: WSJ",
+      "source": "CNBC Top News"
+    },
+    {
+      "title": "Trump administration, OpenAI discussing possible government stake in the AI startup",
+      "source": "CNBC Top News"
+    },
+    {
+      "title": "Hot jobs report puts Fed cuts further out of reach as Chair Warsh faces policy tests",
       "source": "CNBC Top News"
     },
     {
@@ -76,7 +108,19 @@
       "source": "CNBC Top News"
     },
     {
-      "title": "Bitcoin cracks $60,000, sinking to lowest level since October 2024",
+      "title": "Warren Buffett disciple Guy Spier built career on value investing. A rare cancer changed everything",
+      "source": "CNBC Top News"
+    },
+    {
+      "title": "Inside the $850 million Obama Presidential Center ahead of its Juneteenth opening",
+      "source": "CNBC Top News"
+    },
+    {
+      "title": "Prediction market firms face growing scrutiny as Congress weighs regulation",
+      "source": "CNBC Top News"
+    },
+    {
+      "title": "Chip stock breakout vs the rest of tech showing signs of topping out, says Carter Worth",
       "source": "CNBC Top News"
     },
     {
@@ -85,10 +129,6 @@
     },
     {
       "title": "Model routing is a fix for AI overspending. That's a problem for OpenAI and Anthropic",
-      "source": "CNBC Top News"
-    },
-    {
-      "title": "The midterms are approaching. What they could mean for the stock market — and the AI trade",
       "source": "CNBC Top News"
     },
     {
@@ -105,46 +145,6 @@
     },
     {
       "title": "Lululemon cuts annual outlook, citing 'negative' media commentary and disappointing product launches",
-      "source": "CNBC Top News"
-    },
-    {
-      "title": "Warren Buffett disciple Guy Spier built career on value investing. A rare cancer changed everything",
-      "source": "CNBC Top News"
-    },
-    {
-      "title": "Inside the $850 million Obama Presidential Center ahead of its Juneteenth opening",
-      "source": "CNBC Top News"
-    },
-    {
-      "title": "The gold chart looks precarious. Here's how to profit",
-      "source": "CNBC Top News"
-    },
-    {
-      "title": "JPMorgan removes sell rating on Tesla after years, says it's at the 'forefront of physical AI'",
-      "source": "CNBC Top News"
-    },
-    {
-      "title": "No tech, no problem. Dow makes record and traders think these stocks can lead now",
-      "source": "CNBC Top News"
-    },
-    {
-      "title": "Odds of a Fed hike this year jump on prediction markets ",
-      "source": "CNBC Top News"
-    },
-    {
-      "title": "AI is designing OpenAI's next model in a sign of 'superintelligence': SoftBank's Masayoshi Son to CNBC",
-      "source": "CNBC Top News"
-    },
-    {
-      "title": "Amazon unveils latest warehouse robot as tech giants continue AI layoffs ",
-      "source": "CNBC Top News"
-    },
-    {
-      "title": "LinkedIn co-founder Reid Hoffman is leaving Microsoft's board after almost a decade",
-      "source": "CNBC Top News"
-    },
-    {
-      "title": "Broadway's $1.9 billion season is the latest sign of consumers splurging on experiences",
       "source": "CNBC Top News"
     }
   ],

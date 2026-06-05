@@ -83,7 +83,10 @@ const KW: Record<string, string[]> = {
     'fed lowers', 'monetary easing', 'cut rates', 'dovish pivot', 'emergency cut',
     'fed ease', 'powell dovish', 'rate cuts expected', 'cutting cycle'],
   fed_hold: ['fed holds', 'rates unchanged', 'on hold', 'wait and see', 'patient', 'data dependent',
-    'fed pause', 'no change', 'steady rates', 'fed steady', 'hawkish hold'],
+    'fed pause', 'no change', 'steady rates', 'fed steady', 'hawkish hold',
+    'higher for longer', 'rates higher', 'cuts off the table', 'cuts out of reach',
+    'cuts further out', 'cuts pushed out', 'no rate cuts', 'delaying cuts',
+    'rate cuts unlikely', 'cuts not expected', 'fewer cuts'],
   fed_hike: ['rate hike', 'fed hikes', 'rate increase', 'hawkish', 'tightening', 'fed raises',
     'hawkish surprise', 'aggressive hike', 'jumbo hike', 'rate rises', 'volcker',
     'inflation fight', 'tightening cycle'],
@@ -281,7 +284,9 @@ function inferDials(analyzed: Analyzed[]): Record<string, any> {
 
   let sev: string;
   if ((sevRatios['severe'] || 0) > 0.35 || sevScores.severe >= 5) sev = 'severe';
-  else if ((sevRatios['melt'] || 0) > 0.40 || sevScores.melt >= 6) sev = 'melt';
+  // melt raw-score threshold requires melt > base so a dominant base score doesn't get
+  // overridden by melt keywords that appear alongside clearly bearish base/bust signals
+  else if ((sevRatios['melt'] || 0) > 0.40 || (sevScores.melt >= 6 && sevScores.melt > sevScores.base)) sev = 'melt';
   else if ((sevRatios['base'] || 0) > 0.35 || sevScores.base >= 4) sev = 'base';
   else if (sevScores.mild >= 2) sev = 'mild';
   else sev = maxOf(sevScores) > 0 ? argmax(sevScores) : 'base';

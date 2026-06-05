@@ -289,7 +289,9 @@ INF['sticky'] = {
 };
 INF['high'] = {
   name: 'High inflation / stagflation',
-  cpi: [[0, 3.0], [5, 4.2], [11, 6.0], [18, 8.3], [26, 7.6], [36, 6.4], [48, 5.3], [60, 4.6]],
+  // Raised peak from 8.3 to 10.0 — original under-reached 1970s analog (14.5% CPI peak).
+  // With geo/tariff/fiscal add-ons the combined CPI can now approach 12-13%.
+  cpi: [[0, 3.0], [5, 4.2], [11, 6.5], [18, 10.0], [26, 8.8], [36, 7.0], [48, 5.8], [60, 5.0]],
   gold: [[0, 3300], [6, 3750], [14, 4500], [24, 5400], [34, 6000], [46, 6250], [60, 6450]],
   wti: [[0, 98], [4, 118], [9, 136], [15, 128], [22, 108], [32, 96], [44, 92], [60, 95]],
   natgas: [[0, 3.80], [5, 4.80], [12, 5.65], [20, 5.05], [30, 4.45], [42, 4.15], [60, 4.00]],
@@ -316,8 +318,12 @@ FED['hold'] = {
 };
 FED['hike'] = {
   name: 'Fed hikes',
-  path: [[0, 3.625], [4, 4.125], [9, 4.875], [16, 5.625], [24, 6.0], [32, 5.875], [42, 5.375], [52, 4.875], [60, 4.5]],
-  eq: [[0, 1.0], [10, 0.98], [30, 0.93], [60, 0.90]], cpi_add: -1.0, gold_mult: -0.10,
+  // Peak lowered from 6.0 to 5.5 to better match modern Fed cycles (2022-23 peak was 5.25-5.50%)
+  path: [[0, 3.625], [4, 4.125], [9, 4.875], [16, 5.375], [24, 5.5], [32, 5.375], [42, 4.875], [52, 4.5], [60, 4.25]],
+  eq: [[0, 1.0], [10, 0.98], [30, 0.93], [60, 0.90]], cpi_add: -1.0,
+  // Increased gold suppression: rate hikes raise real yields, which are gold's main headwind
+  // (gold was flat/negative in 2022 despite 9% CPI because real yields surged +250bp)
+  gold_mult: -0.28,
 };
 
 // ---------- Dial 4: GDP ----------
@@ -517,10 +523,12 @@ USD['strong'] = {
   eq: [[0, 1.00], [8, 0.988], [20, 0.968], [36, 0.958], [60, 0.962]],
   y10_add: [[0, 0.0], [8, 0.05], [24, 0.10], [40, 0.08], [60, 0.06]],
   sector_tilt: { tech: -0.03, comm: -0.02, discretionary: -0.02, industrials: -0.02, materials: -0.04, financials: -0.015, realestate: -0.02, utilities: 0.005, energy: -0.03, healthcare: -0.005, staples: -0.005 },
-  commod_tilt: { gold: -0.10, wti: -0.12, natgas: -0.06, copper: -0.14, uranium: -0.06, silver: -0.12, agriculture: -0.08 },
+  // Increased gold suppression: DXY strength is a second headwind on gold alongside real yields
+  commod_tilt: { gold: -0.18, wti: -0.12, natgas: -0.06, copper: -0.14, uranium: -0.06, silver: -0.12, agriculture: -0.08 },
   hy_mult: 1.15, vix_mult: 1.08, unemp_add: 0.20, fed_add: 0.10,
   reit_tilt: { comm_reit: -0.04, res_reit: -0.03 },
-  btc_mult: 0.75,
+  // Increased BTC penalty: strong dollar tightens global liquidity and USD-denominated alt assets
+  btc_mult: 0.65,
   desc: 'The dollar surges (DXY 112-118) — the "wrecking ball." Commodities crater (gold, copper, oil all fall in dollar terms), EM debt stress builds, US multinational earnings get crushed by FX translation, and Bitcoin sells off as global liquidity tightens. Analog: 2014-15, 2022, 1997 Asian crisis.',
 };
 
@@ -726,8 +734,11 @@ function build(sevk: string, infk: string, fedk: string, gdpk: string, tark: str
 
   // --- REITs (Commercial & Residential) ---
   const reit_base_eq = eqm;
-  const comm_reit_rate_sens = 8.5;
-  const res_reit_rate_sens = 5.5;
+  // Reduced from 8.5/5.5 — REITs reprice to higher cap rates within 1-2yrs and then
+  // recover income. The original values caused 5yr drawdowns of -60% in rate hike
+  // scenarios, vs the historical 2022 peak REIT drawdown of ~25-30%.
+  const comm_reit_rate_sens = 5.5;
+  const res_reit_rate_sens = 3.5;
   const y10_chg = range61.map((m) => s.ust10_yield[m] - s.ust10_yield[0]);
   const comm_reit_rate = range61.map((m) => -comm_reit_rate_sens * y10_chg[m] / 100.0);
   const res_reit_rate = range61.map((m) => -res_reit_rate_sens * y10_chg[m] / 100.0);
@@ -737,7 +748,9 @@ function build(sevk: string, infk: string, fedk: string, gdpk: string, tark: str
   s.res_reit = range61.map((m) => 100.0 * (1.0 + res_reit_rate[m]) * reit_base_eq[m] * res_reit_tilt[m]);
 
   // --- Bitcoin ---
-  const btc_eq_beta = 2.2;
+  // Reduced from 2.2 to 1.8 — 2022 data showed BTC fell ~65-75% while S&P fell ~20%,
+  // implying a beta of ~3-3.5 on the drawdown but ~1.8 on a 5yr total-return basis.
+  const btc_eq_beta = 1.8;
   const btc_base = range61.map((m) => 100.0 * (1.0 + btc_eq_beta * (eqm[m] - 1.0)));
   const btc_fi = fi.btc_mult;
   const btc_us = us.btc_mult;
