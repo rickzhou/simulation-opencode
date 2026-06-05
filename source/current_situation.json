@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-06-05T20:09:06.885Z",
+  "timestamp": "2026-06-05T20:44:04.742Z",
   "dials": {
     "sev": "base",
     "inf": "high",
@@ -14,23 +14,23 @@
   },
   "confidence": {
     "sev": {
-      "melt": 11.9546,
-      "mild": 6.05772,
-      "base": 20.11688,
-      "severe": 1.61352
+      "melt": 14.678239999999997,
+      "mild": 6.10696,
+      "base": 17.393399999999993,
+      "severe": 1.6381999999999999
     },
     "inf": {
       "down": 0.76204,
       "sticky": 0.6,
-      "high": 2.9314400000000003
+      "high": 2.9054
     },
     "fed": {
-      "cut": 11.944959999999998,
+      "cut": 11.7616,
       "hold": 2.4,
-      "hike": 6.229959999999998
+      "hike": 7.92776
     },
     "gdp": {
-      "soft": 3.8097600000000003,
+      "soft": 3.81784,
       "recession": 0,
       "hard": 0
     },
@@ -40,30 +40,30 @@
       "escalate": 0.6
     },
     "geo": {
-      "stable": 9.4948,
-      "tension": 70.90028000000004,
-      "conflict": 70.90028000000004
+      "stable": 9.963759999999999,
+      "tension": 72.03724000000003,
+      "conflict": 72.03724000000003
     },
     "jgb": {
       "anchored": 0,
-      "normalization": 0.88864,
+      "normalization": 0.88488,
       "crisis": 0
     },
     "fis": {
-      "austerity": 1.80808,
+      "austerity": 1.81888,
       "neutral": 0,
       "stimulus": 0
     },
     "usd": {
-      "weak": 0.83472,
+      "weak": 0.42835999999999996,
       "neutral": 0,
-      "strong": 1.70396
+      "strong": 1.69868
     }
   },
   "sentiment": {
-    "avg_finbert": 0.011,
+    "avg_finbert": 0,
     "positive_keywords": 301,
-    "negative_keywords": 208,
+    "negative_keywords": 213,
     "overall": "mixed"
   },
   "headlines": [
@@ -88,6 +88,14 @@
       "source": "CNBC Top News"
     },
     {
+      "title": "Mythos rejuvenated the cybersecurity sector. Earnings put the recent rally to the test",
+      "source": "CNBC Top News"
+    },
+    {
+      "title": "Iran's threats against this Red Sea chokepoint are a big vulnerability for the oil market",
+      "source": "CNBC Top News"
+    },
+    {
       "title": "Crypto mutiny on Strategy: Shorts target 'MSTR' in bitcoin bloodbath",
       "source": "CNBC Top News"
     },
@@ -100,14 +108,6 @@
       "source": "CNBC Top News"
     },
     {
-      "title": "Hot jobs report puts Fed cuts further out of reach as Chair Warsh faces policy tests",
-      "source": "CNBC Top News"
-    },
-    {
-      "title": "Alphabet is seeking fresh capital as stock's 4-week losing streak tests investor appetite",
-      "source": "CNBC Top News"
-    },
-    {
       "title": "Warren Buffett disciple Guy Spier built career on value investing. A rare cancer changed everything",
       "source": "CNBC Top News"
     },
@@ -116,11 +116,19 @@
       "source": "CNBC Top News"
     },
     {
-      "title": "Prediction market firms face growing scrutiny as Congress weighs regulation",
+      "title": "Hot jobs report puts Fed cuts further out of reach as Chair Warsh faces policy tests",
       "source": "CNBC Top News"
     },
     {
       "title": "Chip stock breakout vs the rest of tech showing signs of topping out, says Carter Worth",
+      "source": "CNBC Top News"
+    },
+    {
+      "title": "Alphabet is seeking fresh capital as stock's 4-week losing streak tests investor appetite",
+      "source": "CNBC Top News"
+    },
+    {
+      "title": "Prediction market firms face growing scrutiny as Congress weighs regulation",
       "source": "CNBC Top News"
     },
     {
@@ -132,19 +140,11 @@
       "source": "CNBC Top News"
     },
     {
+      "title": "Delta SkyMiles credit cards now come with 2 free checked bags and monster intro offers. Are they worth it?",
+      "source": "CNBC Top News"
+    },
+    {
       "title": "U.S. Senate passes $70 billion ICE funding, fails to ban Trump's 'anti-weaponization' fund",
-      "source": "CNBC Top News"
-    },
-    {
-      "title": "Boeing to start 737 Max production on new assembly line July 6, CEO says",
-      "source": "CNBC Top News"
-    },
-    {
-      "title": "Stocks making the biggest moves midday: Broadcom, Arm, Strategy, Chipotle, Quantinuum & more",
-      "source": "CNBC Top News"
-    },
-    {
-      "title": "Lululemon cuts annual outlook, citing 'negative' media commentary and disappointing product launches",
       "source": "CNBC Top News"
     }
   ],
