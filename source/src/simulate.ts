@@ -527,8 +527,8 @@ USD['strong'] = {
   commod_tilt: { gold: -0.18, wti: -0.12, natgas: -0.06, copper: -0.14, uranium: -0.06, silver: -0.12, agriculture: -0.08 },
   hy_mult: 1.15, vix_mult: 1.08, unemp_add: 0.20, fed_add: 0.10,
   reit_tilt: { comm_reit: -0.04, res_reit: -0.03 },
-  // Increased BTC penalty: strong dollar tightens global liquidity and USD-denominated alt assets
-  btc_mult: 0.65,
+  // Strong dollar tightens global liquidity and weighs on USD-denominated alt assets
+  btc_mult: 0.70,
   desc: 'The dollar surges (DXY 112-118) — the "wrecking ball." Commodities crater (gold, copper, oil all fall in dollar terms), EM debt stress builds, US multinational earnings get crushed by FX translation, and Bitcoin sells off as global liquidity tightens. Analog: 2014-15, 2022, 1997 Asian crisis.',
 };
 
@@ -666,8 +666,19 @@ function build(sevk: string, infk: string, fedk: string, gdpk: string, tark: str
   const y10_jgb = ser(jg.y10_add);
   const y10_fi = ser(fi.y10_add);
   const y10_us = ser(us.y10_add);
-  s.ust10_yield = range61.map((m) => Math.max(0.4, s.fed_funds[m] + 0.975
-    + 0.45 * (s.cpi[m] - 3.0)
+  // The US 10-year is anchored to a neutral level (Y10_BASE_FED + term premium) and moves
+  // only a FRACTION of the policy-rate deviation (Y10_TERM_SLOPE): the long end is less
+  // volatile than fed funds, and in aggressive hiking cycles the curve INVERTS (10Y below
+  // the funds rate) because the market prices future cuts/recession. The CPI premium is
+  // forward-looking (markets price expected, not spot, inflation) so it uses a smaller
+  // coefficient than a naive spot-CPI pass-through. The JGB/fiscal/USD `y10_add` terms are
+  // independent term-premium shocks and pass through at full weight.
+  const Y10_BASE_FED = 3.625;   // starting fed funds (term-premium anchor)
+  const Y10_TERM_SLOPE = 0.55;  // long-end beta to policy-rate deviation (<1 ⇒ inversion in hikes)
+  const Y10_CPI_COEF = 0.24;    // forward-looking inflation premium (was 0.45 spot pass-through)
+  s.ust10_yield = range61.map((m) => Math.max(0.4,
+    Y10_BASE_FED + Y10_TERM_SLOPE * (s.fed_funds[m] - Y10_BASE_FED) + 0.975
+    + Y10_CPI_COEF * (s.cpi[m] - 3.0)
     - 0.18 * (s.unemployment[m] - 4.3)
     + y10_jgb[m] + y10_fi[m] + y10_us[m]));
 
@@ -735,10 +746,11 @@ function build(sevk: string, infk: string, fedk: string, gdpk: string, tark: str
   // --- REITs (Commercial & Residential) ---
   const reit_base_eq = eqm;
   // Reduced from 8.5/5.5 — REITs reprice to higher cap rates within 1-2yrs and then
-  // recover income. The original values caused 5yr drawdowns of -60% in rate hike
-  // scenarios, vs the historical 2022 peak REIT drawdown of ~25-30%.
-  const comm_reit_rate_sens = 5.5;
-  const res_reit_rate_sens = 3.5;
+  // recover income. The equity multiplier (reit_base_eq) already captures much of the
+  // rate-driven selloff, so this explicit duration term is kept modest to avoid double
+  // counting; the original values produced ~-60% drawdowns vs the 2022 peak of ~25-30%.
+  const comm_reit_rate_sens = 4.0;
+  const res_reit_rate_sens = 2.5;
   const y10_chg = range61.map((m) => s.ust10_yield[m] - s.ust10_yield[0]);
   const comm_reit_rate = range61.map((m) => -comm_reit_rate_sens * y10_chg[m] / 100.0);
   const res_reit_rate = range61.map((m) => -res_reit_rate_sens * y10_chg[m] / 100.0);
@@ -748,9 +760,9 @@ function build(sevk: string, infk: string, fedk: string, gdpk: string, tark: str
   s.res_reit = range61.map((m) => 100.0 * (1.0 + res_reit_rate[m]) * reit_base_eq[m] * res_reit_tilt[m]);
 
   // --- Bitcoin ---
-  // Reduced from 2.2 to 1.8 — 2022 data showed BTC fell ~65-75% while S&P fell ~20%,
-  // implying a beta of ~3-3.5 on the drawdown but ~1.8 on a 5yr total-return basis.
-  const btc_eq_beta = 1.8;
+  // Reduced from 2.2 to 1.6 — 2022 data showed BTC fell ~65-75% while S&P fell ~20-25%,
+  // implying a beta of ~3 on the drawdown but ~1.6 on a 5yr total-return basis.
+  const btc_eq_beta = 1.6;
   const btc_base = range61.map((m) => 100.0 * (1.0 + btc_eq_beta * (eqm[m] - 1.0)));
   const btc_fi = fi.btc_mult;
   const btc_us = us.btc_mult;

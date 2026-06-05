@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-06-05T20:44:04.742Z",
+  "timestamp": "2026-06-05T21:01:36.287Z",
   "dials": {
     "sev": "base",
     "inf": "high",
@@ -9,29 +9,29 @@
     "geo": "conflict",
     "jgb": "anchored",
     "fis": "neutral",
-    "usd": "neutral",
+    "usd": "strong",
     "rob": "low"
   },
   "confidence": {
     "sev": {
-      "melt": 14.678239999999997,
-      "mild": 6.10696,
-      "base": 17.393399999999993,
-      "severe": 1.6381999999999999
+      "melt": 14.92168,
+      "mild": 5.47428,
+      "base": 16.910159999999994,
+      "severe": 1.60672
     },
     "inf": {
       "down": 0.76204,
       "sticky": 0.6,
-      "high": 2.9054
+      "high": 2.89708
     },
     "fed": {
-      "cut": 11.7616,
+      "cut": 12.604159999999998,
       "hold": 2.4,
-      "hike": 7.92776
+      "hike": 7.8905199999999995
     },
     "gdp": {
-      "soft": 3.81784,
-      "recession": 0,
+      "soft": 4.65428,
+      "recession": 0.6,
       "hard": 0
     },
     "tar": {
@@ -40,30 +40,30 @@
       "escalate": 0.6
     },
     "geo": {
-      "stable": 9.963759999999999,
-      "tension": 72.03724000000003,
-      "conflict": 72.03724000000003
+      "stable": 9.638119999999999,
+      "tension": 69.25676000000003,
+      "conflict": 69.25676000000003
     },
     "jgb": {
       "anchored": 0,
-      "normalization": 0.88488,
+      "normalization": 0.8994,
       "crisis": 0
     },
     "fis": {
-      "austerity": 1.81888,
+      "austerity": 1.7867199999999999,
       "neutral": 0,
       "stimulus": 0
     },
     "usd": {
-      "weak": 0.42835999999999996,
+      "weak": 0.79952,
       "neutral": 0,
-      "strong": 1.69868
+      "strong": 2.03184
     }
   },
   "sentiment": {
-    "avg_finbert": 0,
-    "positive_keywords": 301,
-    "negative_keywords": 213,
+    "avg_finbert": 0.01,
+    "positive_keywords": 304,
+    "negative_keywords": 201,
     "overall": "mixed"
   },
   "headlines": [

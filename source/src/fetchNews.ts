@@ -284,9 +284,11 @@ function inferDials(analyzed: Analyzed[]): Record<string, any> {
 
   let sev: string;
   if ((sevRatios['severe'] || 0) > 0.35 || sevScores.severe >= 5) sev = 'severe';
-  // melt raw-score threshold requires melt > base so a dominant base score doesn't get
-  // overridden by melt keywords that appear alongside clearly bearish base/bust signals
-  else if ((sevRatios['melt'] || 0) > 0.40 || (sevScores.melt >= 6 && sevScores.melt > sevScores.base)) sev = 'melt';
+  // "melt-up / no bust" is a strong claim and is evaluated before base, so it must be
+  // genuinely dominant: melt only wins (via either the ratio or the raw-score path) when
+  // its score is at least as high as base. Otherwise melt keywords appearing alongside
+  // clearly bearish bust/correction signals would wrongly override a dominant base score.
+  else if (((sevRatios['melt'] || 0) > 0.40 || sevScores.melt >= 6) && sevScores.melt >= sevScores.base) sev = 'melt';
   else if ((sevRatios['base'] || 0) > 0.35 || sevScores.base >= 4) sev = 'base';
   else if (sevScores.mild >= 2) sev = 'mild';
   else sev = maxOf(sevScores) > 0 ? argmax(sevScores) : 'base';
