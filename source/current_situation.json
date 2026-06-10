@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-06-10T19:42:17.987Z",
+  "timestamp": "2026-06-10T20:05:48.845Z",
   "method": "nli-zero-shot+finbert",
   "dials": {
     "sev": "mild",
@@ -16,14 +16,14 @@
   "confidence": {
     "sev": {
       "melt": 0,
-      "mild": 4.455645481219408,
+      "mild": 4.806265501705106,
       "base": 0,
       "severe": 0
     },
     "inf": {
-      "down": 1.8934024057507974,
+      "down": 0.9200909994942266,
       "sticky": 0,
-      "high": 6.347623018741395
+      "high": 5.856483818741308
     },
     "fed": {
       "cut": 0,
@@ -32,7 +32,7 @@
     },
     "gdp": {
       "soft": 0,
-      "recession": 0.8371278630612318,
+      "recession": 0,
       "hard": 0
     },
     "tar": {
@@ -42,7 +42,7 @@
     },
     "geo": {
       "stable": 0,
-      "tension": 7.18,
+      "tension": 4.98,
       "conflict": 0
     },
     "jgb": {
@@ -58,7 +58,7 @@
     "usd": {
       "weak": 0,
       "neutral": 0,
-      "strong": 0.7526618515390989
+      "strong": 0
     }
   },
   "factors": [
@@ -89,7 +89,7 @@
     {
       "id": "energy_shock",
       "label": "Energy shock",
-      "score": 7,
+      "score": 7.99,
       "direction": "bearish",
       "affects": "Inflation + Geopolitics",
       "note": "Oil/gas price spikes, supply disruptions — inflation impulse and tension symptom"
@@ -101,12 +101,8 @@
       "score": 0.99
     },
     "inf": {
-      "title": "US consumer inflation vaults above 4% as Iran war boosts energy prices",
-      "score": 0.99
-    },
-    "gdp": {
-      "title": "UK Economy Set to Shrink as Iran Energy Shock Hits Growth",
-      "score": 0.84
+      "title": "Energy Prices Drive U.S. Inflation To Three-Year High",
+      "score": 0.96
     },
     "geo": {
       "title": "Trump pledges more Iran strikes, saying U.S. will be 'attacking them very hard'",
@@ -114,24 +110,24 @@
     }
   },
   "sentiment": {
-    "avg_finbert": 0.043,
-    "positive_keywords": 54,
+    "avg_finbert": 0.032,
+    "positive_keywords": 56,
     "negative_keywords": 44,
     "overall": "mixed"
   },
   "key_metrics": [
-    "US consumer inflation vaults above 4% as Iran war boosts energy prices",
-    "Target's $367 million grocery bet to save shoppers big money",
-    "Dow tumbles nearly 900 points, hitting session low into the close: Live updates",
-    "These in-demand jobs pay over $100,000 — and offer raises that keep ahead of inflation",
-    "Palantir Stock Has Fallen More Than 35% From Its High. Is This the Pullback Long-Term AI Investors Have Been Waiting For?",
-    "Trump signs $70 billion immigration funding bill after months of delay",
-    "Walmart's $100 deck box is an outdoor storage solution that's 51% off",
-    "Walmart is selling a lawn mower with adjustable height for just $270"
+    "NBT Bancorp director John H. Watt Jr. sells $995,750 in stock",
+    " My top 3 fitness smartwatches, including Garmin, Fitbit, and Apple, are up to $100 off",
+    "Dow drops more than 900 points as chip sell-off worsens, Trump threatens more Iran attacks: Live updates",
+    "My plumber charged $160 to fix the cistern on my toilet — but created another problem. Do I pay again?",
+    "Johnson & Johnson bets $1 billion on hard-to-treat cancer",
+    "Social Security is facing a 22% cliff — 4 ways to build an income stream Washington can’t touch",
+    "The 4.2% inflation rate is a bummer, but the worst might be over",
+    "Target's $367 million grocery bet to save shoppers big money"
   ],
   "headlines": [
     {
-      "title": "Dow tumbles nearly 900 points, hitting session low into the close: Live updates",
+      "title": "Dow drops more than 900 points as chip sell-off worsens, Trump threatens more Iran attacks: Live updates",
       "source": "CNBC Top News"
     },
     {
