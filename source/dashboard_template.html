@@ -178,6 +178,12 @@
   .curSitDial .dk{font-size:9.5px;color:var(--dim);text-transform:uppercase;letter-spacing:.05em}
   .curSitDial .dv{font-size:14px;font-weight:600;margin-top:3px;display:flex;align-items:center;gap:6px}
   .curSitDial .ddot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+  .curSitFactors{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin:12px 0}
+  .curSitFactor{background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:10px 12px}
+  .curSitFactor .fk{font-size:9.5px;color:var(--dim);text-transform:uppercase;letter-spacing:.05em}
+  .curSitFactor .fv{font-size:13px;font-weight:600;margin-top:3px;display:flex;align-items:center;gap:6px}
+  .curSitFactor .fnote{font-size:10.5px;color:var(--mut);margin-top:4px;line-height:1.4}
+  @media(max-width:880px){.curSitFactors{grid-template-columns:1fr}}
   .curSitSentiment{display:flex;gap:16px;align-items:center;margin:12px 0;flex-wrap:wrap}
   .curSitSentBadge{display:inline-flex;align-items:center;gap:6px;padding:5px 14px;
     border-radius:20px;font-size:12px;font-weight:600}
@@ -227,7 +233,7 @@
         </button>
         <div>
           <div style="font-size:13px;font-weight:600">Analyze live financial news</div>
-          <div style="font-size:11.5px;color:var(--mut)">Pulls headlines from CNBC, Yahoo Finance, FT, WSJ, Seeking Alpha &amp; more &mdash; sets all nine dials to match today's market</div>
+          <div style="font-size:11.5px;color:var(--mut)">Pulls headlines from CNBC, Yahoo Finance, FT, WSJ, Seeking Alpha &amp; more &mdash; sets all ten dials to match today's market</div>
         </div>
       </div>
       <div class="curSitStatus" id="curSitStatus"></div>
@@ -235,6 +241,10 @@
         <div class="curSitSentiment" id="curSitSentiment"></div>
         <div class="seclabel" style="margin-top:12px">Recommended dial settings</div>
         <div class="curSitDials" id="curSitDials"></div>
+        <div id="curSitFactorsWrap" style="display:none">
+          <div class="seclabel" style="margin-top:12px">Key factors driving the dials</div>
+          <div class="curSitFactors" id="curSitFactors"></div>
+        </div>
         <button class="curSitApply" id="curSitApply" onclick="applyCurrentSituation()">Apply these settings to the simulation</button>
         <div class="seclabel" style="margin-top:16px">Top headlines analyzed</div>
         <div class="curSitHeadlines" id="curSitHeadlines"></div>
@@ -1468,7 +1478,7 @@ async function loadCurrentSituation(){
 
   btn.disabled = true;
   btn.innerHTML = '<span style="font-size:16px">&#9673;</span> Fetching live news...';
-  status.textContent = 'Analyzing financial news from 15 sources...';
+  status.textContent = 'Analyzing financial news from 23 sources...';
   status.style.color = 'var(--blue)';
 
   try {
@@ -1529,6 +1539,23 @@ function renderCurrentSituation(){
     </div>`;
   }).join('');
 
+  const factors = d.factors || [];
+  const fWrap = document.getElementById('curSitFactorsWrap');
+  if(factors.length){
+    const dirMeta = {bullish:{c:'var(--green)',s:'&#9650;'},bearish:{c:'var(--red)',s:'&#9660;'},neutral:{c:'var(--mut)',s:'&#9644;'}};
+    document.getElementById('curSitFactors').innerHTML = factors.map(f=>{
+      const dm = dirMeta[f.direction] || dirMeta.neutral;
+      return `<div class="curSitFactor">
+        <div class="fk">${f.label} &rarr; ${f.affects}</div>
+        <div class="fv" style="color:${dm.c}">${dm.s} ${f.direction} <span style="color:var(--dim);font-weight:400">(score ${f.score})</span></div>
+        <div class="fnote">${f.note}</div>
+      </div>`;
+    }).join('');
+    fWrap.style.display = '';
+  } else {
+    fWrap.style.display = 'none';
+  }
+
   const hls = d.headlines || [];
   document.getElementById('curSitHeadlines').innerHTML = hls.slice(0,12).map(h=>
     `<div class="hl"><b>${h.title}</b><span class="hsrc">${h.source}</span></div>`
@@ -1565,7 +1592,7 @@ async function pullLatestNews(){
 
   btn.disabled = true;
   btn.innerHTML = '<span style="font-size:16px">&#8635;</span> Pulling...';
-  status.textContent = 'Fetching financial news from 15+ sources...';
+  status.textContent = 'Fetching financial news from 23 sources...';
   status.style.color = 'var(--blue)';
 
   try {

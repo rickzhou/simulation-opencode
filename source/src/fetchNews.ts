@@ -106,10 +106,17 @@ const KW: Record<string, string[]> = {
   tar_truce: ['tariff truce', 'trade deal', 'tariff reduction', 'trade agreement', 'china deal',
     'tariff cuts', 'trade thaw', 'tariff pause', 'trade negotiation', 'lower tariffs',
     'trade breakthrough', 'tariff rollback'],
-  geo_conflict: ['war', 'military conflict', 'invasion', 'geopolitical crisis', 'middle east',
-    'taiwan strait', 'south china sea', 'nato', 'sanctions', 'proxy war', 'escalation',
-    'missile', 'attack', 'bombing', 'nuclear threat', 'iran', 'russia ukraine',
-    'armed conflict', 'military strike'],
+  // Conflict = shooting wars / kinetic events only. Tension-grade signals (sanctions,
+  // standoffs, strategic friction) live in geo_tension so the two levels are scored
+  // separately instead of every tension headline counting as full conflict.
+  geo_conflict: ['military conflict', 'invasion', 'declares war', 'at war', 'war breaks out',
+    'world war', 'civil war', 'regional war', 'war escalates', 'missile', 'airstrike',
+    'air strike', 'military strike', 'drone strike', 'attack', 'bombing', 'shelling',
+    'nuclear threat', 'armed conflict', 'retaliation', 'military operation', 'troops deployed'],
+  geo_tension: ['geopolitical tension', 'geopolitical risk', 'geopolitical crisis', 'sanctions',
+    'proxy war', 'taiwan strait', 'south china sea', 'nato', 'middle east', 'iran',
+    'russia ukraine', 'north korea', 'escalation', 'standoff', 'military buildup',
+    'naval blockade', 'brinkmanship', 'territorial dispute', 'cold war'],
   geo_stable: ['peace', 'diplomacy', 'de-escalation', 'ceasefire', 'agreement', 'cooperation',
     'alliance', 'stability', 'treaty', 'negotiations succeed'],
   jgb_crisis: ['jgb crisis', 'yen carry unwind', 'boj loses control', 'jgb selloff', 'jgb sell-off',
@@ -138,6 +145,30 @@ const KW: Record<string, string[]> = {
     'unmanned systems', 'automation expansion', 'cobots', 'collaborative robots'],
   rob_low: ['labor shortage', 'worker shortage', 'hiring surge', 'manual labor',
     'human workers', 'labor intensive', 'workforce expansion'],
+  // ---- factor signals ----
+  // These are macro factors that don't have a dial of their own but move existing
+  // dials: each score is folded into the dial inference (see inferDials) and reported
+  // in the output `factors` section so the dashboard can show WHY a dial was chosen.
+  credit_stress: ['credit spread', 'spreads widen', 'spread widening', 'junk bond',
+    'high-yield selloff', 'defaults rise', 'default wave', 'downgrade', 'credit crunch',
+    'credit stress', 'distressed debt', 'bankruptcy', 'chapter 11', 'missed payment',
+    'debt restructuring', 'credit event', 'lending standards tighten', 'loan losses',
+    'delinquencies', 'private credit losses'],
+  ai_capex_up: ['ai capex', 'capex surge', 'record capex', 'data center buildout',
+    'datacenter buildout', 'data center expansion', 'hyperscaler spending', 'gpu demand',
+    'chip demand', 'ai infrastructure', 'ai spending boom', 'compute demand',
+    'new data center', 'capacity expansion'],
+  ai_capex_down: ['capex cut', 'data center pause', 'datacenter pause', 'ai pullback',
+    'gpu glut', 'capacity glut', 'order cancellation', 'orders cancelled', 'ai winter',
+    'compute oversupply', 'lease cancellation', 'ai spending slowdown', 'capex guidance cut'],
+  labor_strong: ['payrolls beat', 'jobs beat', 'strong jobs report', 'jobless claims fall',
+    'unemployment falls', 'labor market strong', 'wage gains', 'job growth', 'hiring picks up'],
+  labor_weak: ['jobless claims rise', 'layoffs', 'job cuts', 'unemployment rises',
+    'hiring freeze', 'payrolls miss', 'jobs miss', 'labor market cools', 'job openings fall',
+    'workforce reduction'],
+  energy_shock: ['oil spikes', 'oil surges', 'oil jumps', 'crude surges', 'strait of hormuz',
+    'hormuz', 'oil embargo', 'supply disruption', 'energy crisis', 'gas prices spike',
+    'opec cut', 'energy prices surge', 'power shortage', 'electricity prices spike'],
 };
 
 const POS_WORDS = ['rally', 'surge', 'gain', 'rise', 'beat', 'strong', 'growth', 'recovery', 'bull', 'boom',
@@ -149,11 +180,13 @@ const NEG_WORDS = ['crash', 'plunge', 'fall', 'drop', 'miss', 'weak', 'decline',
 
 // Categories whose keywords are amplified by bullish articles (positive news = more signal)
 const BULLISH_CATS = new Set(['sev_melt', 'inf_down', 'fed_cut', 'gdp_soft',
-  'tar_truce', 'geo_stable', 'jgb_normal', 'fis_stimulus', 'usd_weak']);
+  'tar_truce', 'geo_stable', 'jgb_normal', 'fis_stimulus', 'usd_weak',
+  'ai_capex_up', 'labor_strong']);
 // Categories whose keywords are amplified by bearish articles (negative news = more signal)
 const BEARISH_CATS = new Set(['sev_base', 'sev_severe', 'sev_mild', 'inf_high', 'inf_sticky',
   'fed_hike', 'gdp_recession', 'gdp_hard', 'tar_escalate',
-  'geo_conflict', 'geo_tension', 'jgb_crisis', 'fis_austerity', 'usd_strong']);
+  'geo_conflict', 'geo_tension', 'jgb_crisis', 'fis_austerity', 'usd_strong',
+  'credit_stress', 'ai_capex_down', 'labor_weak', 'energy_shock']);
 
 function kwWeight(compound: number, cat: string): number {
   if (BULLISH_CATS.has(cat)) return Math.max(0.2, 0.6 + 0.4 * compound);
@@ -235,14 +268,57 @@ function roundN(x: number, nd: number): number {
   return Math.round((x + Number.EPSILON) * m) / m;
 }
 
+// Keywords must match as whole words/phrases (optional plural "s"). Plain substring
+// matching produced large false-positive counts — 'war' matched "warns"/"software",
+// 'up' matched "update" — which badly inflated the geo/severity scores.
+const _kwRegexCache = new Map<string, RegExp>();
+function kwRegex(kw: string): RegExp {
+  let re = _kwRegexCache.get(kw);
+  if (!re) {
+    const escaped = kw.trim().toLowerCase()
+      .replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+      .replace(/\s+/g, '[\\s-]+');
+    re = new RegExp(`(?<![a-z0-9])${escaped}(?:s)?(?![a-z0-9])`, 'i');
+    _kwRegexCache.set(kw, re);
+  }
+  return re;
+}
+
 function countKeywords(text: string, keywords: string[]): number {
-  const t = text.toLowerCase();
   let n = 0;
-  for (const kw of keywords) if (t.includes(kw.toLowerCase())) n += 1;
+  for (const kw of keywords) if (kwRegex(kw).test(text)) n += 1;
   return n;
 }
 
-type Analyzed = { title: string; source: string; finbert: number; cats: Record<string, number>; pos: number; neg: number };
+// The same story syndicated across several of the 23 feeds was scored once per feed,
+// over-weighting whatever topic happened to be widely syndicated. Score each unique
+// headline once.
+function dedupeArticles(articles: Article[]): Article[] {
+  const seen = new Set<string>();
+  const out: Article[] = [];
+  for (const a of articles) {
+    const key = a.title.toLowerCase().replace(/[^a-z0-9 ]+/g, ' ').replace(/\s+/g, ' ').trim();
+    if (key && seen.has(key)) continue;
+    if (key) seen.add(key);
+    out.push(a);
+  }
+  return out;
+}
+
+// RSS feeds routinely carry multi-day-old items; a 3-day-old headline shouldn't move
+// the dials as much as one from this morning. Unknown dates get a middling weight.
+function recencyWeight(published: string): number {
+  if (!published) return 0.7;
+  const t = Date.parse(published);
+  if (Number.isNaN(t)) return 0.7;
+  const ageH = (Date.now() - t) / 3_600_000;
+  if (ageH <= 6) return 1.0;
+  if (ageH <= 24) return 0.85;
+  if (ageH <= 48) return 0.6;
+  return 0.35;
+}
+
+type Analyzed = { title: string; source: string; finbert: number; cats: Record<string, number>; pos: number; neg: number; recency: number };
 
 async function analyzeArticles(articles: Article[]): Promise<Analyzed[]> {
   const texts = articles.map((a) => `${a.title} ${a.summary}`);
@@ -252,15 +328,14 @@ async function analyzeArticles(articles: Article[]): Promise<Analyzed[]> {
   for (let i = 0; i < articles.length; i++) {
     const a = articles[i];
     const text = texts[i];
-    const lower = text.toLowerCase();
     const cats: Record<string, number> = {};
     for (const cat of Object.keys(KW)) {
       const c = countKeywords(text, KW[cat]);
       if (c > 0) cats[cat] = c;
     }
-    const pos = POS_WORDS.reduce((acc, w) => acc + (lower.includes(w) ? 1 : 0), 0);
-    const neg = NEG_WORDS.reduce((acc, w) => acc + (lower.includes(w) ? 1 : 0), 0);
-    results.push({ title: a.title, source: a.source, finbert: fbScores[i], cats, pos, neg });
+    const pos = POS_WORDS.reduce((acc, w) => acc + (kwRegex(w).test(text) ? 1 : 0), 0);
+    const neg = NEG_WORDS.reduce((acc, w) => acc + (kwRegex(w).test(text) ? 1 : 0), 0);
+    results.push({ title: a.title, source: a.source, finbert: fbScores[i], cats, pos, neg, recency: recencyWeight(a.published) });
   }
   return results;
 }
@@ -271,9 +346,31 @@ function inferDials(analyzed: Analyzed[]): Record<string, any> {
   for (const a of analyzed) {
     const fb = a.finbert ?? 0.0;
     for (const [cat, cnt] of Object.entries(a.cats)) {
-      scores[cat] += cnt * kwWeight(fb, cat);
+      scores[cat] += cnt * kwWeight(fb, cat) * a.recency;
     }
   }
+
+  // ---- factor signals → dial scores ----
+  // Macro factors without a dedicated dial feed the dials they actually move:
+  // credit stress is the bust-severity amplifier (2008, the AI-debt thesis),
+  // the AI capex cycle is THE driver of melt-up vs bust, the labor market decides
+  // the GDP outcome, and an energy shock is simultaneously an inflation impulse
+  // and a geopolitical-tension symptom.
+  const F: Record<string, number> = {
+    credit_stress: scores['credit_stress'],
+    ai_capex_up: scores['ai_capex_up'],
+    ai_capex_down: scores['ai_capex_down'],
+    labor_strong: scores['labor_strong'],
+    labor_weak: scores['labor_weak'],
+    energy_shock: scores['energy_shock'],
+  };
+  scores['sev_severe'] += 0.5 * F.credit_stress;
+  scores['sev_base'] += 0.3 * F.credit_stress + 0.3 * F.ai_capex_down;
+  scores['sev_mild'] += 0.4 * F.ai_capex_down;
+  scores['sev_melt'] += 0.6 * F.ai_capex_up;
+  scores['gdp_soft'] += 0.5 * F.labor_strong;
+  scores['gdp_recession'] += 0.4 * F.labor_weak;
+  scores['inf_high'] += 0.5 * F.energy_shock;
 
   const sevScores: Record<string, number> = {
     melt: scores['sev_melt'], mild: scores['sev_mild'], base: scores['sev_base'], severe: scores['sev_severe'],
@@ -282,77 +379,103 @@ function inferDials(analyzed: Analyzed[]): Record<string, any> {
   const sevRatios: Record<string, number> = {};
   for (const k of Object.keys(sevScores)) sevRatios[k] = sevScores[k] / sevTotal;
 
+  // Absolute thresholds below are ~60% of the original values: word-boundary
+  // matching, deduplication and recency weighting all shrink raw scores, so the
+  // old substring-era thresholds would almost never trigger. Ratio-based paths
+  // are scale-invariant and unchanged.
   let sev: string;
-  if ((sevRatios['severe'] || 0) > 0.35 || sevScores.severe >= 5) sev = 'severe';
+  if ((sevRatios['severe'] || 0) > 0.35 || sevScores.severe >= 3) sev = 'severe';
   // "melt-up / no bust" is a strong claim and is evaluated before base, so it must be
   // genuinely dominant: melt only wins (via either the ratio or the raw-score path) when
   // its score is at least as high as base. Otherwise melt keywords appearing alongside
   // clearly bearish bust/correction signals would wrongly override a dominant base score.
-  else if (((sevRatios['melt'] || 0) > 0.40 || sevScores.melt >= 6) && sevScores.melt >= sevScores.base) sev = 'melt';
-  else if ((sevRatios['base'] || 0) > 0.35 || sevScores.base >= 4) sev = 'base';
-  else if (sevScores.mild >= 2) sev = 'mild';
+  else if (((sevRatios['melt'] || 0) > 0.40 || sevScores.melt >= 4) && sevScores.melt >= sevScores.base) sev = 'melt';
+  else if ((sevRatios['base'] || 0) > 0.35 || sevScores.base >= 2.5) sev = 'base';
+  else if (sevScores.mild >= 1.2) sev = 'mild';
   else sev = maxOf(sevScores) > 0 ? argmax(sevScores) : 'base';
 
   const inf_d = scores['inf_down'], inf_s = scores['inf_sticky'], inf_h = scores['inf_high'];
   const inf_total = Math.max(inf_d + inf_s + inf_h, 1);
   let inf: string;
-  if (inf_h / inf_total > 0.40 || inf_h >= 4) inf = 'high';
-  else if (inf_d / inf_total > 0.40 || inf_d >= 4) inf = 'down';
+  if (inf_h / inf_total > 0.40 || inf_h >= 2.5) inf = 'high';
+  else if (inf_d / inf_total > 0.40 || inf_d >= 2.5) inf = 'down';
   else inf = 'sticky';
 
   const fed_c = scores['fed_cut'], fed_h = scores['fed_hold'], fed_k = scores['fed_hike'];
   let fed: string;
-  if (fed_k > fed_c && fed_k >= 2) fed = 'hike';
-  else if (fed_c > fed_k && fed_c >= 2) fed = 'cut';
+  if (fed_k > fed_c && fed_k >= 1.2) fed = 'hike';
+  else if (fed_c > fed_k && fed_c >= 1.2) fed = 'cut';
   else fed = 'hold';
 
   const gdp_s = scores['gdp_soft'], gdp_r = scores['gdp_recession'], gdp_h = scores['gdp_hard'];
   const gdp_total = Math.max(gdp_s + gdp_r + gdp_h, 1);
   let gdp: string;
-  if (gdp_h / gdp_total > 0.35 || gdp_h >= 3) gdp = 'hard';
-  else if (gdp_s / gdp_total > 0.40 || gdp_s >= 4) gdp = 'soft';
-  else if (gdp_r >= 2) gdp = 'recession';
-  else gdp = 'recession';
+  if (gdp_h / gdp_total > 0.35 || gdp_h >= 2) gdp = 'hard';
+  else if (gdp_s / gdp_total > 0.40 || gdp_s >= 2.5) gdp = 'soft';
+  else if (gdp_r >= 1.2) gdp = 'recession';
+  // No meaningful GDP signal either way: pick whichever of soft/recession leads
+  // rather than always defaulting to recession (the old else-branch was dead code).
+  else gdp = gdp_s > gdp_r ? 'soft' : 'recession';
 
   const tar_e = scores['tar_escalate'], tar_t = scores['tar_truce'];
   let tar: string;
-  if (tar_e > tar_t && tar_e >= 3) tar = 'escalate';
-  else if (tar_t > tar_e && tar_t >= 2) tar = 'truce';
+  if (tar_e > tar_t && tar_e >= 2) tar = 'escalate';
+  else if (tar_t > tar_e && tar_t >= 1.2) tar = 'truce';
   else tar = 'deescalate';
 
-  const geo_c = scores['geo_conflict'], geo_s = scores['geo_stable'];
+  // Conflict and tension are now scored from separate keyword sets; an energy
+  // shock counts partly toward tension (oil spikes are how geopolitical stress
+  // shows up in market news).
+  const geo_c = scores['geo_conflict'], geo_t = scores['geo_tension'] + 0.3 * F.energy_shock, geo_s = scores['geo_stable'];
   let geo: string;
-  if (geo_c >= 5) geo = 'conflict';
-  else if (geo_c >= 2 && geo_c > geo_s) geo = 'tension';
+  if (geo_c >= 3 && geo_c > geo_s) geo = 'conflict';
+  else if (geo_t + geo_c >= 1.5 && geo_t + geo_c > geo_s) geo = 'tension';
   else geo = 'stable';
 
   const jgb_c = scores['jgb_crisis'], jgb_n = scores['jgb_normal'];
   let jgb: string;
-  if (jgb_c >= 2) jgb = 'crisis';
-  else if (jgb_n >= 2) jgb = 'normalization';
+  if (jgb_c >= 1.2) jgb = 'crisis';
+  else if (jgb_n >= 1.2) jgb = 'normalization';
   else jgb = 'anchored';
 
   const fis_s = scores['fis_stimulus'], fis_a = scores['fis_austerity'];
   let fis: string;
-  if (fis_s > fis_a && fis_s >= 2) fis = 'stimulus';
-  else if (fis_a > fis_s && fis_a >= 2) fis = 'austerity';
+  if (fis_s > fis_a && fis_s >= 1.2) fis = 'stimulus';
+  else if (fis_a > fis_s && fis_a >= 1.2) fis = 'austerity';
   else fis = 'neutral';
 
   const usd_w = scores['usd_weak'], usd_s = scores['usd_strong'];
   let usd: string;
-  if (usd_w > usd_s && usd_w >= 2) usd = 'weak';
-  else if (usd_s > usd_w && usd_s >= 2) usd = 'strong';
+  if (usd_w > usd_s && usd_w >= 1.2) usd = 'weak';
+  else if (usd_s > usd_w && usd_s >= 1.2) usd = 'strong';
   else usd = 'neutral';
 
   const rob_surge = scores['rob_surge'], rob_mod = scores['rob_moderate'];
   let rob: string;
-  if (rob_surge >= 2) rob = 'surge';
-  else if (rob_mod >= 2 || rob_surge >= 1) rob = 'moderate';
+  if (rob_surge >= 1.5) rob = 'surge';
+  else if (rob_mod >= 1.2 || rob_surge >= 0.6) rob = 'moderate';
   else rob = 'low';
 
   const avgFinbert = analyzed.reduce((acc, a) => acc + a.finbert, 0) / Math.max(analyzed.length, 1);
   const totalPos = analyzed.reduce((acc, a) => acc + a.pos, 0);
   const totalNeg = analyzed.reduce((acc, a) => acc + a.neg, 0);
+
+  const aiCapexNet = F.ai_capex_up - F.ai_capex_down;
+  const laborNet = F.labor_strong - F.labor_weak;
+  const factors = [
+    { id: 'credit_stress', label: 'Credit stress', score: roundN(F.credit_stress, 2),
+      direction: F.credit_stress >= 1.5 ? 'bearish' : 'neutral', affects: 'Severity',
+      note: 'HY spreads, downgrades, defaults, bankruptcies — the bust-severity amplifier' },
+    { id: 'ai_capex', label: 'AI capex cycle', score: roundN(aiCapexNet, 2),
+      direction: aiCapexNet > 0.5 ? 'bullish' : aiCapexNet < -0.5 ? 'bearish' : 'neutral', affects: 'Severity',
+      note: 'Hyperscaler / data-center spending momentum — melt-up vs bust driver' },
+    { id: 'labor', label: 'Labor market', score: roundN(laborNet, 2),
+      direction: laborNet > 0.5 ? 'bullish' : laborNet < -0.5 ? 'bearish' : 'neutral', affects: 'GDP',
+      note: 'Payrolls, jobless claims, layoffs — decides soft vs hard landing' },
+    { id: 'energy_shock', label: 'Energy shock', score: roundN(F.energy_shock, 2),
+      direction: F.energy_shock >= 1.5 ? 'bearish' : 'neutral', affects: 'Inflation + Geopolitics',
+      note: 'Oil/gas price spikes, supply disruptions — inflation impulse and tension symptom' },
+  ];
 
   return {
     sev, inf, fed, gdp, tar, geo, jgb, fis, usd, rob,
@@ -362,11 +485,12 @@ function inferDials(analyzed: Analyzed[]): Record<string, any> {
       fed: { cut: fed_c, hold: fed_h, hike: fed_k },
       gdp: { soft: gdp_s, recession: gdp_r, hard: gdp_h },
       tar: { truce: tar_t, deescalate: 0, escalate: tar_e },
-      geo: { stable: geo_s, tension: geo_c, conflict: geo_c },
+      geo: { stable: geo_s, tension: roundN(geo_t, 2), conflict: geo_c },
       jgb: { anchored: 0, normalization: jgb_n, crisis: jgb_c },
       fis: { austerity: fis_a, neutral: 0, stimulus: fis_s },
       usd: { weak: usd_w, neutral: 0, strong: usd_s },
     },
+    factors,
     sentiment: {
       avg_finbert: roundN(avgFinbert, 3),
       positive_keywords: totalPos,
@@ -394,12 +518,16 @@ function topHeadlines(articles: Article[], n = 15): Array<{ title: string; sourc
 }
 
 async function main(): Promise<Record<string, any>> {
-  console.error('Fetching financial news from RSS feeds...');
+  console.error('Fetching financial news from RSS feeds (in parallel)...');
+  // All feeds are fetched concurrently: sequentially, 23 feeds at up to 12s each
+  // could take minutes; in parallel the whole network phase is bounded by the
+  // slowest single feed. fetchFeed never rejects (errors return []).
+  const feedResults = await Promise.all(
+    RSS_FEEDS.map(async ([name, url]) => ({ name, entries: await fetchFeed(name, url) })));
   const allArticles: Article[] = [];
   const sourcesOk: string[] = [];
   const sourcesFail: string[] = [];
-  for (const [name, url] of RSS_FEEDS) {
-    const entries = await fetchFeed(name, url);
+  for (const { name, entries } of feedResults) {
     if (entries.length > 0) {
       console.error(`  [ok]   ${name}: ${entries.length} articles`);
       allArticles.push(...entries);
@@ -410,14 +538,15 @@ async function main(): Promise<Record<string, any>> {
     }
   }
 
-  console.error(`\nTotal: ${allArticles.length} articles from ${sourcesOk.length} sources`);
-  if (allArticles.length === 0) {
+  const uniqueArticles = dedupeArticles(allArticles);
+  console.error(`\nTotal: ${allArticles.length} articles from ${sourcesOk.length} sources (${uniqueArticles.length} unique)`);
+  if (uniqueArticles.length === 0) {
     console.error('ERROR: No articles fetched.');
     process.exit(1);
   }
 
   console.error('Analyzing sentiment and topics...');
-  const analyzed = await analyzeArticles(allArticles);
+  const analyzed = await analyzeArticles(uniqueArticles);
 
   console.error('Mapping to simulation dials...');
   const result = inferDials(analyzed);
@@ -430,9 +559,10 @@ async function main(): Promise<Record<string, any>> {
       usd: result.usd, rob: result.rob,
     },
     confidence: result.confidence,
+    factors: result.factors,
     sentiment: result.sentiment,
-    headlines: topHeadlines(allArticles, 20),
-    sources: { ok: sourcesOk, failed: sourcesFail, total_articles: allArticles.length },
+    headlines: topHeadlines(uniqueArticles, 20),
+    sources: { ok: sourcesOk, failed: sourcesFail, total_articles: uniqueArticles.length },
   };
 
   const outPath = join(HERE, '..', 'current_situation.json');

@@ -33,7 +33,23 @@ type Dial = Record<string, any>;
 // although the exact double 5.56500000000000039 should round up) is reliable.
 // Instead we expand the exact double to many decimals via toFixed with a large
 // digit count, then round that decimal string ourselves with banker's rounding.
+const POW10 = [1, 10, 100, 1000, 10000];
 function pyRound(x: number, ndigits = 0): number {
+  // Fast path: away from a decimal half-tie, naive float rounding agrees with the
+  // exact-decimal banker's rounding below (the float error in x*10^n is ~1e-10 at
+  // the magnitudes in this model, far smaller than the 1e-9 guard band), and
+  // Math.round(y)/scale yields the same nearest-double as parsing the decimal
+  // string. Only near-tie values take the exact string-based path.
+  if (Number.isFinite(x) && x !== 0 && ndigits >= 0 && ndigits < POW10.length) {
+    const y = x * POW10[ndigits];
+    if (Math.abs(y) < 1e15) {
+      const f = y - Math.floor(y);
+      if (Math.abs(f - 0.5) > 1e-9) return Math.round(y) / POW10[ndigits];
+    }
+  }
+  return pyRoundExact(x, ndigits);
+}
+function pyRoundExact(x: number, ndigits = 0): number {
   if (Number.isNaN(x) || !Number.isFinite(x) || x === 0) return x;
   const neg = x < 0;
   // toFixed with a generous buffer yields the true decimal digits of the double
@@ -130,16 +146,28 @@ function pchip(xs: number[], ys: number[]): (x: number) => number {
   };
 }
 
+// The dial keyframe arrays are module-level constants shared across all 26,244
+// build() calls, so each unique series only needs to be interpolated once.
+// Cached arrays are only ever read by callers (never mutated in place).
+const _serCache = new Map<KF, number[]>();
 function ser(keyframes: KF): number[] {
+  let out = _serCache.get(keyframes);
+  if (out) return out;
   const f = pchip(keyframes.map((k) => k[0]), keyframes.map((k) => k[1]));
-  const out: number[] = [];
+  out = [];
   for (let m = 0; m < 61; m++) out.push(f(m));
+  _serCache.set(keyframes, out);
   return out;
 }
 
+const _rampCache = new Map<string, number[]>();
 function rampscalar(full: number, end = 12): number[] {
-  const out: number[] = [];
+  const key = `${full}|${end}`;
+  let out = _rampCache.get(key);
+  if (out) return out;
+  out = [];
   for (let m = 0; m < 61; m++) out.push(full * Math.min(1.0, m / end));
+  _rampCache.set(key, out);
   return out;
 }
 

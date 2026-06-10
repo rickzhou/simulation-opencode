@@ -1,6 +1,6 @@
 # AI bubble-bust simulation
 
-A self-contained dashboard simulating an AI-bubble collapse over five years (May 2026 - May 2031). 26,244 scenarios from nine dials: bust severity, inflation regime, Fed policy, GDP outcome, tariff regime, geopolitics, Japanese bonds, fiscal policy, and the US dollar. Twelve one-click presets snap all nine dials to canonical historical analogs (dot-com, 1970s stagflation, 2008 GFC, Volcker, melt-up, trade-war stagflation, soft landing, policy error, global conflict, yen carry unwind, 2022 rate shock, 2020 COVID+stimulus).
+A self-contained dashboard simulating an AI-bubble collapse over five years (May 2026 - May 2031). 26,244 scenarios from nine macro dials — bust severity, inflation regime, Fed policy, GDP outcome, tariff regime, geopolitics, Japanese bonds, fiscal policy, and the US dollar — plus a tenth dial (robotics & drone investment) applied client-side. Thirteen one-click presets snap all dials to canonical historical analogs (dot-com, 1970s stagflation, 2008 GFC, Volcker, melt-up, trade-war stagflation, soft landing, policy error, global conflict, yen carry unwind, 2022 rate shock, 2020 COVID+stimulus, automation shock).
 
 ## What's new in v7
 
@@ -20,10 +20,16 @@ The dashboard has a **Current Situation** button at the top that analyzes live f
 
 ### How it works
 
-1. `src/fetchNews.ts` pulls RSS feeds from 23 financial news sources (CNBC, Yahoo Finance, FT, WSJ, Seeking Alpha, MarketWatch, Investing.com, Bloomberg, ZeroHedge, Nasdaq, Benzinga, and more)
-2. FinBERT (financial BERT, via `@xenova/transformers`) scores each headline for bullish/bearish tone
-3. Keyword analysis maps topics to the ten simulation dials (severity, inflation, Fed, GDP, tariffs, geopolitics, JGB, fiscal, USD, robotics)
-4. The recommended dial settings are baked into the HTML at build time
+1. `src/fetchNews.ts` pulls RSS feeds from 23 financial news sources **in parallel** (CNBC, Yahoo Finance, FT, WSJ, Seeking Alpha, MarketWatch, Investing.com, Bloomberg, ZeroHedge, Nasdaq, Benzinga, and more)
+2. Articles are de-duplicated across feeds (the same syndicated story is scored once) and weighted by recency — a headline from this morning moves the dials more than a 3-day-old one
+3. FinBERT (financial BERT, via `@xenova/transformers`) scores each headline for bullish/bearish tone
+4. Whole-word keyword analysis maps topics to the ten simulation dials (severity, inflation, Fed, GDP, tariffs, geopolitics, JGB, fiscal, USD, robotics)
+5. Four **factor signals** without a dedicated dial feed the dials they actually move, and are shown in the dashboard panel:
+   - **Credit stress** (HY spreads, downgrades, defaults, bankruptcies) → bust severity — the 2008-style amplifier and the core of the AI-debt thesis
+   - **AI capex cycle** (hyperscaler/data-center spending momentum vs cuts, GPU glut) → severity, melt-up vs bust
+   - **Labor market** (payrolls, jobless claims, layoffs) → GDP outcome
+   - **Energy shock** (oil/gas spikes, Hormuz, supply disruptions) → inflation regime + geopolitical tension
+6. The recommended dial settings are baked into the HTML at build time
 
 ### Usage
 
@@ -89,7 +95,7 @@ That refreshes `AI-bubble-bust-simulation.html` one folder up. Edit
 `src/simulate.ts` to change scenarios, model parameters, or add metrics; edit
 `dashboard_template.html` to change the UI.
 
-## What the nine dials do
+## What the ten dials do
 
 - **Severity** (melt / mild / base / severe) - the equity-bust shape.
 - **Inflation** (down / sticky / high) - the CPI regime.
@@ -100,12 +106,13 @@ That refreshes `AI-bubble-bust-simulation.html` one folder up. Edit
 - **JGB / Japan** (anchored / normalization / crisis) - the Japanese bond market. Moves the US long end independent of the Fed via yen-carry trade dynamics.
 - **Fiscal** (austerity / neutral / stimulus) - government spending and deficit regime. Stimulus boosts cyclicals, REITs and Bitcoin but pushes the long end higher (crowding-out). Austerity is deflationary.
 - **USD** (weak / neutral / strong) - the dollar regime. Strong dollar is a "wrecking ball" on commodities, EM and Bitcoin. Weak dollar boosts gold, copper, oil and crypto.
+- **Robotics / Drones** (low / moderate / surge) - the automation investment cycle, applied client-side on top of the 26,244-scenario grid. A surge deflates goods prices, boosts industrials/tech/copper, and adds labor-displacement unemployment.
 
 The dials are deliberately independent, so you can build coherent combinations (high inflation + Fed hikes = Volcker response) and policy errors (high inflation + Fed cuts + tariff escalation). Section 13 (Scenario finder) ranks all 26,244 by any metric so you can jump straight to the best or worst corners.
 
 ## Presets
 
-Above the dial rows are twelve historical-analog presets that snap all nine dials at once: **Dot-com 2000-02**, **1970s Stagflation**, **2008 GFC**, **Volcker 1979-82**, **AI Melt-up continues**, **Trade-war Stagflation**, **Soft landing**, **Policy error**, **Global Conflict Shock**, **Yen Carry Unwind**, **2022 Rate Shock**, and **2020 COVID + Stimulus**.
+Above the dial rows are thirteen historical-analog presets that snap all dials at once: **Dot-com 2000-02**, **1970s Stagflation**, **2008 GFC**, **Volcker 1979-82**, **AI Melt-up continues**, **Trade-war Stagflation**, **Soft landing**, **Policy error**, **Global Conflict Shock**, **Yen Carry Unwind**, **2022 Rate Shock**, **2020 COVID + Stimulus**, and **Automation Shock**.
 
 The last two presets are specifically for **historical validation**: the 2022 Rate Shock preset should produce TLT drawdowns near -31%, REITs near -25%, and Bitcoin near -65% — matching what actually happened. The 2020 COVID + Stimulus preset should produce a severe crash followed by a massive V-shaped recovery.
 

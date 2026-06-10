@@ -1,150 +1,184 @@
 {
-  "timestamp": "2026-06-05T21:01:36.287Z",
+  "timestamp": "2026-06-10T17:30:40.663Z",
   "dials": {
-    "sev": "base",
+    "sev": "melt",
     "inf": "high",
-    "fed": "cut",
+    "fed": "hike",
     "gdp": "soft",
     "tar": "deescalate",
     "geo": "conflict",
     "jgb": "anchored",
-    "fis": "neutral",
-    "usd": "strong",
-    "rob": "low"
+    "fis": "stimulus",
+    "usd": "neutral",
+    "rob": "surge"
   },
   "confidence": {
     "sev": {
-      "melt": 14.92168,
-      "mild": 5.47428,
-      "base": 16.910159999999994,
-      "severe": 1.60672
+      "melt": 12.2117732,
+      "mild": 3.267594,
+      "base": 5.2148460000000005,
+      "severe": 1.8599999999999999
     },
     "inf": {
-      "down": 0.76204,
-      "sticky": 0.6,
-      "high": 2.89708
+      "down": 0,
+      "sticky": 0.32652,
+      "high": 7.162598999999999
     },
     "fed": {
-      "cut": 12.604159999999998,
-      "hold": 2.4,
-      "hike": 7.8905199999999995
+      "cut": 2.9116959999999996,
+      "hold": 2.8800000000000003,
+      "hike": 3.8596419999999996
     },
     "gdp": {
-      "soft": 4.65428,
+      "soft": 1.214527,
       "recession": 0.6,
       "hard": 0
     },
     "tar": {
-      "truce": 0.8646,
+      "truce": 0.669148,
       "deescalate": 0,
-      "escalate": 0.6
+      "escalate": 0.8099999999999999
     },
     "geo": {
-      "stable": 9.638119999999999,
-      "tension": 69.25676000000003,
-      "conflict": 69.25676000000003
+      "stable": 4.19087,
+      "tension": 29.43,
+      "conflict": 5.274569999999999
     },
     "jgb": {
       "anchored": 0,
-      "normalization": 0.8994,
+      "normalization": 0.4072,
       "crisis": 0
     },
     "fis": {
-      "austerity": 1.7867199999999999,
+      "austerity": 0.635908,
       "neutral": 0,
-      "stimulus": 0
+      "stimulus": 1.2
     },
     "usd": {
-      "weak": 0.79952,
+      "weak": 0,
       "neutral": 0,
-      "strong": 2.03184
+      "strong": 0.32088
     }
   },
+  "factors": [
+    {
+      "id": "credit_stress",
+      "label": "Credit stress",
+      "score": 1.8,
+      "direction": "bearish",
+      "affects": "Severity",
+      "note": "HY spreads, downgrades, defaults, bankruptcies — the bust-severity amplifier"
+    },
+    {
+      "id": "ai_capex",
+      "label": "AI capex cycle",
+      "score": 1.79,
+      "direction": "bullish",
+      "affects": "Severity",
+      "note": "Hyperscaler / data-center spending momentum — melt-up vs bust driver"
+    },
+    {
+      "id": "labor",
+      "label": "Labor market",
+      "score": 0.78,
+      "direction": "bullish",
+      "affects": "GDP",
+      "note": "Payrolls, jobless claims, layoffs — decides soft vs hard landing"
+    },
+    {
+      "id": "energy_shock",
+      "label": "Energy shock",
+      "score": 8.77,
+      "direction": "bearish",
+      "affects": "Inflation + Geopolitics",
+      "note": "Oil/gas price spikes, supply disruptions — inflation impulse and tension symptom"
+    }
+  ],
   "sentiment": {
-    "avg_finbert": 0.01,
-    "positive_keywords": 304,
-    "negative_keywords": 201,
+    "avg_finbert": 0.046,
+    "positive_keywords": 171,
+    "negative_keywords": 111,
     "overall": "mixed"
   },
   "headlines": [
     {
-      "title": "Nasdaq falls 4% and suffers worst day since April 2025 as traders flee chip stocks: Live updates",
+      "title": "Trump pledges more Iran strikes, saying U.S. will be 'attacking them very hard'",
       "source": "CNBC Top News"
     },
     {
-      "title": "Meta's stock sinks on report company could raise tens of billions of dollars to fund AI push",
+      "title": "Trump says 'I love the inflation' after consumer price index hits 3-year high",
       "source": "CNBC Top News"
     },
     {
-      "title": "Google to pay SpaceX $920 million a month for compute capacity at xAI data centers",
+      "title": "Wall Street needs a crash course in the token economy ahead of AI IPOs. SpaceX offers a preview",
       "source": "CNBC Top News"
     },
     {
-      "title": "Bitcoin cracks $60,000, sinking to lowest level since October 2024",
+      "title": "Dow drops 700 points to session lows as Trump doubles down on Iran threat: Live updates",
       "source": "CNBC Top News"
     },
     {
-      "title": "SpaceX is set to be a 'seminal event' for the stock market next week. Here's what's ahead",
+      "title": "Stocks making the biggest moves midday: Super Micro, Cracker Barrel, Robinhood Markets, truckers & more",
       "source": "CNBC Top News"
     },
     {
-      "title": "Mythos rejuvenated the cybersecurity sector. Earnings put the recent rally to the test",
+      "title": "The SpaceX IPO could be coming for the 'Magnificent Seven' and chip stocks",
       "source": "CNBC Top News"
     },
     {
-      "title": "Iran's threats against this Red Sea chokepoint are a big vulnerability for the oil market",
+      "title": "Volatility surge has trader eyeing one 'stable' stock",
       "source": "CNBC Top News"
     },
     {
-      "title": "Crypto mutiny on Strategy: Shorts target 'MSTR' in bitcoin bloodbath",
+      "title": "Property Play: Commercial real estate saw record lending competition in April, according to JLL",
       "source": "CNBC Top News"
     },
     {
-      "title": "Trump wants Bill Pulte to fire big chunk of national intelligence office staff: WSJ",
+      "title": "Sen. Warren calls on SEC to delay SpaceX IPO, flagging concerns about valuation and governance",
       "source": "CNBC Top News"
     },
     {
-      "title": "Trump administration, OpenAI discussing possible government stake in the AI startup",
+      "title": "Trump signs $70 billion immigration funding bill after months of delay",
       "source": "CNBC Top News"
     },
     {
-      "title": "Warren Buffett disciple Guy Spier built career on value investing. A rare cancer changed everything",
+      "title": "College sticker prices top $100,000 at 16 schools — but many students pay significantly less",
       "source": "CNBC Top News"
     },
     {
-      "title": "Inside the $850 million Obama Presidential Center ahead of its Juneteenth opening",
+      "title": "World Cup travel boost hasn't materialized for U.S. businesses — yet",
       "source": "CNBC Top News"
     },
     {
-      "title": "Hot jobs report puts Fed cuts further out of reach as Chair Warsh faces policy tests",
+      "title": "Here's the inflation breakdown for May 2026 — in one chart",
       "source": "CNBC Top News"
     },
     {
-      "title": "Chip stock breakout vs the rest of tech showing signs of topping out, says Carter Worth",
+      "title": "Company that bet big on Trump-backed crypto says its fortunes have improved",
       "source": "CNBC Top News"
     },
     {
-      "title": "Alphabet is seeking fresh capital as stock's 4-week losing streak tests investor appetite",
+      "title": "Amazon trucking expansion sparks freight stock sell-off",
       "source": "CNBC Top News"
     },
     {
-      "title": "Prediction market firms face growing scrutiny as Congress weighs regulation",
+      "title": "Bill Gates tells House panel 'I should have never met' with Jeffrey Epstein",
       "source": "CNBC Top News"
     },
     {
-      "title": "Apple's WWDC: Tim Cook's AI legacy at stake in his final developer conference as CEO",
+      "title": "Trump doubles down on Pulte for intelligence post, calls for short-term extension of foreign surveillance law",
       "source": "CNBC Top News"
     },
     {
-      "title": "Model routing is a fix for AI overspending. That's a problem for OpenAI and Anthropic",
+      "title": "An option trade to play the volatility in oil prices as Middle East tensions persist",
       "source": "CNBC Top News"
     },
     {
-      "title": "Delta SkyMiles credit cards now come with 2 free checked bags and monster intro offers. Are they worth it?",
+      "title": "SpaceX primed for double-digit pop on first day, if 'perps' trading is any guide",
       "source": "CNBC Top News"
     },
     {
-      "title": "U.S. Senate passes $70 billion ICE funding, fails to ban Trump's 'anti-weaponization' fund",
+      "title": "Humaniod robotics company raises up to $1.4 billion from Nvidia, Amazon and others",
       "source": "CNBC Top News"
     }
   ],
@@ -175,6 +209,6 @@
       "Benzinga"
     ],
     "failed": [],
-    "total_articles": 482
+    "total_articles": 465
   }
 }
