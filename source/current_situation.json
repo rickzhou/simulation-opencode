@@ -1,108 +1,145 @@
 {
-  "timestamp": "2026-06-10T17:30:40.663Z",
+  "timestamp": "2026-06-10T19:42:17.987Z",
+  "method": "nli-zero-shot+finbert",
   "dials": {
-    "sev": "melt",
+    "sev": "mild",
     "inf": "high",
-    "fed": "hike",
-    "gdp": "soft",
+    "fed": "hold",
+    "gdp": "recession",
     "tar": "deescalate",
-    "geo": "conflict",
+    "geo": "tension",
     "jgb": "anchored",
-    "fis": "stimulus",
+    "fis": "neutral",
     "usd": "neutral",
-    "rob": "surge"
+    "rob": "low"
   },
   "confidence": {
     "sev": {
-      "melt": 12.2117732,
-      "mild": 3.267594,
-      "base": 5.2148460000000005,
-      "severe": 1.8599999999999999
+      "melt": 0,
+      "mild": 4.455645481219408,
+      "base": 0,
+      "severe": 0
     },
     "inf": {
-      "down": 0,
-      "sticky": 0.32652,
-      "high": 7.162598999999999
+      "down": 1.8934024057507974,
+      "sticky": 0,
+      "high": 6.347623018741395
     },
     "fed": {
-      "cut": 2.9116959999999996,
-      "hold": 2.8800000000000003,
-      "hike": 3.8596419999999996
+      "cut": 0,
+      "hold": 0,
+      "hike": 0
     },
     "gdp": {
-      "soft": 1.214527,
-      "recession": 0.6,
+      "soft": 0,
+      "recession": 0.8371278630612318,
       "hard": 0
     },
     "tar": {
-      "truce": 0.669148,
+      "truce": 0,
       "deescalate": 0,
-      "escalate": 0.8099999999999999
+      "escalate": 0
     },
     "geo": {
-      "stable": 4.19087,
-      "tension": 29.43,
-      "conflict": 5.274569999999999
+      "stable": 0,
+      "tension": 7.18,
+      "conflict": 0
     },
     "jgb": {
       "anchored": 0,
-      "normalization": 0.4072,
+      "normalization": 0,
       "crisis": 0
     },
     "fis": {
-      "austerity": 0.635908,
+      "austerity": 0,
       "neutral": 0,
-      "stimulus": 1.2
+      "stimulus": 0
     },
     "usd": {
       "weak": 0,
       "neutral": 0,
-      "strong": 0.32088
+      "strong": 0.7526618515390989
     }
   },
   "factors": [
     {
       "id": "credit_stress",
       "label": "Credit stress",
-      "score": 1.8,
-      "direction": "bearish",
+      "score": 0,
+      "direction": "neutral",
       "affects": "Severity",
       "note": "HY spreads, downgrades, defaults, bankruptcies — the bust-severity amplifier"
     },
     {
       "id": "ai_capex",
       "label": "AI capex cycle",
-      "score": 1.79,
-      "direction": "bullish",
+      "score": 0,
+      "direction": "neutral",
       "affects": "Severity",
       "note": "Hyperscaler / data-center spending momentum — melt-up vs bust driver"
     },
     {
       "id": "labor",
       "label": "Labor market",
-      "score": 0.78,
-      "direction": "bullish",
+      "score": 0,
+      "direction": "neutral",
       "affects": "GDP",
       "note": "Payrolls, jobless claims, layoffs — decides soft vs hard landing"
     },
     {
       "id": "energy_shock",
       "label": "Energy shock",
-      "score": 8.77,
+      "score": 7,
       "direction": "bearish",
       "affects": "Inflation + Geopolitics",
       "note": "Oil/gas price spikes, supply disruptions — inflation impulse and tension symptom"
     }
   ],
+  "evidence": {
+    "sev": {
+      "title": "Intuit's Stock Price Plunge Represents a Golden Buying Opportunity",
+      "score": 0.99
+    },
+    "inf": {
+      "title": "US consumer inflation vaults above 4% as Iran war boosts energy prices",
+      "score": 0.99
+    },
+    "gdp": {
+      "title": "UK Economy Set to Shrink as Iran Energy Shock Hits Growth",
+      "score": 0.84
+    },
+    "geo": {
+      "title": "Trump pledges more Iran strikes, saying U.S. will be 'attacking them very hard'",
+      "score": 0.95
+    }
+  },
   "sentiment": {
-    "avg_finbert": 0.046,
-    "positive_keywords": 171,
-    "negative_keywords": 111,
+    "avg_finbert": 0.043,
+    "positive_keywords": 54,
+    "negative_keywords": 44,
     "overall": "mixed"
   },
+  "key_metrics": [
+    "US consumer inflation vaults above 4% as Iran war boosts energy prices",
+    "Target's $367 million grocery bet to save shoppers big money",
+    "Dow tumbles nearly 900 points, hitting session low into the close: Live updates",
+    "These in-demand jobs pay over $100,000 — and offer raises that keep ahead of inflation",
+    "Palantir Stock Has Fallen More Than 35% From Its High. Is This the Pullback Long-Term AI Investors Have Been Waiting For?",
+    "Trump signs $70 billion immigration funding bill after months of delay",
+    "Walmart's $100 deck box is an outdoor storage solution that's 51% off",
+    "Walmart is selling a lawn mower with adjustable height for just $270"
+  ],
   "headlines": [
     {
+      "title": "Dow tumbles nearly 900 points, hitting session low into the close: Live updates",
+      "source": "CNBC Top News"
+    },
+    {
       "title": "Trump pledges more Iran strikes, saying U.S. will be 'attacking them very hard'",
+      "source": "CNBC Top News"
+    },
+    {
+      "title": "Trump keeps saying an Iran deal is close. Markets keep believing it",
       "source": "CNBC Top News"
     },
     {
@@ -110,19 +147,19 @@
       "source": "CNBC Top News"
     },
     {
+      "title": "These stocks pay attractive dividends and offer 'turmoil insurance'",
+      "source": "CNBC Top News"
+    },
+    {
       "title": "Wall Street needs a crash course in the token economy ahead of AI IPOs. SpaceX offers a preview",
       "source": "CNBC Top News"
     },
     {
-      "title": "Dow drops 700 points to session lows as Trump doubles down on Iran threat: Live updates",
+      "title": "Trump says U.S. secretly moved more than 100 million barrels of oil through Strait of Hormuz",
       "source": "CNBC Top News"
     },
     {
-      "title": "Stocks making the biggest moves midday: Super Micro, Cracker Barrel, Robinhood Markets, truckers & more",
-      "source": "CNBC Top News"
-    },
-    {
-      "title": "The SpaceX IPO could be coming for the 'Magnificent Seven' and chip stocks",
+      "title": "Unique SpaceX IPO is hedging challenge for Wall Street: 'What are you going to do, short NASA?'",
       "source": "CNBC Top News"
     },
     {
@@ -130,15 +167,7 @@
       "source": "CNBC Top News"
     },
     {
-      "title": "Property Play: Commercial real estate saw record lending competition in April, according to JLL",
-      "source": "CNBC Top News"
-    },
-    {
-      "title": "Sen. Warren calls on SEC to delay SpaceX IPO, flagging concerns about valuation and governance",
-      "source": "CNBC Top News"
-    },
-    {
-      "title": "Trump signs $70 billion immigration funding bill after months of delay",
+      "title": "As gold's tumble continues, traders bet the pain may last for two more years",
       "source": "CNBC Top News"
     },
     {
@@ -147,6 +176,26 @@
     },
     {
       "title": "World Cup travel boost hasn't materialized for U.S. businesses — yet",
+      "source": "CNBC Top News"
+    },
+    {
+      "title": "Commercial real estate saw record lending competition in April, according to JLL",
+      "source": "CNBC Top News"
+    },
+    {
+      "title": "An unusual derivative play off SpaceX’s IPO success: A maker of space gases",
+      "source": "CNBC Top News"
+    },
+    {
+      "title": "Sen. Warren calls on SEC to delay SpaceX IPO, flagging concerns about valuation and governance",
+      "source": "CNBC Top News"
+    },
+    {
+      "title": "Google and Meta denied new trial in youth social media addiction case",
+      "source": "CNBC Top News"
+    },
+    {
+      "title": "Trump signs $70 billion immigration funding bill after months of delay",
       "source": "CNBC Top News"
     },
     {
@@ -159,26 +208,6 @@
     },
     {
       "title": "Amazon trucking expansion sparks freight stock sell-off",
-      "source": "CNBC Top News"
-    },
-    {
-      "title": "Bill Gates tells House panel 'I should have never met' with Jeffrey Epstein",
-      "source": "CNBC Top News"
-    },
-    {
-      "title": "Trump doubles down on Pulte for intelligence post, calls for short-term extension of foreign surveillance law",
-      "source": "CNBC Top News"
-    },
-    {
-      "title": "An option trade to play the volatility in oil prices as Middle East tensions persist",
-      "source": "CNBC Top News"
-    },
-    {
-      "title": "SpaceX primed for double-digit pop on first day, if 'perps' trading is any guide",
-      "source": "CNBC Top News"
-    },
-    {
-      "title": "Humaniod robotics company raises up to $1.4 billion from Nvidia, Amazon and others",
       "source": "CNBC Top News"
     }
   ],
@@ -209,6 +238,6 @@
       "Benzinga"
     ],
     "failed": [],
-    "total_articles": 465
+    "total_articles": 469
   }
 }
