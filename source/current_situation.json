@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-06-13T19:51:22.592Z",
+  "timestamp": "2026-06-13T22:50:04.625Z",
   "method": "nli-zero-shot+finbert",
   "dials": {
     "sev": "mild",
@@ -15,15 +15,15 @@
   },
   "confidence": {
     "sev": {
-      "melt": 1.1593957215276212,
-      "mild": 2.8055263519041613,
+      "melt": 0,
+      "mild": 0.992384388972977,
       "base": 0,
       "severe": 0
     },
     "inf": {
       "down": 0,
       "sticky": 0,
-      "high": 2.5172685787815112
+      "high": 3.0634902942364937
     },
     "fed": {
       "cut": 0,
@@ -42,8 +42,8 @@
     },
     "geo": {
       "stable": 0.8200495147473768,
-      "tension": 2.04,
-      "conflict": 0.9396569700598273
+      "tension": 1.52,
+      "conflict": 1.6617619077398256
     },
     "jgb": {
       "anchored": 0,
@@ -73,8 +73,8 @@
     {
       "id": "ai_capex",
       "label": "AI capex cycle",
-      "score": 1.93,
-      "direction": "bullish",
+      "score": 0,
+      "direction": "neutral",
       "affects": "Severity",
       "note": "Hyperscaler / data-center spending momentum — melt-up vs bust driver"
     },
@@ -89,7 +89,7 @@
     {
       "id": "energy_shock",
       "label": "Energy shock",
-      "score": 1.64,
+      "score": 2.49,
       "direction": "bearish",
       "affects": "Inflation + Geopolitics",
       "note": "Oil/gas price spikes, supply disruptions — inflation impulse and tension symptom"
@@ -97,8 +97,8 @@
   ],
   "evidence": {
     "sev": {
-      "title": "Planet Labs Stock Plunged Following Its Recent Earnings Call. Should Investors Buy the Dip?",
-      "score": 0.97
+      "title": "SA Asks: Space stocks sold off on Friday; should you buy the dip?",
+      "score": 0.99
     },
     "inf": {
       "title": "Social Security’s COLA could be 4.7% in 2027 as inflation hits the highest level in 3 years",
@@ -110,61 +110,69 @@
     }
   },
   "sentiment": {
-    "avg_finbert": 0.041,
-    "positive_keywords": 42,
-    "negative_keywords": 34,
+    "avg_finbert": 0.014,
+    "positive_keywords": 37,
+    "negative_keywords": 27,
     "overall": "mixed"
   },
   "key_metrics": [
+    "What if AI really does disrupt 50% of all entry-level white-collar jobs?",
     "Bitcoin stalls at $64,400 resistance in bearish setup: Live levels",
-    "Bitcoin rebounds above $64,000 as Iran optimism boosts risk appetite",
+    "Walmart has a highly rated outdoor storage shed on sale for just $390 in time for summer",
     "Cathie Wood sells $16.2 million of tumbling megacap stock",
-    "AeroVironment (AVAV) Invests $15M to Expand Advanced Production in Ohio",
-    "BitMine Immersion (BMNR) Reports $9.6B Crypto and Cash Holdings, Led by Ethereum Treasury",
-    "$35B AI Infrastructure Platform Plan Affirms Broadcom Inc. (AVGO) As a Promising Growth Stock to Buy",
-    "Amazon.com, Inc. (AMZN) Pursues Canadian Bond to Finance $200B AI Data Center Investment Spree",
-    "Down 50% Over the Past Year, Is There Anything Adobe Can Do to Rebound?"
+    "Amazon's 3-person pop-up canopy tent takes seconds to set up and costs just $50",
+    "Social Security is facing a 22% cliff — 4 ways to build an income stream Washington can’t touch",
+    "The true national debt just hit $1 million per U.S. household",
+    "Social Security’s COLA could be 4.7% in 2027 as inflation hits the highest level in 3 years"
   ],
   "headlines": [
     {
-      "title": "Trump names James McDonald as US attorney for Manhattan",
+      "title": "Soccer-Beating the heat no problem for World Cup fans in sweltering Houston",
       "source": "Investing.com"
     },
     {
-      "title": "Bitcoin stalls at $64,400 resistance in bearish setup: Live levels",
+      "title": "Russia stocks lower at close of trade; MOEX Russia Index unchanged",
       "source": "Investing.com"
     },
     {
-      "title": "Cathie Wood sells $16.2 million of tumbling megacap stock",
+      "title": "How Safe is Bristol Myers Squibb's Dividend? Here's My Honest Take.",
+      "source": "Yahoo Finance"
+    },
+    {
+      "title": "Is Palantir Stock Ripe for a Rebound?",
+      "source": "Yahoo Finance"
+    },
+    {
+      "title": "Americans face major decision after housing market news",
       "source": "TheStreet"
+    },
+    {
+      "title": "Walmart has a highly rated outdoor storage shed on sale for just $390 in time for summer",
+      "source": "TheStreet"
+    },
+    {
+      "title": "SA Asks: Space stocks sold off on Friday; should you buy the dip?",
+      "source": "Seeking Alpha"
+    },
+    {
+      "title": "Canadian Mother Sues OpenAI, Alleging Chatbot Encouraged Daughter's Suicide",
+      "source": "ZeroHedge"
+    },
+    {
+      "title": "Fed and BOE Stay Guarded After 100 Days of Iran War",
+      "source": "Bloomberg Markets"
+    },
+    {
+      "title": "Watch: Humanoid Warbot Live-Fires Mortars At Vegas Test Range ",
+      "source": "ZeroHedge"
     },
     {
       "title": "Trump says peace deal will be signed Sunday after Iran said it remains cautious on timing",
       "source": "CNBC Top News"
     },
     {
-      "title": "Stantec (STN), Jacobs (J) Win Melbourne Water Infrastructure Program Contract",
-      "source": "Yahoo Finance"
-    },
-    {
-      "title": "AECOM (ACM) Secures US DHS Nationwide Infrastructure Modernization Contract",
-      "source": "Yahoo Finance"
-    },
-    {
       "title": "Trump's name is gone from the Kennedy Center's facade, according to a top official at the arts venue",
       "source": "CNBC Top News"
-    },
-    {
-      "title": "Down 50% Over the Past Year, Is There Anything Adobe Can Do to Rebound?",
-      "source": "Motley Fool"
-    },
-    {
-      "title": "Huge News for GM Stock, Tesla Stock, and Ford Stock Investors",
-      "source": "Motley Fool"
-    },
-    {
-      "title": "Major designer home décor supplier files Chapter 11 bankruptcy",
-      "source": "TheStreet"
     },
     {
       "title": "Key deals this week: GSK, Incyte, Ingredion, OpenAI, and more",
@@ -187,24 +195,16 @@
       "source": "Oil Price"
     },
     {
-      "title": "Trump says Strait of Hormuz will be “open to all” after Iran deal “tomorrow”",
-      "source": "Seeking Alpha"
-    },
-    {
-      "title": "Bloomberg This Weekend 6/13/2026",
-      "source": "Bloomberg Markets"
-    },
-    {
-      "title": "Former NIH Head Secretly Helped With Paper Dismissing Theory COVID-19 Came From Lab",
-      "source": "ZeroHedge"
-    },
-    {
       "title": "UK Sets January 2027 Deadline for Ban on Fuel Made From Russian Crude",
       "source": "Oil Price"
     },
     {
-      "title": "\"Swift And Lethal\": U.S. Southern Command Eliminates Tren De Aragua Kingpin In Venezuela",
-      "source": "ZeroHedge"
+      "title": "Trump says U.S. military strike killed leader of Venezuela's Tren de Aragua gang",
+      "source": "CNBC World"
+    },
+    {
+      "title": "Toncoin (TON) Price Prediction 2025, 2026, 2027-2030",
+      "source": "Benzinga"
     }
   ],
   "sources": {
@@ -234,6 +234,6 @@
       "Benzinga"
     ],
     "failed": [],
-    "total_articles": 463
+    "total_articles": 440
   }
 }

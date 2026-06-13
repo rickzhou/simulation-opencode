@@ -221,6 +221,8 @@
   .etf-table .nm{color:var(--txt)}
   .etf-table .cat{color:var(--mut);font-size:11.5px}
   .etf-table .num{font-family:ui-monospace,Menlo,monospace;text-align:right;white-space:nowrap}
+  .bt-note{display:inline-block;font-size:10px;color:var(--amber);border:1px solid var(--amber);
+    border-radius:4px;padding:0 4px;margin-left:4px;vertical-align:middle;cursor:help;white-space:nowrap}
   @media(max-width:880px){.etf-table .nm div{display:none}}
 
   footer{margin-top:32px;padding-top:18px;border-top:1px solid var(--line);
@@ -247,7 +249,7 @@
 <div class="wrap">
   <div class="tabbar">
     <button class="maintab on" id="mtSim" onclick="showTab('sim')">Simulation</button>
-    <button class="maintab" id="mtEtf" onclick="showTab('etf')">ETF Screener</button>
+    <button class="maintab" id="mtEtf" onclick="showTab('etf')">ETF Simulation</button>
   </div>
 </div>
 
@@ -533,9 +535,10 @@
   <div id="scenLine2" style="font-size:13px;color:var(--mut);margin-top:14px;line-height:1.6"></div>
   <section>
     <div class="panel">
-      <h2>ETF screener &mdash; the 653-fund universe under this scenario</h2>
+      <h2>ETF simulation &mdash; the 653-fund universe under this scenario</h2>
       <p class="sub">Every ETF in <span class="mono">ETF_Universe_500.xlsx</span> simulated from the dials above (which encode a historical situation), mapped to the model&rsquo;s factors &mdash; sectors, the Treasury curve, credit, commodities, crypto, the dollar and the VIX &mdash; with leverage reset decay, FX exposure and covered-call/buffer/vol mechanics. Ranked by projected <b>5-year real return</b>. Updates live with the dials. <b>Not investment advice.</b></p>
       <div id="etfScenLine" style="font-size:12.5px;color:var(--mut);margin:6px 0 4px;line-height:1.6"></div>
+      <div style="font-size:11.5px;color:var(--amber);margin:6px 0 2px">&#9888; A yellow ticker with a <b>backtest</b> note failed 2022 backtest verification &mdash; the model&rsquo;s simulated 2022 return for that factor diverged from what actually happened (mainly energy equities, gold &amp; miners). Hover the note for why. Treat those rankings with caution.</div>
       <p class="insight" id="insEtfU" style="margin-top:8px"></p>
       <div class="grid2" style="margin-top:14px">
         <div>
@@ -808,7 +811,7 @@ function fillRow(id,ax,keys,meta){
       <div class="nm"><span class="dot" style="background:${m.ac}"></span>${m.label}</div>
       <div class="dt">${m.desc}</div></button>`;}).join('');
   document.getElementById(id).innerHTML=html;
-  const d2=document.getElementById(id+'2'); if(d2)d2.innerHTML=html; // mirror onto ETF Screener tab
+  const d2=document.getElementById(id+'2'); if(d2)d2.innerHTML=html; // mirror onto ETF Simulation tab
 }
 fillRow('sevRow','sev',['melt','mild','base','severe'],SEV_META);
 fillRow('infRow','inf',['down','sticky','high'],INF_META);
@@ -833,7 +836,7 @@ function fillPresets(){
       <div class="pdesc">${p.desc}</div>
     </button>`).join('');
   document.getElementById('presetRow').innerHTML=html;
-  const p2=document.getElementById('presetRow2'); if(p2)p2.innerHTML=html; // mirror onto ETF Screener tab
+  const p2=document.getElementById('presetRow2'); if(p2)p2.innerHTML=html; // mirror onto ETF Simulation tab
   document.querySelectorAll('.preset-btn').forEach(b=>b.onclick=()=>{
     const p=(SIM.presets||[]).find(x=>x.id===b.dataset.id);
     if(!p) return;
@@ -1575,10 +1578,30 @@ function etfRecipes(){
   if(!_etfRecipes)_etfRecipes=ETF_UNIVERSE.map(e=>({rec:etfRecipe(e),er:ETF_ER[e.c]!=null?ETF_ER[e.c]:0.4}));
   return _etfRecipes;
 }
+/* Funds whose factor FAILED the 2022 backtest verification (simulated 2022 diverged
+   materially from realized 2022). Flagged yellow with a note so the ranking is read
+   with caution. Keyed by sub-category (systematic factor misses) or ticker (outliers). */
+const BT_FAIL_SUB={
+  'Sector - Energy':'Energy equities track the oil price, which the model only partly captures — it understated energy’s ~+60% in the 2022 backtest.',
+  'Sector - E&P':'Oil-driven; the model understated energy’s big 2022 outperformance.',
+  'Sector - Oil Svcs':'Oil-driven; the model understated energy’s big 2022 outperformance.',
+  'Sector - Energy Infra':'Oil-driven; the model understated energy’s 2022 outperformance.',
+  'Gold':'Gold’s path diverged from its near-flat 2022 backtest (the model over-penalizes gold under a strong dollar).',
+  'Sector - Gold Miners':'Gold-miner path over-penalized vs the 2022 backtest.',
+  'Sector - Silver':'Precious-metal-miner path over-penalized vs the 2022 backtest.',
+  'Uranium Miners':'Miner path over-penalized vs the 2022 backtest.',
+  'Theme - Genomics':'High-beta genomics drawdown understated vs the 2022 backtest.',
+  'Sector - Aerospace':'Defense rallied on geopolitics in 2022; the model showed it falling.',
+  'Brazil':'Commodity-driven EM (Brazil) rose in 2022; the model showed it falling.',
+};
+const BT_FAIL_TK={ARKK:'High-beta innovation drawdown understated vs the 2022 backtest.'};
+function btFail(e){return BT_FAIL_SUB[e.s]||BT_FAIL_TK[e.t]||null;}
 function etfRow(r,i,side){
+  const bf=btFail(r.e);
+  const note=bf?` <span class="bt-note" title="${bf}">&#9888; backtest</span>`:'';
   return `<tr><td class="cat">${i+1}</td>
-    <td class="tk" style="color:var(--${side})">${r.e.t}</td>
-    <td class="nm">${r.e.n}<div class="cat">${r.e.c} &middot; ${r.e.s} &middot; ${r.e.i}</div></td>
+    <td class="tk" style="color:var(--${bf?'amber':side})">${r.e.t}</td>
+    <td class="nm">${r.e.n}${note}<div class="cat">${r.e.c} &middot; ${r.e.s} &middot; ${r.e.i}</div></td>
     <td class="num ${cls(r.nom)}">${sgn(r.nom)}%</td>
     <td class="num ${cls(r.real)}" style="font-weight:700">${sgn(r.real)}%</td>
     <td class="num neg">${r.dd.toFixed(1)}%</td></tr>`;
