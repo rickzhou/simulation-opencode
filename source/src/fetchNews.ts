@@ -630,14 +630,33 @@ function extractKeyMetrics(articles: Article[]): string[] {
   return out;
 }
 
-function topHeadlines(articles: Article[], n = 15): Array<{ title: string; source: string }> {
+// Pick the displayed headlines by recency AND spread them across sources, so the
+// panel isn't dominated by whichever feeds happen to be listed first (the four
+// CNBC feeds front-load ~100 articles). First pass caps each source to `perSource`
+// freshest items; a second pass fills any remaining slots by recency.
+function topHeadlines(articles: Article[], n = 15, perSource = 2): Array<{ title: string; source: string }> {
   const seen = new Set<string>();
   const unique: Article[] = [];
   for (const a of articles) {
     const t = a.title.trim();
     if (t && !seen.has(t)) { seen.add(t); unique.push(a); }
   }
-  return unique.slice(0, n).map((a) => ({ title: a.title, source: a.source }));
+  const byRecency = [...unique].sort((a, b) => (Date.parse(b.published) || 0) - (Date.parse(a.published) || 0));
+  const perCount: Record<string, number> = {};
+  const picked: Article[] = [];
+  const usedTitles = new Set<string>();
+  for (const a of byRecency) {
+    if ((perCount[a.source] || 0) < perSource) {
+      picked.push(a); perCount[a.source] = (perCount[a.source] || 0) + 1; usedTitles.add(a.title);
+      if (picked.length >= n) break;
+    }
+  }
+  if (picked.length < n) {
+    for (const a of byRecency) {
+      if (!usedTitles.has(a.title)) { picked.push(a); usedTitles.add(a.title); if (picked.length >= n) break; }
+    }
+  }
+  return picked.slice(0, n).map((a) => ({ title: a.title, source: a.source }));
 }
 
 async function main(): Promise<Record<string, any>> {

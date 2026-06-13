@@ -199,6 +199,30 @@
   .curSitApply:hover{background:var(--blue);color:#000}
   @media(max-width:880px){.curSitDials{grid-template-columns:repeat(2,1fr)}}
 
+  /* top-level tab bar */
+  .tabbar{display:flex;gap:6px;border-bottom:1px solid var(--line);margin:18px 0 4px}
+  .maintab{background:none;border:none;border-bottom:2px solid transparent;color:var(--mut);
+    font-size:14px;font-weight:600;padding:11px 20px;cursor:pointer;transition:.12s;margin-bottom:-1px}
+  .maintab:hover{color:var(--txt)}
+  .maintab.on{color:var(--blue);border-bottom-color:var(--blue)}
+  /* ETF universe section */
+  .etf-tabs{display:flex;gap:8px;margin:12px 0 10px}
+  .etf-tab{background:var(--panel2);border:1px solid var(--line);color:var(--mut);
+    border-radius:8px;padding:8px 18px;font-size:12.5px;font-weight:600;cursor:pointer;transition:.12s}
+  .etf-tab:hover{border-color:var(--dim)}
+  .etf-tab.on.buy{border-color:var(--green);color:var(--green)}
+  .etf-tab.on.avoid{border-color:var(--red);color:var(--red)}
+  .etf-table{width:100%;border-collapse:collapse;font-size:12.5px}
+  .etf-table th{text-align:left;color:var(--mut);font-weight:600;font-size:11px;
+    text-transform:uppercase;letter-spacing:.05em;padding:7px 9px;border-bottom:1px solid var(--line)}
+  .etf-table td{padding:6px 9px;border-bottom:1px solid var(--line);vertical-align:top}
+  .etf-table tr:last-child td{border-bottom:none}
+  .etf-table .tk{font-family:ui-monospace,Menlo,monospace;font-weight:700}
+  .etf-table .nm{color:var(--txt)}
+  .etf-table .cat{color:var(--mut);font-size:11.5px}
+  .etf-table .num{font-family:ui-monospace,Menlo,monospace;text-align:right;white-space:nowrap}
+  @media(max-width:880px){.etf-table .nm div{display:none}}
+
   footer{margin-top:32px;padding-top:18px;border-top:1px solid var(--line);
     font-size:11.5px;color:var(--dim);line-height:1.7}
   @media(max-width:880px){
@@ -221,6 +245,14 @@
 </header>
 
 <div class="wrap">
+  <div class="tabbar">
+    <button class="maintab on" id="mtSim" onclick="showTab('sim')">Simulation</button>
+    <button class="maintab" id="mtEtf" onclick="showTab('etf')">ETF Screener</button>
+  </div>
+</div>
+
+<div class="wrap">
+<div id="tabSim" class="tabpane">
 
   <section>
     <div class="curSit">
@@ -466,8 +498,64 @@
   </section>
 
   <footer>
-    <b>Methodology &amp; caveats.</b> Scenario simulation, not a forecast or investment advice. Ten dials &mdash; <b>severity</b> (the equity-bust shape), <b>inflation</b> (the CPI regime), <b>Fed</b> (the policy-rate path), <b>GDP</b> (the real-economy outcome), <b>tariffs</b> (the US&ndash;China trade regime), <b>geopolitics</b> (stable / tension / conflict), <b>the Japanese bond market</b> (anchored / BoJ normalization / JGB crisis), <b>fiscal policy</b> (austerity / neutral / stimulus), and <b>the US dollar</b> (weak / neutral / strong). Paths use keyframed regime assumptions with monotone-cubic interpolation over 60 months. The S&amp;P 500 is built bottom-up from an AI complex (~45% of index cap) and the ~55% ex-AI market; the 10-year yield is a formula of the Fed rate, CPI and unemployment plus JGB, fiscal and USD term-premium shocks; bond total returns are derived from that yield and modelled credit spreads via duration; real series deflate nominal by the modelled CPI. <b>New in v7:</b> Commercial and residential REITs are modelled with rate sensitivity (~8.5y and ~5.5y duration equivalent) plus fiscal and USD tilts. Bitcoin has ~2.2x equity beta plus fiscal and USD multipliers. The fiscal dial adds CPI, equity, sector, commodity, REIT and BTC tilts; stimulus pushes the long end higher (crowding-out). The USD dial adds a &ldquo;wrecking ball&rdquo; effect: strong dollar crushes commodities, EM-sensitive sectors and Bitcoin; weak dollar boosts them. 12 historical-analog presets include 2022 Rate Shock and 2020 COVID+Stimulus for validation. Start conditions (May 2026): S&amp;P 500 &asymp;7,473; Fed funds 3.50&ndash;3.75%; 10Y &asymp;4.60%; CPI &asymp;3.0%; WTI &asymp;$98; DXY &asymp;104; BTC &asymp;$108K; ~$1.4T AI-linked debt; effective US tariffs on China &asymp;31%. Not investment advice.
+    <b>Methodology &amp; caveats.</b> Scenario simulation, not a forecast or investment advice. Ten dials &mdash; <b>severity</b> (the equity-bust shape), <b>inflation</b> (the CPI regime), <b>Fed</b> (the policy-rate path), <b>GDP</b> (the real-economy outcome), <b>tariffs</b> (the US&ndash;China trade regime), <b>geopolitics</b> (stable / tension / conflict), <b>the Japanese bond market</b> (anchored / BoJ normalization / JGB crisis), <b>fiscal policy</b> (austerity / neutral / stimulus), and <b>the US dollar</b> (weak / neutral / strong). Paths use keyframed regime assumptions with monotone-cubic interpolation over 60 months. The S&amp;P 500 is built bottom-up from an AI complex (~45% of index cap) and the ~55% ex-AI market; the 10-year yield is a formula of the Fed rate, CPI and unemployment plus JGB, fiscal and USD term-premium shocks; bond total returns are derived from that yield and modelled credit spreads via duration; real series deflate nominal by the modelled CPI. <b>New in v7:</b> Commercial and residential REITs track the real-estate equity sector (so they crash and recover like stocks) plus a modest extra rate-duration sensitivity (~1.5y commercial, ~0.8y residential) and fiscal/USD tilts. Bitcoin has ~1.6x equity beta plus fiscal and USD multipliers. The fiscal dial adds CPI, equity, sector, commodity, REIT and BTC tilts; stimulus pushes the long end higher (crowding-out). The USD dial adds a &ldquo;wrecking ball&rdquo; effect: strong dollar crushes commodities, EM-sensitive sectors and Bitcoin; weak dollar boosts them. 12 historical-analog presets include a 2022 Rate Shock case (dials kept faithful to actual 2022) for validation. Start conditions (May 2026): S&amp;P 500 &asymp;7,473; Fed funds 3.50&ndash;3.75%; 10Y &asymp;4.60%; CPI &asymp;3.0%; WTI &asymp;$98; DXY &asymp;104; BTC &asymp;$108K; ~$1.4T AI-linked debt; effective US tariffs on China &asymp;31%. Not investment advice.
   </footer>
+
+</div><!-- /tabSim -->
+
+<div id="tabEtf" class="tabpane" style="display:none">
+  <section>
+    <div class="seclabel">Presets &mdash; historical analogs (click to set the situation)</div>
+    <div class="preset-row" id="presetRow2"></div>
+  </section>
+  <section>
+    <div class="seclabel">Dial 1 &mdash; how deep does the bust go?</div>
+    <div class="scen-row" id="sevRow2"></div>
+    <div class="seclabel" style="margin-top:16px">Dial 2 &mdash; what does inflation do?</div>
+    <div class="scen-row" id="infRow2"></div>
+    <div class="seclabel" style="margin-top:16px">Dial 3 &mdash; what does the Fed do?</div>
+    <div class="scen-row" id="fedRow2"></div>
+    <div class="seclabel" style="margin-top:16px">Dial 4 &mdash; what does the real economy (GDP) do?</div>
+    <div class="scen-row" id="gdpRow2"></div>
+    <div class="seclabel" style="margin-top:16px">Dial 5 &mdash; what happens with tariffs?</div>
+    <div class="scen-row" id="tarRow2"></div>
+    <div class="seclabel" style="margin-top:16px">Dial 6 &mdash; what is the world geopolitical environment?</div>
+    <div class="scen-row" id="geoRow2"></div>
+    <div class="seclabel" style="margin-top:16px">Dial 7 &mdash; what does the Japanese bond market do?</div>
+    <div class="scen-row" id="jgbRow2"></div>
+    <div class="seclabel" style="margin-top:16px">Dial 8 &mdash; what is fiscal policy doing?</div>
+    <div class="scen-row" id="fisRow2"></div>
+    <div class="seclabel" style="margin-top:16px">Dial 9 &mdash; what is the US dollar doing?</div>
+    <div class="scen-row" id="usdRow2"></div>
+    <div class="seclabel" style="margin-top:16px">Dial 10 &mdash; what is the level of robotics &amp; drone investment?</div>
+    <div class="scen-row" id="robRow2"></div>
+  </section>
+  <div id="scenLine2" style="font-size:13px;color:var(--mut);margin-top:14px;line-height:1.6"></div>
+  <section>
+    <div class="panel">
+      <h2>ETF screener &mdash; the 653-fund universe under this scenario</h2>
+      <p class="sub">Every ETF in <span class="mono">ETF_Universe_500.xlsx</span> simulated from the dials above (which encode a historical situation), mapped to the model&rsquo;s factors &mdash; sectors, the Treasury curve, credit, commodities, crypto, the dollar and the VIX &mdash; with leverage reset decay, FX exposure and covered-call/buffer/vol mechanics. Ranked by projected <b>5-year real return</b>. Updates live with the dials. <b>Not investment advice.</b></p>
+      <div id="etfScenLine" style="font-size:12.5px;color:var(--mut);margin:6px 0 4px;line-height:1.6"></div>
+      <p class="insight" id="insEtfU" style="margin-top:8px"></p>
+      <div class="grid2" style="margin-top:14px">
+        <div>
+          <div class="reco-head reco-buy">&#9650;&nbsp; Best 50 to invest</div>
+          <div style="overflow-x:auto"><table class="etf-table">
+            <thead><tr><th>#</th><th>Ticker</th><th>Fund</th><th class="num">5yr nom</th><th class="num">5yr real</th><th class="num">Max DD</th></tr></thead>
+            <tbody id="etfBestBody"></tbody>
+          </table></div>
+        </div>
+        <div>
+          <div class="reco-head reco-avoid">&#9660;&nbsp; Worst 50 to invest</div>
+          <div style="overflow-x:auto"><table class="etf-table">
+            <thead><tr><th>#</th><th>Ticker</th><th>Fund</th><th class="num">5yr nom</th><th class="num">5yr real</th><th class="num">Max DD</th></tr></thead>
+            <tbody id="etfWorstBody"></tbody>
+          </table></div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div><!-- /tabEtf -->
 
 </div>
 
@@ -616,8 +704,12 @@ function buildScenario(sevk,infk,fedk,gdpk,tark,geok,jgbk,fisk,usdk,robk='low'){
         ufi=ramp(fi.unemp_add,14),uus=ramp(us.unemp_add,14),uro=ramp(ro.unemp_add,14);
   s.unemployment=Array.from({length:61},(_,m)=>Math.max(3.2,ub[m]+uw*ui[m]+uw*ug[m]+ut[m]+ugg[m]+ujg[m]+ufi[m]+uus[m]+uro[m]));
   const y10_jgb=ser(jg.y10_add),y10_fi=ser(fi.y10_add),y10_us=ser(us.y10_add);
+  /* Term-slope model (mirrors simulate.ts): the 10Y is anchored to a neutral level and
+     moves only a fraction of the policy-rate deviation, so the curve inverts in hiking
+     cycles; the CPI premium is forward-looking (smaller coef than spot pass-through). */
+  const Y10_BASE_FED=3.625,Y10_TERM_SLOPE=0.55,Y10_CPI_COEF=0.24;
   s.ust10_yield=Array.from({length:61},(_,m)=>Math.max(0.4,
-    s.fed_funds[m]+0.975+0.45*(s.cpi[m]-3)-0.18*(s.unemployment[m]-4.3)+y10_jgb[m]+y10_fi[m]+y10_us[m]));
+    Y10_BASE_FED+Y10_TERM_SLOPE*(s.fed_funds[m]-Y10_BASE_FED)+0.975+Y10_CPI_COEF*(s.cpi[m]-3)-0.18*(s.unemployment[m]-4.3)+y10_jgb[m]+y10_fi[m]+y10_us[m]));
   const sm=gd.spread_mult,tm=tr.hy_inf_mult,gm=ge.hy_mult,jm=jg.hy_mult,fm=fi.hy_mult,um=us.hy_mult;
   s.hy_spread=ser(sv.hy_spread).map(v=>320+(v-320)*inf.hy_inf_mult*sm*tm*gm*jm*fm*um);
   s.ig_spread=ser(sv.ig_spread).map(v=>95+(v-95)*inf.ig_inf_mult*sm*(1+(tm-1)*0.5)*(1+(gm-1)*0.5)*(1+(jm-1)*0.5)*(1+(fm-1)*0.5)*(1+(um-1)*0.5));
@@ -635,7 +727,11 @@ function buildScenario(sevk,infk,fedk,gdpk,tark,geok,jgbk,fisk,usdk,robk='low'){
   s.ust30_tr   =deriveTR(s.ust30_yield,19.0);
   s.ust_edv_tr =deriveTR(s.ust10_yield,24.0);
   s.agg_tr     =deriveTR(s.ust10_yield,6.0);
-  const realy=s.ust10_yield.map((y,m)=>y-s.cpi[m]);
+  /* TIPS price off the real yield vs anchored breakeven inflation (~2.3%), not spot CPI —
+     mirrors simulate.ts. Using spot CPI made TIPS rally in inflation shocks when real TIPS
+     actually fell as real yields rose. Principal still accretes by realized CPI below. */
+  const infl_exp=s.cpi.map(c=>2.3+0.10*(c-2.3));
+  const realy=s.ust10_yield.map((y,m)=>y-infl_exp[m]);
   const tips=[100.0];
   for(let t=1;t<61;t++)tips.push(tips[t-1]*(1+realy[t-1]/1200+s.cpi[t]/1200-6.5*(realy[t]-realy[t-1])/100));
   s.tips_tr=tips;
@@ -657,15 +753,22 @@ function buildScenario(sevk,infk,fedk,gdpk,tark,geok,jgbk,fisk,usdk,robk='low'){
   s.uranium    =cc('uranium',uranr,gdpc,comTilt,ttk.uranium,tgk.uranium,tjk.uranium,tfk.uranium,tuk.uranium,trok.uranium);
   s.silver     =cc('silver',silvr,halfg,comTilt,ttk.silver,tgk.silver,tjk.silver,tfk.silver,tuk.silver,trok.silver);
   s.agriculture=cc('agriculture',agr,comTilt,ttk.agriculture,tgk.agriculture,tjk.agriculture,tfk.agriculture,tuk.agriculture,trok.agriculture);
+  /* Energy equities carry an oil-price beta on top of broad-market beta (XLE +64% in 2022
+     as crude spiked) — overlay it; mirrors simulate.ts. Doesn't feed the S&P. */
+  const ENERGY_OIL_BETA=0.6;
+  s.energy=s.energy.map((v,m)=>v*(1+ENERGY_OIL_BETA*(s.wti[m]/s.wti[0]-1)));
   s.vix=ser(sv.vix).map(v=>Math.min(95,Math.max(9,v*inf.vix_mult*gd.vix_mult*tr.vix_mult*ge.vix_mult*jg.vix_mult*fi.vix_mult*us.vix_mult*ro.vix_mult)));
+  /* REITs track the real-estate equity SECTOR (bust-and-recovery + macro multiplier, so
+     they crash AND recover like stocks) plus a modest extra rate-duration term — mirrors
+     simulate.ts. Was a flat 100*eqm base that never recovered (bottomed yr5 at ~-47%). */
   const y10_chg=s.ust10_yield.map(y=>y-s.ust10_yield[0]);
-  const comm_reit_rate=y10_chg.map(d=>-8.5*d/100);
-  const res_reit_rate=y10_chg.map(d=>-5.5*d/100);
+  const comm_reit_rate=y10_chg.map(d=>-1.5*d/100);
+  const res_reit_rate=y10_chg.map(d=>-0.8*d/100);
   const comm_reit_tilt=Array.from({length:61},(_,m)=>(1+(fi.reit_tilt.comm_reit||0)*tr14[m])*(1+(us.reit_tilt.comm_reit||0)*tr14[m]));
   const res_reit_tilt=Array.from({length:61},(_,m)=>(1+(fi.reit_tilt.res_reit||0)*tr14[m])*(1+(us.reit_tilt.res_reit||0)*tr14[m]));
-  s.comm_reit=Array.from({length:61},(_,m)=>100*(1+comm_reit_rate[m])*eqm[m]*comm_reit_tilt[m]);
-  s.res_reit=Array.from({length:61},(_,m)=>100*(1+res_reit_rate[m])*eqm[m]*res_reit_tilt[m]);
-  const btc_eq_beta=2.2;
+  s.comm_reit=Array.from({length:61},(_,m)=>s.realestate[m]*(1+comm_reit_rate[m])*comm_reit_tilt[m]);
+  s.res_reit=Array.from({length:61},(_,m)=>s.realestate[m]*(1+res_reit_rate[m])*res_reit_tilt[m]);
+  const btc_eq_beta=1.6;
   const btc_base=Array.from({length:61},(_,m)=>100*(1+btc_eq_beta*(eqm[m]-1)));
   const btc_fi=fi.btc_mult,btc_us=us.btc_mult;
   const btc_ramp_fi=Array.from({length:61},(_,m)=>1+(btc_fi-1)*tr14[m]);
@@ -699,11 +802,13 @@ document.getElementById('baseline').innerHTML=BASE.map(b=>
 
 /* selectors */
 function fillRow(id,ax,keys,meta){
-  document.getElementById(id).innerHTML=keys.map(k=>{
+  const html=keys.map(k=>{
     const m=meta[k];
     return `<button class="scen-btn" data-ax="${ax}" data-k="${k}" style="--ac:${m.ac}">
       <div class="nm"><span class="dot" style="background:${m.ac}"></span>${m.label}</div>
       <div class="dt">${m.desc}</div></button>`;}).join('');
+  document.getElementById(id).innerHTML=html;
+  const d2=document.getElementById(id+'2'); if(d2)d2.innerHTML=html; // mirror onto ETF Screener tab
 }
 fillRow('sevRow','sev',['melt','mild','base','severe'],SEV_META);
 fillRow('infRow','inf',['down','sticky','high'],INF_META);
@@ -721,12 +826,14 @@ document.querySelectorAll('.scen-btn').forEach(b=>b.onclick=()=>{
 
 /* presets row */
 function fillPresets(){
-  document.getElementById('presetRow').innerHTML=(SIM.presets||[]).map(p=>
+  const html=(SIM.presets||[]).map(p=>
     `<button class="preset-btn" data-id="${p.id}" style="--ac:${p.color}">
       <div class="pn">${p.name}</div>
       <div class="pt">${p.tag}</div>
       <div class="pdesc">${p.desc}</div>
     </button>`).join('');
+  document.getElementById('presetRow').innerHTML=html;
+  const p2=document.getElementById('presetRow2'); if(p2)p2.innerHTML=html; // mirror onto ETF Screener tab
   document.querySelectorAll('.preset-btn').forEach(b=>b.onclick=()=>{
     const p=(SIM.presets||[]).find(x=>x.id===b.dataset.id);
     if(!p) return;
@@ -734,7 +841,9 @@ function fillPresets(){
     state.gdp=p.dials.gdp; state.tar=p.dials.tar; state.geo=p.dials.geo||'stable';
     state.jgb=p.dials.jgb||'anchored'; state.fis=p.dials.fis||'neutral'; state.usd=p.dials.usd||'neutral'; state.rob=p.dials.rob||'low';
     applyScenario();
-    window.scrollTo({top:document.querySelector('.timeline').offsetTop-20,behavior:'smooth'});
+    // only scroll to the timeline when the Simulation tab is the one on screen
+    if(document.getElementById('tabSim').style.display!=='none')
+      window.scrollTo({top:document.querySelector('.timeline').offsetTop-20,behavior:'smooth'});
   });
 }
 function markActivePreset(){
@@ -806,8 +915,8 @@ const CREDETF=[['TIP · TIPS','tips_tr','#f0883e'],['AGG · US aggregate','agg_t
 const REIT_CHART=[['Commercial REIT','comm_reit','#f0883e'],['Residential REIT','res_reit','#2dd4bf']];
 const BTC_CHART=[['Bitcoin','bitcoin','#e3a72c'],['S&P 500','sp500','#58a6ff',true]];
 const RMOVE=[
-  ['comm_reit','Commercial REITs','Office, retail, data-center REITs. Rate-sensitive (~8.5y duration equivalent). Fiscal stimulus boosts; austerity and strong dollar hurt. 2022 analog: VNQ -25%.'],
-  ['res_reit','Residential REITs','Apartments, SFR, homebuilders. Lower rate sensitivity (~5.5y). Housing supply shortage provides a floor. Stimulus and weak dollar boost. 2022 analog: -15% but recovered faster.'],
+  ['comm_reit','Commercial REITs','Office, retail, data-center REITs. Rate-sensitive (~4.0y duration equivalent, plus the equity selloff). Fiscal stimulus boosts; austerity and strong dollar hurt. 2022 analog: VNQ -25%.'],
+  ['res_reit','Residential REITs','Apartments, SFR, homebuilders. Lower rate sensitivity (~2.5y). Housing supply shortage provides a floor. Stimulus and weak dollar boost. 2022 analog: -15% but recovered faster.'],
 ];
 const BMOVE=[
   ['SGOV','0-3 month T-bills','sgov_tr','Pure T-bills — virtually zero duration. Yield floats with the Fed; never a nominal loss, but it can lose to inflation. The Treasury equivalent of a money-market fund, without the prime/repo exposure.'],
@@ -1090,7 +1199,7 @@ function renderBTCMoves(){
       <td class="mono neg">${sgn(dd)}%</td>
       <td class="mono ${cls(r5)}">${sgn(r5)}%</td>
       <td class="mono ${cls(real)}">${sgn(real)}%</td>
-      <td style="text-align:left;color:var(--mut);font-size:11.5px;line-height:1.5">Bitcoin has ~2.2x beta to equities and is heavily driven by the dollar regime. Weak dollar + stimulus = massive rally (2020-21: +1000%). Strong dollar + tightening = crash (2022: -65%). The "pure liquidity sponge" of the market.</td>
+      <td style="text-align:left;color:var(--mut);font-size:11.5px;line-height:1.5">Bitcoin has ~1.6x beta to equities and is heavily driven by the dollar regime. Weak dollar + stimulus = massive rally (2020-21: +1000%). Strong dollar + tightening = crash (2022: -65%). The "pure liquidity sponge" of the market.</td>
     </tr></tbody></table>`;
 }
 const RANKA=[['Gold','gold'],['Silver','silver'],['Agriculture','agriculture'],
@@ -1123,7 +1232,7 @@ const RECO=[
   ['Silver','SLV','silver','Half industrial, half monetary — highest-beta precious metal.'],
   ['Agriculture','DBA','agriculture','Inelastic food demand — defensive, and an inflation hedge.'],
   ['Copper','CPER','copper','Electrification bellwether with a real-asset inflation bid.'],
-  ['Bitcoin','IBIT','bitcoin','~2.2x equity beta; the purest dollar-debasement trade.'],
+  ['Bitcoin','IBIT','bitcoin','~1.6x equity beta; the purest dollar-debasement trade.'],
   ['Money market','MMF','mmf_tr','Cash — clips the policy rate, no duration risk.'],
   ['T-bills','SGOV','sgov_tr','Zero-duration cash floor; yield floats with the Fed.'],
   ['1-3yr Treasuries','SHY','ust2_tr','Low-duration safe middle — steady in every regime.'],
@@ -1135,8 +1244,8 @@ const RECO=[
   ['US aggregate','AGG','agg_tr','Core Treasuries + IG mix, ~6y duration.'],
   ['IG corporates','LQD','ig_tr','Treasury duration plus a credit spread.'],
   ['HY corporates','HYG','hy_tr','The AI-debt contagion channel — spreads blow out in a bust.'],
-  ['Commercial REIT','VNQ','comm_reit','Rate-sensitive (~8.5y); office/retail structural risk.'],
-  ['Residential REIT','REZ','res_reit','Housing-shortage floor; lower rate sensitivity (~5.5y).'],
+  ['Commercial REIT','VNQ','comm_reit','Rate-sensitive (~4.0y); office/retail structural risk.'],
+  ['Residential REIT','REZ','res_reit','Housing-shortage floor; lower rate sensitivity (~2.5y).'],
   ['WTI crude','USO','wti','Demand-driven; an energy-shock and inflation hedge.'],
   ['Natural gas','UNG','natgas','AI-power demand thesis — volatile, dies in a bust.'],
   ['Uranium','URA','uranium','The purest AI-power bet — erased when the bust hits.'],
@@ -1170,6 +1279,333 @@ function renderReco(){
   else note=`The model favors ${topN} and flags ${botN} as the assets to avoid in this branch.`;
   document.getElementById('insReco').innerHTML=
     `Ranked by projected 5-year <b>real</b> return. ${note} <b>This is a scenario output, not investment advice.</b>`;
+}
+
+/* ===== ETF universe — the 653-fund screen ===== */
+const ETF_UNIVERSE=/*__ETF_UNIVERSE__*/;
+/* default expense-ratio drag (%/yr) by category */
+const ETF_ER={'Leveraged/Inverse':0.95,'Thematic':0.55,'US Sector':0.35,'US Equity':0.08,
+  'Fixed Income':0.12,'Commodities':0.45,'Crypto':0.25,'Volatility':0.9,'Options/Income':0.6,
+  'Currency':0.4,'International Equity':0.25,'Factor/Smart Beta':0.2,'Dividend/Income':0.3,
+  'ESG':0.15,'Defined Outcome':0.79,'Asset Allocation':0.2,'Active Equity':0.6,'Other':0.5};
+/* recipe: w=[[seriesKey,weight]..] (weights>1 ⇒ embedded beta), fx=USD-weakness gain,
+   sig=vol-drag scale, lv=explicit daily-reset leverage, dr=extra %/yr drag (roll/decay),
+   kind: std | cc (covered call) | buf (buffer) | vol (VIX product) | fxc (currency) */
+function eR(w,o){return Object.assign({w:w,fx:0,sig:1,kind:'std'},o||{});}
+const ETF_VAL=[['financials',0.30],['staples',0.20],['healthcare',0.20],['industrials',0.15],['utilities',0.15]];
+const ETF_GRW=[['ai_complex',0.55],['tech',0.45]];
+const ETF_LOWV=[['staples',0.35],['healthcare',0.25],['utilities',0.20],['sp500',0.20]];
+const ETF_DIV=[['financials',0.25],['staples',0.20],['healthcare',0.20],['utilities',0.20],['industrials',0.15]];
+const ETF_INTL=[['ex_ai',0.95]];
+function etfLevBase(x){
+  if(/gold miners|jr gold/.test(x))return [[['gold',1.6]],1.3];
+  if(/treas/.test(x))return [[/mid/.test(x)?['ust10_tr',1]:['ust_long_tr',1]],0.5];
+  if(/semis/.test(x))return [[['ai_complex',1.15]],1.1];
+  if(/nasdaq/.test(x))return [[['ai_complex',0.6],['tech',0.4]],1];
+  if(/internet/.test(x))return [[['comm',0.6],['tech',0.4]],1.1];
+  if(/biotech/.test(x))return [[['healthcare',1.25]],1.2];
+  if(/china/.test(x))return [[['ex_ai',1.2]],1.3];
+  if(/\bem\b/.test(x))return [[['ex_ai',1.1]],1.2];
+  if(/reg banks/.test(x))return [[['financials',1.2]],1.15];
+  if(/fin/.test(x))return [[['financials',1]],1];
+  if(/healthcare/.test(x))return [[['healthcare',1]],1];
+  if(/energy|o&g/.test(x))return [[['energy',1]],1.1];
+  if(/\bre\b/.test(x))return [[['comm_reit',1]],1];
+  if(/r2k/.test(x))return [[['ex_ai',1.1]],1.1];
+  if(/dow/.test(x))return [[['ex_ai',0.85],['sp500',0.15]],0.9];
+  return [[['sp500',1]],1];
+}
+function etfRecipe(e){
+  const x=e.s.toLowerCase(),n=e.n.toLowerCase();
+  switch(e.c){
+  case 'US Equity':
+    if(/agg bond|agg enhanced/.test(x))return eR([['agg_tr',1]]);
+    if(/govt\/credit/.test(x))return eR([['agg_tr',0.8],['ig_tr',0.2]]);
+    if(/internet/.test(x))return eR([['comm',0.6],['tech',0.55]],{sig:1.1});
+    if(/mega growth/.test(x))return eR([['ai_complex',1.05]]);
+    if(/large growth/.test(x))return eR(ETF_GRW);
+    if(/large value/.test(x))return eR(ETF_VAL);
+    if(/mega-cap/.test(x))return eR([['sp500',0.7],['ai_complex',0.3]]);
+    if(/micro/.test(x))return eR([['ex_ai',1.25]],{sig:1.2});
+    if(/mid growth/.test(x))return eR([['ex_ai',0.55],['tech',0.5]]);
+    if(/mid value/.test(x))return eR([['ex_ai',0.45],['financials',0.25],['industrials',0.3]]);
+    if(/mid-cap/.test(x))return eR([['ex_ai',1.05]]);
+    if(/small growth/.test(x))return eR([['ex_ai',0.6],['tech',0.55]],{sig:1.15});
+    if(/small value/.test(x))return eR([['ex_ai',0.55],['financials',0.35],['industrials',0.25]],{sig:1.1});
+    if(/small/.test(x))return eR([['ex_ai',1.15]],{sig:1.1});
+    if(/total market/.test(x))return eR([['sp500',0.85],['ex_ai',0.15]]);
+    return eR([['sp500',1]]);
+  case 'US Sector':
+    if(/aerospace/.test(x))return eR([['industrials',1.1]]);
+    if(/airlines/.test(x))return eR([['discretionary',0.9],['industrials',0.3]],{sig:1.2});
+    if(/reg banks/.test(x))return eR([['financials',1.25]],{sig:1.15});
+    if(/banks|brokers|cap mkts/.test(x))return eR([['financials',1.12]]);
+    if(/biotech/.test(x))return eR([['healthcare',1.25]],{sig:1.2});
+    if(/cons disc|retail/.test(x))return eR([['discretionary',1]]);
+    if(/cons staples/.test(x))return eR([['staples',1]]);
+    if(/copper/.test(x))return eR([['copper',1.25]],{sig:1.2});
+    if(/e&p|oil svcs/.test(x))return eR([['energy',1.25]],{sig:1.2});
+    if(/energy infra|mlps/.test(x))return eR([['energy',0.9],['hy_tr',0.15]]);
+    if(/energy/.test(x))return eR([['energy',1]]);
+    if(/financials/.test(x))return eR([['financials',1]]);
+    if(/gold miners/.test(x))return eR([['gold',1.6]],{sig:1.3});
+    if(/silver/.test(x))return eR([['silver',1.45]],{sig:1.25});
+    if(/hc services|healthcare/.test(x))return eR([['healthcare',1]]);
+    if(/medtech/.test(x))return eR([['healthcare',1.05]]);
+    if(/pharma/.test(x))return eR([['healthcare',0.95]]);
+    if(/homebuilders/.test(x))return eR([['res_reit',0.7],['discretionary',0.5]]);
+    if(/industrials/.test(x))return eR([['industrials',1]]);
+    if(/insurance/.test(x))return eR([['financials',0.95]]);
+    if(/intl reits/.test(x))return eR([['comm_reit',0.9]],{fx:0.5});
+    if(/mortgage reits/.test(x))return eR([['comm_reit',0.6],['hy_tr',0.55]],{sig:1.2});
+    if(/materials/.test(x))return eR([['materials',1]]);
+    if(/residential/.test(x))return eR([['res_reit',1]]);
+    if(/reits/.test(x))return eR([['comm_reit',0.7],['res_reit',0.3]]);
+    if(/real estate/.test(x))return eR([['realestate',1]]);
+    if(/semis/.test(x))return eR([['ai_complex',1.15]],{sig:1.1});
+    if(/software/.test(x))return eR([['tech',1.1]]);
+    if(/tech/.test(x))return eR([['tech',1]]);
+    if(/telecom|comm/.test(x))return eR([['comm',0.95]]);
+    if(/utilities/.test(x))return eR([['utilities',1]]);
+    return eR([['sp500',1]]);
+  case 'International Equity':
+    if(/intl treasury/.test(x))return eR([['ust10_tr',0.9]],{fx:0.7});
+    if(/intl corporate|intl bond/.test(x))return eR([['ig_tr',0.9]],{fx:0.6});
+    if(/reits/.test(x))return eR([['comm_reit',0.9]],{fx:0.5});
+    if(/global healthcare/.test(x))return eR([['healthcare',1]],{fx:0.4});
+    if(/global comm/.test(x))return eR([['comm',1]],{fx:0.4});
+    if(/global mega/.test(x))return eR([['sp500',0.7],['ai_complex',0.15],['ex_ai',0.15]],{fx:0.3});
+    if(/global developed|global$/.test(x)||x==='global')return eR([['sp500',0.6],['ex_ai',0.4]],{fx:0.35});
+    if(/china internet|china tech|em internet/.test(x))return eR([['ex_ai',0.6],['tech',0.6]],{fx:0.9,sig:1.35});
+    if(/china/.test(x))return eR([['ex_ai',1.15]],{fx:0.9,sig:1.25});
+    if(/taiwan|south korea/.test(x))return eR([['ai_complex',0.5],['ex_ai',0.6]],{fx:0.9,sig:1.1});
+    if(/india/.test(x))return eR([['ex_ai',1.05]],{fx:0.8,sig:1.1});
+    if(/japan.*hedged/.test(x))return eR([['ex_ai',0.95]]);
+    if(/japan/.test(x))return eR([['ex_ai',0.95]],{fx:0.9});
+    if(/hedged/.test(x))return eR(ETF_INTL);
+    if(/brazil|latin america|chile|colombia/.test(x))return eR([['ex_ai',0.85],['materials',0.35]],{fx:1.1,sig:1.25});
+    if(/argentina|turkey|greece/.test(x))return eR([['ex_ai',1.2]],{fx:1.2,sig:1.4});
+    if(/saudi|qatar|uae/.test(x))return eR([['energy',0.6],['financials',0.5]],{fx:0.3});
+    if(/canada/.test(x))return eR([['financials',0.45],['energy',0.35],['ex_ai',0.25]],{fx:0.7});
+    if(/australia/.test(x))return eR([['materials',0.45],['financials',0.45]],{fx:0.8});
+    if(/\buk\b/.test(x))return eR([['energy',0.3],['financials',0.35],['staples',0.35]],{fx:0.7});
+    if(/switzerland/.test(x))return eR([['healthcare',0.5],['staples',0.35],['financials',0.2]],{fx:0.8});
+    if(/germany/.test(x))return eR([['industrials',0.55],['discretionary',0.3],['financials',0.2]],{fx:0.85});
+    if(/israel/.test(x))return eR([['tech',0.55],['ex_ai',0.5]],{fx:0.7});
+    if(/africa/.test(x))return eR([['materials',0.5],['ex_ai',0.6]],{fx:1.1,sig:1.2});
+    if(/frontier/.test(x))return eR([['ex_ai',1.15]],{fx:1.1,sig:1.2});
+    if(/em /.test(x)||/emerging/.test(x))return eR([['ex_ai',1.1]],{fx:1.0,sig:1.1});
+    if(/small/.test(x))return eR([['ex_ai',1.1]],{fx:0.85,sig:1.1});
+    if(/dividend/.test(x))return eR([['ex_ai',0.6],['financials',0.2],['utilities',0.15]],{fx:0.85});
+    return eR(ETF_INTL,{fx:0.85});
+  case 'Fixed Income':{
+    const mIL=x.match(/^(inv|lev)\s+(\d)x\s+(.*treas)/);
+    if(mIL){const L=(mIL[1]==='inv'?-1:1)*(+mIL[2]);
+      return eR([[/mid/.test(x)?'ust10_tr':'ust_long_tr',L]],{lv:L,sig:0.5});}
+    if(/^inv treasury/.test(x))return eR([['ust_long_tr',-1]],{lv:-1,sig:0.5});
+    if(/t-bill|ultra-short|floating treasury/.test(x))return eR([['sgov_tr',1]]);
+    if(/short-term bond/.test(x))return eR([['ust2_tr',0.7],['ig_tr',0.3]]);
+    if(/floating rate/.test(x))return eR([['sgov_tr',0.7],['hy_tr',0.3]]);
+    if(/bank loans/.test(x))return eR([['sgov_tr',0.55],['hy_tr',0.45]]);
+    if(/clo aaa/.test(x))return eR([['sgov_tr',0.85],['ig_tr',0.15]]);
+    if(/clo bbb/.test(x))return eR([['sgov_tr',0.5],['hy_tr',0.5]]);
+    if(/^clo$/.test(x))return eR([['sgov_tr',0.7],['hy_tr',0.3]]);
+    if(/treasury long/.test(x))return eR([['ust_long_tr',1]]);
+    if(/treasury mid/.test(x))return eR([['ust5_tr',0.5],['ust10_tr',0.5]]);
+    if(/treasury short/.test(x))return eR([['ust2_tr',1]]);
+    if(/treasury zero/.test(x))return eR([['ust_edv_tr',1]]);
+    if(/treasury all/.test(x))return eR([['ust2_tr',0.3],['ust5_tr',0.3],['ust10_tr',0.25],['ust_long_tr',0.15]]);
+    if(/treasury buywrite/.test(x))return eR([['ust10_tr',0.65],['sgov_tr',0.35]],{dr:-1.0});
+    if(/tips long/.test(x))return eR([['tips_tr',1.35]]);
+    if(/tips short/.test(x))return eR([['tips_tr',0.5],['sgov_tr',0.5]]);
+    if(/tips/.test(x))return eR([['tips_tr',1]]);
+    if(/ig corp long/.test(x))return eR([['ig_tr',0.85],['ust_long_tr',0.4]]);
+    if(/ig corp short/.test(x))return eR([['ig_tr',0.45],['ust2_tr',0.55]]);
+    if(/ig corp/.test(x))return eR([['ig_tr',1]]);
+    if(/high yield short/.test(x))return eR([['hy_tr',0.55],['sgov_tr',0.45]]);
+    if(/em high yield/.test(x))return eR([['hy_tr',1]],{fx:0.3});
+    if(/high yield/.test(x))return eR([['hy_tr',1]]);
+    if(/fallen angels/.test(x))return eR([['hy_tr',1.1]]);
+    if(/em bond local/.test(x))return eR([['hy_tr',0.5],['ust10_tr',0.5]],{fx:0.9});
+    if(/em bond|em sovereign/.test(x))return eR([['hy_tr',0.55],['ust10_tr',0.45]]);
+    if(/convertibles/.test(x))return eR([['tech',0.45],['ig_tr',0.4],['ex_ai',0.15]]);
+    if(/preferred ex-fin/.test(x))return eR([['utilities',0.3],['ig_tr',0.7]]);
+    if(/preferred/.test(x))return eR([['financials',0.35],['ig_tr',0.65]]);
+    if(/mortgage/.test(x))return eR([['agg_tr',1.05]]);
+    if(/muni hy/.test(x))return eR([['agg_tr',0.5],['hy_tr',0.4]]);
+    if(/muni long/.test(x))return eR([['ust_long_tr',0.6],['agg_tr',0.4]]);
+    if(/muni short/.test(x))return eR([['ust2_tr',0.9]]);
+    if(/muni|municipal/.test(x))return eR([['agg_tr',0.9]]);
+    if(/global bond/.test(x))return eR([['agg_tr',0.8],['ust10_tr',0.2]],{fx:0.4});
+    return eR([['agg_tr',1]]);}
+  case 'Commodities':
+    if(/oil covered call/.test(x))return eR([['wti',1]],{kind:'cc',vp:{up:0.4,dn:0.9,pr:0.12}});
+    if(/crude -2x/.test(x))return eR([['wti',-2]],{lv:-2,sig:1.2,dr:10});
+    if(/crude 2x/.test(x))return eR([['wti',2]],{lv:2,sig:1.2,dr:10});
+    if(/crude|brent/.test(x))return eR([['wti',1]],{dr:5});
+    if(/nat gas -2x/.test(x))return eR([['natgas',-2]],{lv:-2,sig:1.4,dr:10});
+    if(/nat gas 2x/.test(x))return eR([['natgas',2]],{lv:2,sig:1.4,dr:30});
+    if(/natural gas/.test(x))return eR([['natgas',1]],{dr:18});
+    if(/^gold$/.test(x))return eR([['gold',1]]);
+    if(/silver/.test(x))return eR([['silver',1]]);
+    if(/platinum/.test(x))return eR([['silver',0.5],['copper',0.5]]);
+    if(/palladium/.test(x))return eR([['silver',0.4],['copper',0.6]]);
+    if(/precious/.test(x))return eR([['gold',0.7],['silver',0.3]]);
+    if(/agribusiness/.test(x))return eR([['materials',0.6],['agriculture',0.4]]);
+    if(/agriculture/.test(x))return eR([['agriculture',1]]);
+    if(/corn|soybeans|wheat|sugar/.test(x))return eR([['agriculture',1.1]],{sig:1.2,dr:5});
+    if(/broad/.test(x))return eR([['wti',0.3],['gold',0.2],['copper',0.15],['natgas',0.1],['agriculture',0.25]]);
+    return eR([['gold',0.5],['wti',0.5]]);
+  case 'Crypto':
+    if(/futures/.test(x))return eR([['bitcoin',1]],{dr:6});
+    if(/ethereum/.test(x))return eR([['bitcoin',1.3]],{sig:2,dr:2});
+    return eR([['bitcoin',1]]);
+  case 'Currency':{
+    const fxv={'aud':[-0.7,0.5],'cad':[-0.6,0],'chf':[-0.75,-3],'cny':[-0.3,-1],
+      'em currency':[-0.9,3],'eur':[-0.85,-1.5],'gbp':[-0.75,0.5],'jpy':[-0.8,-3.5],
+      'usd bear':[-1.0,-1],'usd bull':[1.0,2]}[x]||[-0.7,0];
+    return eR([],{kind:'fxc',vp:{s:fxv[0],c:fxv[1]/100}});}
+  case 'Defined Outcome':
+    return eR([['sp500',1]],{kind:'buf'});
+  case 'Dividend/Income':
+    if(/aristocrats/.test(x))return eR([['staples',0.3],['healthcare',0.25],['industrials',0.25],['financials',0.2]]);
+    if(/dividend growth/.test(x))return eR([['sp500',0.5],['staples',0.25],['healthcare',0.25]]);
+    if(/super dividend/.test(x))return eR([['financials',0.35],['utilities',0.3],['energy',0.25],['comm_reit',0.25]],{sig:1.1});
+    if(/high dividend/.test(x))return eR([['financials',0.3],['utilities',0.25],['energy',0.2],['staples',0.25]]);
+    return eR(ETF_DIV);
+  case 'ESG':
+    if(/em/.test(x))return eR([['ex_ai',1.1]],{fx:1.0,sig:1.1});
+    if(/intl/.test(x))return eR(ETF_INTL,{fx:0.85});
+    return eR([['sp500',1]]);
+  case 'Factor/Smart Beta':
+    if(/free cash flow/.test(x))return eR([['energy',0.3],['healthcare',0.3],['tech',0.2],['industrials',0.2]]);
+    if(/high beta/.test(x))return eR([['ex_ai',1.35]],{sig:1.2});
+    if(/low vol|min vol/.test(x))return eR(ETF_LOWV);
+    if(/momentum/.test(x))return eR([['ai_complex',0.7],['tech',0.3]]);
+    if(/moat/.test(x))return eR([['sp500',0.55],['healthcare',0.25],['financials',0.2]]);
+    if(/quality/.test(x))return eR([['sp500',0.6],['tech',0.2],['healthcare',0.2]]);
+    if(/size/.test(x))return eR([['ex_ai',1.05]]);
+    return eR([['sp500',1]]);
+  case 'Leveraged/Inverse':{
+    if(/single stock lev/.test(x))return eR([['ai_complex',2.3]],{lv:2.3,sig:2.3,dr:4});
+    if(/single stock inv/.test(x))return eR([['ai_complex',-1.5]],{lv:-1.5,sig:2,dr:2});
+    const m=x.match(/^(inv|lev)\s+(?:(\d(?:\.\d)?)x\s+)?(.+)$/);
+    const L=(m&&m[1]==='inv'?-1:1)*(m&&m[2]?+m[2]:1);
+    const [bw,bs]=etfLevBase(m?m[3]:x);
+    return eR(bw.map(p=>[p[0],p[1]*L]),{lv:L*bw.reduce((a,p)=>a+p[1],0),sig:bs});}
+  case 'Options/Income':{
+    const u=/nasdaq|qqq/.test(n)?[['ai_complex',0.6],['tech',0.4]]
+      :(/russell|small/.test(n)?[['ex_ai',1.05]]:[['sp500',1]]);
+    if(/covered call/.test(x))return eR(u,{kind:'cc',vp:{up:0.35,dn:0.9,pr:0.10}});
+    return eR(u,{kind:'cc',vp:{up:0.55,dn:0.8,pr:0.08}});}
+  case 'Thematic':
+    if(/ai\/robotics|robotics\/ai/.test(x))return eR([['ai_complex',0.7],['industrials',0.45]],{sig:1.1});
+    if(/generative|mag 7/.test(x))return eR([['ai_complex',1.15]],{sig:1.1});
+    if(/^ai$/.test(x))return eR([['ai_complex',1.1]],{sig:1.1});
+    if(/battery|lithium/.test(x))return eR([['materials',0.7],['copper',0.55]],{sig:1.2});
+    if(/blockchain|crypto equity/.test(x))return eR([['bitcoin',0.75],['tech',0.45]],{sig:1.6});
+    if(/cannabis/.test(x))return eR([['discretionary',1.3]],{sig:1.5,dr:8});
+    if(/solar/.test(x))return eR([['utilities',0.5],['industrials',0.45],['materials',0.35]],{sig:1.5});
+    if(/clean energy|renewables|wind/.test(x))return eR([['utilities',0.5],['industrials',0.45],['materials',0.35]],{sig:1.3});
+    if(/cybersecurity|cloud/.test(x))return eR([['tech',1.12]]);
+    if(/fintech|payments/.test(x))return eR([['financials',0.55],['tech',0.6]],{sig:1.15});
+    if(/gaming|sports betting/.test(x))return eR([['discretionary',0.7],['comm',0.45]],{sig:1.15});
+    if(/global value/.test(x))return eR(ETF_VAL,{fx:0.4});
+    if(/industrial/.test(x))return eR([['industrials',1]]);
+    if(/innovation/.test(x))return eR([['ai_complex',0.75],['tech',0.4],['healthcare',0.25]],{sig:1.3});
+    if(/internet|e-commerce/.test(x))return eR([['comm',0.55],['tech',0.5],['discretionary',0.2]],{sig:1.1});
+    if(/israel/.test(x))return eR([['tech',1]],{fx:0.6});
+    if(/low carbon/.test(x))return eR([['sp500',1]]);
+    if(/rare earths/.test(x))return eR([['materials',1.1],['copper',0.3]],{sig:1.3});
+    if(/mining|steel/.test(x))return eR([['materials',0.85],['copper',0.35]],{sig:1.15});
+    if(/quality/.test(x))return eR([['staples',0.4],['healthcare',0.35],['sp500',0.25]]);
+    if(/smart grid/.test(x))return eR([['industrials',0.6],['utilities',0.5]]);
+    if(/space/.test(x))return eR([['industrials',1.05]],{sig:1.15});
+    if(/genomics/.test(x))return eR([['healthcare',1.3]],{sig:1.3});
+    if(/travel/.test(x))return eR([['discretionary',1.05]]);
+    if(/uranium miners/.test(x))return eR([['uranium',1.45]],{sig:1.3});
+    if(/uranium/.test(x))return eR([['uranium',1.1]]);
+    return eR([['tech',0.6],['ex_ai',0.4]],{sig:1.1});
+  case 'Volatility':{
+    const vv=/1\.5x/.test(x)?[0.63,0.085]:(/mid/.test(x)?[0.22,0.025]:(/inverse/.test(x)?[-0.45,-0.008]:[0.42,0.055]));
+    return eR([],{kind:'vol',vp:{b:vv[0],dr:vv[1]}});}
+  case 'Asset Allocation':
+    if(/lev/.test(x))return eR([['sp500',0.9],['ust10_tr',0.6]],{lv:1.5});
+    if(/risk parity/.test(x))return eR([['sp500',0.35],['ust_long_tr',0.45],['gold',0.2],['ust10_tr',0.2]],{lv:1.2});
+    return eR([['sp500',0.6],['ust10_tr',0.4]]);
+  case 'Active Equity':
+    if(/\bem\b/.test(x))return eR([['ex_ai',1.1]],{fx:1.0,sig:1.1});
+    if(/intl/.test(x))return eR(ETF_INTL,{fx:0.85});
+    if(/growth/.test(x))return eR(ETF_GRW);
+    if(/value/.test(x))return eR(ETF_VAL);
+    return eR([['sp500',1]]);
+  default: /* Other → Robotics */
+    return eR([['industrials',0.55],['tech',0.6]],{sig:1.1});
+  }
+}
+function etfDxyPath(usdk){
+  const tgt={weak:0.90,neutral:1.0,strong:1.13}[usdk]||1.0;
+  return Array.from({length:61},(_,m)=>1+(tgt-1)*Math.min(1,m/24));
+}
+function etfSeries(rec,s,dxy,erDef){
+  const er=(rec.er!=null?rec.er:erDef)/1200,dr=(rec.dr||0)/1200,lv=Math.abs(rec.lv||1);
+  const idx=[100];
+  for(let t=1;t<61;t++){
+    let r;
+    const sg=(s.vix[t]/100)/Math.sqrt(12)*(rec.sig||1);
+    if(rec.kind==='vol')r=rec.vp.b*(s.vix[t]/s.vix[t-1]-1)-rec.vp.dr;
+    else if(rec.kind==='fxc')r=rec.vp.s*(dxy[t]/dxy[t-1]-1)+rec.vp.c/12+s.fed_funds[t]/2400;
+    else{
+      let ru=0;for(const wk of rec.w)ru+=wk[1]*(s[wk[0]][t]/s[wk[0]][t-1]-1);
+      if(rec.fx)ru+=rec.fx*(dxy[t-1]/dxy[t]-1);
+      if(rec.kind==='cc')r=(ru<0?ru*rec.vp.dn:ru*rec.vp.up)+sg*rec.vp.pr;
+      else if(rec.kind==='buf')r=Math.max(-0.008,Math.min(0.0115,ru));
+      else r=ru-Math.max(0,0.5*lv*(lv-1))*sg*sg-Math.max(0,lv-1)*s.fed_funds[t]/1200;
+    }
+    /* a daily-reset fund cannot lose more than ~all of its NAV in a month */
+    idx.push(idx[t-1]*(1+Math.max(-0.95,r)-er-dr));
+  }
+  return idx;
+}
+function etfDD(a){let pk=a[0],w=0;for(const v of a){if(v>pk)pk=v;const d=(v-pk)/pk*100;if(d<w)w=d;}return w;}
+let _etfRows=null,_etfRecipes=null;
+/* The factor recipe is scenario-independent, so resolve it (and the expense-ratio
+   drag) once — only etfSeries needs to re-run when the dials move. */
+function etfRecipes(){
+  if(!_etfRecipes)_etfRecipes=ETF_UNIVERSE.map(e=>({rec:etfRecipe(e),er:ETF_ER[e.c]!=null?ETF_ER[e.c]:0.4}));
+  return _etfRecipes;
+}
+function etfRow(r,i,side){
+  return `<tr><td class="cat">${i+1}</td>
+    <td class="tk" style="color:var(--${side})">${r.e.t}</td>
+    <td class="nm">${r.e.n}<div class="cat">${r.e.c} &middot; ${r.e.s} &middot; ${r.e.i}</div></td>
+    <td class="num ${cls(r.nom)}">${sgn(r.nom)}%</td>
+    <td class="num ${cls(r.real)}" style="font-weight:700">${sgn(r.real)}%</td>
+    <td class="num neg">${r.dd.toFixed(1)}%</td></tr>`;
+}
+function renderEtfU(){
+  if(!ETF_UNIVERSE||!ETF_UNIVERSE.length)return;
+  const bb=document.getElementById('etfBestBody'); if(!bb)return;
+  const s=S(),cpi=s.cpi_index[60]/100,dxy=etfDxyPath(state.usd),recs=etfRecipes();
+  _etfRows=ETF_UNIVERSE.map((e,i)=>{
+    const idx=etfSeries(recs[i].rec,s,dxy,recs[i].er);
+    return {e:e,nom:(idx[60]/100-1)*100,real:(idx[60]/100/cpi-1)*100,dd:etfDD(idx)};
+  }).sort((a,b)=>b.real-a.real);
+  const best=_etfRows.slice(0,50),worst=_etfRows.slice(-50).reverse();
+  bb.innerHTML=best.map((r,i)=>etfRow(r,i,'green')).join('');
+  document.getElementById('etfWorstBody').innerHTML=worst.map((r,i)=>etfRow(r,i,'red')).join('');
+  const catCount=rows=>{const c={};rows.forEach(r=>{c[r.e.c]=(c[r.e.c]||0)+1;});
+    return Object.entries(c).sort((a,b)=>b[1]-a[1]).slice(0,3).map(p=>`<b>${p[0]}</b> (${p[1]})`).join(', ');};
+  document.getElementById('insEtfU').innerHTML=
+    `Across all ${_etfRows.length} funds the top 50 cluster in ${catCount(best)}; the bottom 50 in ${catCount(worst)}. `
+    +`Leveraged funds carry daily-reset volatility decay scaled by this scenario&rsquo;s VIX path, `
+    +`international funds gain or lose with the dollar dial, and covered-call income rises with volatility. `
+    +`<b>Model output, not investment advice.</b>`;
+  const tag=(meta,k)=>`<b style="color:${meta[k].ac}">${meta[k].label}</b>`;
+  document.getElementById('etfScenLine').innerHTML=
+    `Scenario: ${tag(SEV_META,state.sev)} &middot; ${tag(INF_META,state.inf)} &middot; ${tag(FED_META,state.fed)} `
+    +`&middot; ${tag(GDP_META,state.gdp)} &middot; ${tag(TAR_META,state.tar)} &middot; ${tag(GEO_META,state.geo)} `
+    +`&middot; ${tag(JGB_META,state.jgb)} &middot; ${tag(FIS_META,state.fis)} &middot; ${tag(USD_META,state.usd)} &middot; ${tag(ROBO_META,state.rob)}`;
 }
 
 function renderCmp(){
@@ -1288,7 +1724,7 @@ function renderInsights(){
   let btcIns=`<b>Bitcoin</b> returns <b>${sgn(btc.r5)}%</b> nominal (${sgn(btc.r5real)}% real) with a <b>${sgn(btc.dd)}%</b> drawdown. `;
   if(state.usd==='weak') btcIns+=`A <b>weak dollar</b> is rocket fuel for Bitcoin — it's the purest dollar-debasement trade. 2020-21 analog: +1000%.`;
   else if(state.usd==='strong') btcIns+=`A <b>strong dollar</b> crushes Bitcoin — global liquidity tightens and risk assets sell off. 2022 analog: -65%.`;
-  else btcIns+=`A neutral dollar leaves Bitcoin to trade on its equity beta (~2.2x the S&P).`;
+  else btcIns+=`A neutral dollar leaves Bitcoin to trade on its equity beta (~1.6x the S&P).`;
   if(state.fis==='stimulus') btcIns+=` Fiscal stimulus adds liquidity and boosts the BTC bid.`;
   else if(state.fis==='austerity') btcIns+=` Fiscal austerity drains liquidity.`;
   document.getElementById('insBTC').innerHTML=btcIns;
@@ -1298,7 +1734,7 @@ function renderInsights(){
   else if(state.usd==='weak'){coB.style.borderColor='#3fb950';
     coB.innerHTML=`<b>The trade:</b> weak dollar + stimulus = <b>Bitcoin is the highest-beta play</b>. It outperforms equities, gold and commodities in a liquidity flood. But it also crashes hardest if the regime flips.`;}
   else{coB.style.borderColor='#8b96a8';
-    coB.innerHTML=`<b>The trade:</b> neutral dollar = Bitcoin tracks its equity beta (~2.2x). It amplifies the bust in either direction. Only for those with high risk tolerance and a multi-year horizon.`;}
+    coB.innerHTML=`<b>The trade:</b> neutral dollar = Bitcoin tracks its equity beta (~1.6x). It amplifies the bust in either direction. Only for those with high risk tolerance and a multi-year horizon.`;}
   /* rank */
   document.getElementById('insRank').innerHTML=
     (inf==='high'
@@ -1412,12 +1848,19 @@ document.getElementById('finderMetric').innerHTML=
 document.getElementById('finderMetric').onchange=renderFinder;
 
 /* ===== orchestration ===== */
+function showTab(t){
+  document.getElementById('tabSim').style.display=t==='sim'?'':'none';
+  document.getElementById('tabEtf').style.display=t==='etf'?'':'none';
+  document.getElementById('mtSim').classList.toggle('on',t==='sim');
+  document.getElementById('mtEtf').classList.toggle('on',t==='etf');
+  window.scrollTo(0,0);
+}
 function applyScenario(){
   _cachedScen=null;
   document.querySelectorAll('.scen-btn').forEach(b=>
     b.classList.toggle('on', b.dataset.k===state[b.dataset.ax]));
   markActivePreset();
-  renderScenLine();renderReco();renderCards();renderInsights();renderCmp();renderRank();
+  renderScenLine();renderReco();renderEtfU();renderCards();renderInsights();renderCmp();renderRank();
   syncCharts();renderSnap();renderPhases();renderHeat();renderCommodMoves();renderBondMoves();
   renderREITMoves();renderBTCMoves();
   renderFinder();

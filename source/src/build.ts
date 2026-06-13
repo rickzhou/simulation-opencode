@@ -63,8 +63,11 @@ if (existsSync(csPath)) {
 
 console.log('[3/3] injecting data into dashboard_template.html ...');
 const data = readFileSync(SIM_DATA, 'utf8');
+const etfPath = join(SRC, 'etf_universe.json');
+const etfData = existsSync(etfPath) ? readFileSync(etfPath, 'utf8') : '[]';
 const tpl = readFileSync(join(SRC, 'dashboard_template.html'), 'utf8');
 let html = tpl.replace('/*__SIM_DATA__*/', () => data);
 html = html.replace('/*__CURRENT_SITUATION__*/', () => newsData);
+html = html.replace('/*__ETF_UNIVERSE__*/', () => etfData);
 writeFileSync(OUT, html);
 console.log(`written: ${OUT}  (${(html.length / 1024 / 1024).toFixed(2)} MB)`);

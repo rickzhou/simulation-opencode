@@ -728,7 +728,13 @@ function build(sevk: string, infk: string, fedk: string, gdpk: string, tark: str
   s.ust30_tr = deriveTr(s.ust30_yield, 19.0);
   s.ust_edv_tr = deriveTr(s.ust10_yield, 24.0);
   s.agg_tr = deriveTr(s.ust10_yield, 6.0);
-  const realy = range61.map((m) => s.ust10_yield[m] - s.cpi[m]);
+  // TIPS price off the real yield measured against EXPECTED (breakeven) inflation, which
+  // stays anchored near ~2.3% even when spot CPI spikes — NOT against spot CPI. Using spot
+  // CPI made TIPS rally in inflation shocks (model showed +29% in a 2022-style shock) when
+  // real-world TIPS actually FELL (~-12% in 2022) as real yields rose. Principal still
+  // accretes by realized CPI (the cpi[t] carry term below); only the duration driver changes.
+  const infl_exp = range61.map((m) => 2.3 + 0.10 * (s.cpi[m] - 2.3));
+  const realy = range61.map((m) => s.ust10_yield[m] - infl_exp[m]);
   const tips = [100.0];
   for (let t = 1; t < 61; t++) {
     tips.push(tips[tips.length - 1] * (1.0 + realy[t - 1] / 1200.0 + s.cpi[t] / 1200.0 - 6.5 * (realy[t] - realy[t - 1]) / 100.0));
@@ -769,23 +775,34 @@ function build(sevk: string, infk: string, fedk: string, gdpk: string, tark: str
   s.silver = cc('silver', silvr, halfg, tilt, tt.silver, tgg.silver, tjg.silver, tfi.silver, tus.silver);
   s.agriculture = cc('agriculture', agr, tilt, tt.agriculture, tgg.agriculture, tjg.agriculture, tfi.agriculture, tus.agriculture);
 
+  // Energy equities carry a direct oil-price beta ON TOP of their broad-market beta:
+  // when crude spikes (a 2022-style energy shock) energy stocks rise even as the market
+  // falls (XLE +64% in 2022). The generic sector path misses this — overlay an oil
+  // sensitivity. Does not feed the S&P (which is ai_complex + ex_ai only), so the index
+  // is unaffected; this only re-prices the energy sector and the energy-tracking ETFs.
+  const ENERGY_OIL_BETA = 0.6;
+  s.energy = range61.map((m) => s.energy[m] * (1.0 + ENERGY_OIL_BETA * (s.wti[m] / s.wti[0] - 1.0)));
+
   s.vix = ser(sv.vix).map((v) => Math.min(95, Math.max(9, v * inf.vix_mult * gd.vix_mult * tr.vix_mult * ge.vix_mult * jg.vix_mult * fi.vix_mult * us.vix_mult)));
 
   // --- REITs (Commercial & Residential) ---
-  const reit_base_eq = eqm;
-  // Reduced from 8.5/5.5 — REITs reprice to higher cap rates within 1-2yrs and then
-  // recover income. The equity multiplier (reit_base_eq) already captures much of the
-  // rate-driven selloff, so this explicit duration term is kept modest to avoid double
-  // counting; the original values produced ~-60% drawdowns vs the 2022 peak of ~25-30%.
-  const comm_reit_rate_sens = 4.0;
-  const res_reit_rate_sens = 2.5;
+  // REITs are listed-equity real estate: they track the real-estate equity SECTOR (which
+  // already carries the bust-and-recovery shape plus the macro equity multiplier, so they
+  // crash AND recover like stocks rather than grinding down forever) and add a MODEST extra
+  // interest-rate duration sensitivity on top. Commercial (office/retail/data-center) is
+  // more rate- and cycle-sensitive than residential (apartments/SFR, with a housing-shortage
+  // floor). Anchoring to the sector (was a flat 100*eqm base that never recovered) keeps the
+  // 2022 analog near the realized VNQ ~-25% rather than the prior ~-47% it bottomed at in yr5.
+  const reit_base = s.realestate;
+  const comm_reit_rate_sens = 1.5;
+  const res_reit_rate_sens = 0.8;
   const y10_chg = range61.map((m) => s.ust10_yield[m] - s.ust10_yield[0]);
   const comm_reit_rate = range61.map((m) => -comm_reit_rate_sens * y10_chg[m] / 100.0);
   const res_reit_rate = range61.map((m) => -res_reit_rate_sens * y10_chg[m] / 100.0);
   const comm_reit_tilt = range61.map((m) => (1.0 + fi.reit_tilt.comm_reit * tilt_ramp[m]) * (1.0 + us.reit_tilt.comm_reit * tilt_ramp[m]));
   const res_reit_tilt = range61.map((m) => (1.0 + fi.reit_tilt.res_reit * tilt_ramp[m]) * (1.0 + us.reit_tilt.res_reit * tilt_ramp[m]));
-  s.comm_reit = range61.map((m) => 100.0 * (1.0 + comm_reit_rate[m]) * reit_base_eq[m] * comm_reit_tilt[m]);
-  s.res_reit = range61.map((m) => 100.0 * (1.0 + res_reit_rate[m]) * reit_base_eq[m] * res_reit_tilt[m]);
+  s.comm_reit = range61.map((m) => reit_base[m] * (1.0 + comm_reit_rate[m]) * comm_reit_tilt[m]);
+  s.res_reit = range61.map((m) => reit_base[m] * (1.0 + res_reit_rate[m]) * res_reit_tilt[m]);
 
   // --- Bitcoin ---
   // Reduced from 2.2 to 1.6 — 2022 data showed BTC fell ~65-75% while S&P fell ~20-25%,
@@ -885,8 +902,8 @@ const PRESETS = [
     dials: { sev: 'base', inf: 'sticky', fed: 'cut', gdp: 'recession', tar: 'deescalate', geo: 'stable', jgb: 'crisis', fis: 'neutral', usd: 'strong', rob: 'low' },
     desc: 'The Bank of Japan loses control of its bond market right as the AI bubble cracks. A disorderly JGB selloff triggers a violent unwind of the yen-carry trade; Japanese capital floods home, dumping US Treasuries. The US 10-year spikes more than 1pp ON TOP of the Fed path — so even with the Fed cutting, the long bond does NOT rescue the portfolio. Carry-funded tech is hit hardest and the VIX spikes.' },
   { id: 'rateshock2022', name: '2022 Rate Shock', tag: 'Fed hikes + strong dollar', color: '#f85149',
-    dials: { sev: 'mild', inf: 'high', fed: 'hike', gdp: 'soft', tar: 'escalate', geo: 'tension', jgb: 'normalization', fis: 'austerity', usd: 'strong', rob: 'low' },
-    desc: 'The 2022 analog: the Fed hikes aggressively into sticky inflation while the dollar surges. TLT lost -31% in 2022, REITs -25%, Bitcoin -65%. Commodities held (inflation hedge), but duration assets were crushed. Validates the model against the worst bond year in history.' },
+    dials: { sev: 'mild', inf: 'high', fed: 'hike', gdp: 'soft', tar: 'deescalate', geo: 'stable', jgb: 'anchored', fis: 'neutral', usd: 'strong', rob: 'low' },
+    desc: 'The 2022 analog: the Fed hikes aggressively into high inflation while the dollar surges, with growth slowing but no recession. TLT lost -31% in 2022, REITs -25%, Bitcoin -65%; commodities held (inflation hedge) but duration assets were crushed. Dials kept faithful to 2022 (no tariff war, BoJ still anchored, fiscal neutral) so it validates the model against the worst bond year in history.' },
   { id: 'autoShock', name: 'Automation Shock', tag: 'Robots, deflation & job displacement', color: '#2dd4bf',
     dials: { sev: 'mild', inf: 'down', fed: 'cut', gdp: 'soft', tar: 'truce', geo: 'stable', jgb: 'anchored', fis: 'stimulus', usd: 'neutral', rob: 'surge' },
     desc: 'A robotics and drone investment boom deflates goods prices, boosts productivity and triggers labor displacement across manufacturing and logistics. The Fed cuts into falling CPI; a trade truce and fiscal stimulus cushion the employment shock. Industrials, tech and copper win big; discretionary faces structural headwinds.' },

@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-06-10T20:05:48.845Z",
+  "timestamp": "2026-06-13T19:51:22.592Z",
   "method": "nli-zero-shot+finbert",
   "dials": {
     "sev": "mild",
@@ -15,15 +15,15 @@
   },
   "confidence": {
     "sev": {
-      "melt": 0,
-      "mild": 4.806265501705106,
+      "melt": 1.1593957215276212,
+      "mild": 2.8055263519041613,
       "base": 0,
       "severe": 0
     },
     "inf": {
-      "down": 0.9200909994942266,
+      "down": 0,
       "sticky": 0,
-      "high": 5.856483818741308
+      "high": 2.5172685787815112
     },
     "fed": {
       "cut": 0,
@@ -36,14 +36,14 @@
       "hard": 0
     },
     "tar": {
-      "truce": 0,
+      "truce": 0.7425153191902957,
       "deescalate": 0,
       "escalate": 0
     },
     "geo": {
-      "stable": 0,
-      "tension": 4.98,
-      "conflict": 0
+      "stable": 0.8200495147473768,
+      "tension": 2.04,
+      "conflict": 0.9396569700598273
     },
     "jgb": {
       "anchored": 0,
@@ -73,8 +73,8 @@
     {
       "id": "ai_capex",
       "label": "AI capex cycle",
-      "score": 0,
-      "direction": "neutral",
+      "score": 1.93,
+      "direction": "bullish",
       "affects": "Severity",
       "note": "Hyperscaler / data-center spending momentum — melt-up vs bust driver"
     },
@@ -89,7 +89,7 @@
     {
       "id": "energy_shock",
       "label": "Energy shock",
-      "score": 7.99,
+      "score": 1.64,
       "direction": "bearish",
       "affects": "Inflation + Geopolitics",
       "note": "Oil/gas price spikes, supply disruptions — inflation impulse and tension symptom"
@@ -97,114 +97,114 @@
   ],
   "evidence": {
     "sev": {
-      "title": "Intuit's Stock Price Plunge Represents a Golden Buying Opportunity",
-      "score": 0.99
+      "title": "Planet Labs Stock Plunged Following Its Recent Earnings Call. Should Investors Buy the Dip?",
+      "score": 0.97
     },
     "inf": {
-      "title": "Energy Prices Drive U.S. Inflation To Three-Year High",
-      "score": 0.96
+      "title": "Social Security’s COLA could be 4.7% in 2027 as inflation hits the highest level in 3 years",
+      "score": 0.97
     },
     "geo": {
-      "title": "Trump pledges more Iran strikes, saying U.S. will be 'attacking them very hard'",
-      "score": 0.95
+      "title": "Russia, China, and Iran Are Joining Forces Against Western Pressure",
+      "score": 0.78
     }
   },
   "sentiment": {
-    "avg_finbert": 0.032,
-    "positive_keywords": 56,
-    "negative_keywords": 44,
+    "avg_finbert": 0.041,
+    "positive_keywords": 42,
+    "negative_keywords": 34,
     "overall": "mixed"
   },
   "key_metrics": [
-    "NBT Bancorp director John H. Watt Jr. sells $995,750 in stock",
-    " My top 3 fitness smartwatches, including Garmin, Fitbit, and Apple, are up to $100 off",
-    "Dow drops more than 900 points as chip sell-off worsens, Trump threatens more Iran attacks: Live updates",
-    "My plumber charged $160 to fix the cistern on my toilet — but created another problem. Do I pay again?",
-    "Johnson & Johnson bets $1 billion on hard-to-treat cancer",
-    "Social Security is facing a 22% cliff — 4 ways to build an income stream Washington can’t touch",
-    "The 4.2% inflation rate is a bummer, but the worst might be over",
-    "Target's $367 million grocery bet to save shoppers big money"
+    "Bitcoin stalls at $64,400 resistance in bearish setup: Live levels",
+    "Bitcoin rebounds above $64,000 as Iran optimism boosts risk appetite",
+    "Cathie Wood sells $16.2 million of tumbling megacap stock",
+    "AeroVironment (AVAV) Invests $15M to Expand Advanced Production in Ohio",
+    "BitMine Immersion (BMNR) Reports $9.6B Crypto and Cash Holdings, Led by Ethereum Treasury",
+    "$35B AI Infrastructure Platform Plan Affirms Broadcom Inc. (AVGO) As a Promising Growth Stock to Buy",
+    "Amazon.com, Inc. (AMZN) Pursues Canadian Bond to Finance $200B AI Data Center Investment Spree",
+    "Down 50% Over the Past Year, Is There Anything Adobe Can Do to Rebound?"
   ],
   "headlines": [
     {
-      "title": "Dow drops more than 900 points as chip sell-off worsens, Trump threatens more Iran attacks: Live updates",
+      "title": "Trump names James McDonald as US attorney for Manhattan",
+      "source": "Investing.com"
+    },
+    {
+      "title": "Bitcoin stalls at $64,400 resistance in bearish setup: Live levels",
+      "source": "Investing.com"
+    },
+    {
+      "title": "Cathie Wood sells $16.2 million of tumbling megacap stock",
+      "source": "TheStreet"
+    },
+    {
+      "title": "Trump says peace deal will be signed Sunday after Iran said it remains cautious on timing",
       "source": "CNBC Top News"
     },
     {
-      "title": "Trump pledges more Iran strikes, saying U.S. will be 'attacking them very hard'",
+      "title": "Stantec (STN), Jacobs (J) Win Melbourne Water Infrastructure Program Contract",
+      "source": "Yahoo Finance"
+    },
+    {
+      "title": "AECOM (ACM) Secures US DHS Nationwide Infrastructure Modernization Contract",
+      "source": "Yahoo Finance"
+    },
+    {
+      "title": "Trump's name is gone from the Kennedy Center's facade, according to a top official at the arts venue",
       "source": "CNBC Top News"
     },
     {
-      "title": "Trump keeps saying an Iran deal is close. Markets keep believing it",
-      "source": "CNBC Top News"
+      "title": "Down 50% Over the Past Year, Is There Anything Adobe Can Do to Rebound?",
+      "source": "Motley Fool"
     },
     {
-      "title": "Trump says 'I love the inflation' after consumer price index hits 3-year high",
-      "source": "CNBC Top News"
+      "title": "Huge News for GM Stock, Tesla Stock, and Ford Stock Investors",
+      "source": "Motley Fool"
     },
     {
-      "title": "These stocks pay attractive dividends and offer 'turmoil insurance'",
-      "source": "CNBC Top News"
+      "title": "Major designer home décor supplier files Chapter 11 bankruptcy",
+      "source": "TheStreet"
     },
     {
-      "title": "Wall Street needs a crash course in the token economy ahead of AI IPOs. SpaceX offers a preview",
-      "source": "CNBC Top News"
+      "title": "Key deals this week: GSK, Incyte, Ingredion, OpenAI, and more",
+      "source": "Seeking Alpha"
     },
     {
-      "title": "Trump says U.S. secretly moved more than 100 million barrels of oil through Strait of Hormuz",
-      "source": "CNBC Top News"
+      "title": "Social Security is facing a 22% cliff — 4 ways to build an income stream Washington can’t touch",
+      "source": "MarketWatch Top"
     },
     {
-      "title": "Unique SpaceX IPO is hedging challenge for Wall Street: 'What are you going to do, short NASA?'",
-      "source": "CNBC Top News"
+      "title": "Worried about a lower Social Security benefit? How to calculate the exact impact it will have on your retirement.",
+      "source": "MarketWatch Top"
     },
     {
-      "title": "Volatility surge has trader eyeing one 'stable' stock",
-      "source": "CNBC Top News"
+      "title": "CLO ETFs Boom on Higher Rates, Private Debt Woes",
+      "source": "Bloomberg Markets"
     },
     {
-      "title": "As gold's tumble continues, traders bet the pain may last for two more years",
-      "source": "CNBC Top News"
+      "title": "The Promise and Peril of Jamaica’s Offshore Oil Ambitions",
+      "source": "Oil Price"
     },
     {
-      "title": "College sticker prices top $100,000 at 16 schools — but many students pay significantly less",
-      "source": "CNBC Top News"
+      "title": "Trump says Strait of Hormuz will be “open to all” after Iran deal “tomorrow”",
+      "source": "Seeking Alpha"
     },
     {
-      "title": "World Cup travel boost hasn't materialized for U.S. businesses — yet",
-      "source": "CNBC Top News"
+      "title": "Bloomberg This Weekend 6/13/2026",
+      "source": "Bloomberg Markets"
     },
     {
-      "title": "Commercial real estate saw record lending competition in April, according to JLL",
-      "source": "CNBC Top News"
+      "title": "Former NIH Head Secretly Helped With Paper Dismissing Theory COVID-19 Came From Lab",
+      "source": "ZeroHedge"
     },
     {
-      "title": "An unusual derivative play off SpaceX’s IPO success: A maker of space gases",
-      "source": "CNBC Top News"
+      "title": "UK Sets January 2027 Deadline for Ban on Fuel Made From Russian Crude",
+      "source": "Oil Price"
     },
     {
-      "title": "Sen. Warren calls on SEC to delay SpaceX IPO, flagging concerns about valuation and governance",
-      "source": "CNBC Top News"
-    },
-    {
-      "title": "Google and Meta denied new trial in youth social media addiction case",
-      "source": "CNBC Top News"
-    },
-    {
-      "title": "Trump signs $70 billion immigration funding bill after months of delay",
-      "source": "CNBC Top News"
-    },
-    {
-      "title": "Here's the inflation breakdown for May 2026 — in one chart",
-      "source": "CNBC Top News"
-    },
-    {
-      "title": "Company that bet big on Trump-backed crypto says its fortunes have improved",
-      "source": "CNBC Top News"
-    },
-    {
-      "title": "Amazon trucking expansion sparks freight stock sell-off",
-      "source": "CNBC Top News"
+      "title": "\"Swift And Lethal\": U.S. Southern Command Eliminates Tren De Aragua Kingpin In Venezuela",
+      "source": "ZeroHedge"
     }
   ],
   "sources": {
@@ -234,6 +234,6 @@
       "Benzinga"
     ],
     "failed": [],
-    "total_articles": 469
+    "total_articles": 463
   }
 }
